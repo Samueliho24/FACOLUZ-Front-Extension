@@ -1,0 +1,51 @@
+{
+  "name": "Control-de-usuarios-FACOLUZ",
+  "productName": "Control-de-usuarios-FACOLUZ",
+  "version": "1.0.0",
+  "description": "Modulo de control de usuarios del sistema de gestion de clinicas FACOLUZ",
+  "main": ".vite/build/main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\"",
+    "compile32": "npm run make -- --platform win32 --arch ia32",
+    "compile64": "npm run make -- --platform win32 --arch x64",
+    "compiledeb": "npm run make -- --platform linux"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.6.0",
+    "@electron-forge/maker-deb": "^7.6.0",
+    "@electron-forge/maker-rpm": "^7.6.0",
+    "@electron-forge/maker-squirrel": "^7.6.0",
+    "@electron-forge/maker-zip": "^7.6.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.6.0",
+    "@electron-forge/plugin-fuses": "^7.6.0",
+    "@electron-forge/plugin-vite": "^7.6.0",
+    "@electron/fuses": "^1.8.0",
+    "electron": "33.2.1",
+    "sass-embedded": "^1.93.2",
+    "vite": "^5.4.11"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Samuel David Chourio",
+    "email": "chourio.samuel.24@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "Jesus David Lozano",
+      "email": "jesusdavidlozanomarin@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "antd": "^5.26.5",
+    "axios": "^1.7.9",
+    "electron-squirrel-startup": "^1.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.0.2"
+  }
+}

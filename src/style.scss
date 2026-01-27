@@ -1,0 +1,491 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+:root{
+	--bgColor: #f2f7f2;
+	--moduleColor: #dadae8;
+	--FACO: #660099;
+	--listItemColor: #022C53;
+	--moduleRadius: 15px;
+	--modulepPadding: 20px;
+}
+
+@mixin pageBasis{
+	background-color: var(--moduleColor);
+	margin: 20px;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	width: calc(93vw - 40px);
+	height: calc(100vh - 80px);
+	border-radius: var(--moduleRadius);
+	align-self: center;
+	justify-self: center;
+	align-items: center;
+	overflow-y: hidden;
+	overflow-x: hidden;
+
+	
+	.PageTitle{
+		background-color: var(--FACO);
+		width: 100%;
+		height: 10%;
+		margin: 0;
+		border-radius: var(--moduleRadius);
+		color: white;
+		box-shadow: 0px 4px 4px rgba(0, 0, 0, .5);
+	}
+
+	.Content{
+		width: 100%;
+		height: 85%;
+		scrollbar-width: none;
+	}
+
+	.EmptyFooter{
+		background-color: var(--FACO);
+		border-radius: var(--moduleRadius);
+		width: 100%;
+		height: 30px;
+		box-shadow: 0px -3px 4px rgba(0, 0, 0, .5);
+	}
+}
+
+.Root{
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+body{
+	margin: 0px;
+	background-color: var(--bgColor);
+	color: black;
+	font-family: "Poppins", sans-serif;
+	width: 100vw;
+	height: 100vh;
+}
+
+.LatPanel{
+	background-color: var(--bgColor);	
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: calc(7vw - 40px);
+	height: calc(100vh - 40px);
+	padding: 0 10px;	
+	margin: 20px 0px 20px 20px;
+	border-radius: var(--moduleRadius);
+	transition: all ease .4s;
+
+	&:hover{
+		width: calc(18vw - 40px);
+		height: calc(100vh - 40px);
+	}
+
+	&:hover .invisible{
+		display: block;
+	}
+
+	.invisible{
+		display: none;
+		transition: all ease .4s;
+	}
+
+	&:hover .Button{
+		width: 90%;
+	}
+
+	&:hover .Page{
+		width: calc(82vw - 40px);
+	}
+
+	&:hover .luzLogo{
+		transform: scale(.3);
+	}
+
+	&:hover .facoLogo{
+		transform: scale(.8);
+		top: 0;
+	}
+
+	&:hover .info{
+		position: relative;
+		right: 5%;
+	}
+
+	Button{
+		background-color: #d9d9d9;
+		color: black;
+		border-radius: 5px;
+		margin: 1vh;
+		width: 90%;
+		justify-content: left;
+		width: 50px;
+		transition: all ease .4s;
+	}
+	
+	
+	.info{
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 3px;
+		justify-content: space-evenly;
+		height: calc(15% - ((15px / 2)/2));
+
+		.luzLogo{
+			width: 80%;
+			transition: all ease .4s;
+
+		}
+
+		h1{
+			font-size: 20px;
+			position: relative;
+			right: 25%;
+		}
+	}
+	
+	.buttons{
+		height: calc(68% - ((15px / 2)/2));
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.facoLogo{
+		width: 120%;
+		transition: all ease .4s;
+		position: relative;
+		top: 10%;
+	}
+}
+
+.CustomDivider{
+	background-color: black;
+	width: 100%;
+	height: 1px;
+}
+
+.ErrorPage{
+	background-color: tomato;
+	width: 100vw;
+	height: 100vh;
+	margin: 0px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+
+	h3{
+		margin: 0px;
+		transition: all .3s;
+		&:hover{
+			cursor: pointer;
+			transform: scale(1.1);
+			text-shadow: var(--shadow);
+		}
+	}
+}
+
+.Pagination{
+	border-radius: var(--moduleRadius);
+	display: flex;
+	align-items: center;
+	justify-content: end;
+	gap: 20px;
+	padding: 0px 20px 0px 0px;
+	color: black;
+	width: calc(100% - 20px);
+}
+
+.Login{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100vw;
+	height: 100vh;
+	// background-color: white;
+	background-image: url(./assets/fondo.png);
+	background-size: cover;
+
+	.loginForm{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: start;
+		background-color: var(--FACO);
+		color: white;
+		border-radius: var(--moduleRadius);
+		padding: var(--modulepPadding);
+		width: 35vw;
+		height: 55vh;
+
+		h2{margin: 0 10px 10px 10px;}
+		h1{margin: 0 10px 20px 10px}
+
+		.logos{
+			display: flex;
+			align-items: center;
+			gap: 35px;
+
+			img{width: 90px;}
+
+			.logofaco{
+				background-color: white;
+				width: 150px;
+				border-radius: 5px;
+			}
+		}
+	}
+}
+
+.HomePage{
+	background-image: url(./assets/fondo.png);
+	background-size: cover;
+	// padding: 20px;
+	// height: calc(100% - 40px);
+	// width: calc(100% - 40px);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	@include pageBasis;
+	color: black;
+	padding: 20px 0;
+	scrollbar-width: none;
+
+	.BackgroundPage{
+		background-color: rgba(255, 255, 255, .5);
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	h3{
+		width: 40%;
+	}
+
+	h1{
+		font-size: 50px;
+		margin: 0px
+	}
+
+	h4{
+		color: black;
+		position: absolute;
+		bottom: 1vh;
+	}
+}
+
+.BackGround{
+	background-color: var(--bgColor);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	h3{
+		width: 40%;
+	}
+
+	h1{
+		font-size: 50px;
+		margin: 0px
+	}
+}
+.EmitirFactura{
+	scrollbar-width: none;
+	@include pageBasis;
+
+	.listContainer{
+		// background-color: var(--moduleColor);
+		padding: var(--modulepPadding);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 10px;
+		margin: 10px;
+		border-radius: var(--moduleRadius);
+		width: 95%;
+		overflow-y: scroll;
+
+		.row{
+			width: 50%;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 3px;
+
+			.rowItem{
+				width: 50%;
+			}
+		}
+	}
+}
+
+.VerificarFactura{
+	scrollbar-width: none;
+	@include pageBasis;
+
+	.searchBar{
+		// background-color: var(--moduleColor);
+		border-radius: var(--moduleRadius);
+		padding: var(--modulepPadding);
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		width: 95%;
+	}
+
+	.listContainer{
+		// background-color: var(--moduleColor);
+		padding: var(--modulepPadding);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 10px;
+		margin: 10px;
+		border-radius: var(--moduleRadius);
+		width: 95%;
+		overflow-y: scroll;
+
+		.shortList{
+			background-color: white;
+			width: 75%;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+		}
+
+		.mainList{
+			background-color: white;
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			overflow-y: scroll;
+			scrollbar-width: none;
+
+			.listItem{
+				// background-color: var(--listItemColor);
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				align-self: center;
+				margin: 0;
+				padding: 0 15px 0 15px;
+				// width: 90%;
+				// border-radius: var(--moduleRadius);
+				// padding: 10px 20px;
+
+				.buttons{
+					display: flex;
+					gap: 10px;
+				}
+			}
+		}
+	}
+}
+.Configuracion{
+	@include pageBasis;
+
+	scrollbar-width: none;
+	@include pageBasis;
+
+	.listContainer{
+		// background-color: var(--moduleColor);
+		padding: var(--modulepPadding);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 10px;
+		margin: 10px;
+		border-radius: var(--moduleRadius);
+		width: 95%;
+		overflow-y: scroll;
+
+		.row{
+			width: 50%;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 3px;
+
+			.rowItem{
+				width: 60%;
+			}
+		}
+	}
+}
+.ConsultarRegistros{
+	@include pageBasis;
+	.searchBar{
+		// background-color: var(--moduleColor);
+		border-radius: var(--moduleRadius);
+		padding: var(--modulepPadding);
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		width: 95%;
+	}
+	.generateReport{
+		display: block;
+		align-items: right;
+		margin: 10px;
+		width: 100px
+	}	
+	.listContainer{
+		// background-color: var(--moduleColor);
+		padding: var(--modulepPadding);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 10px;
+		margin: 10px;
+		border-radius: var(--moduleRadius);
+		width: 95%;
+		overflow-y: scroll;
+
+		.shortList{
+			background-color: white;
+			width: 75%;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+		}
+
+		
+
+		.mainList{
+			background-color: white;
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			overflow-y: scroll;
+			scrollbar-width: none;
+
+			.listItem{
+				// background-color: var(--listItemColor);
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				align-self: center;
+				margin: 0;
+				padding: 0 15px 0 15px;
+				// width: 90%;
+				// border-radius: var(--moduleRadius);
+				// padding: 10px 20px;
+
+				.buttons{
+					display: flex;
+					gap: 10px;
+				}
+			}
+		}
+	}
+}
