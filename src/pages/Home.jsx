@@ -19,11 +19,10 @@ const Home = () => {
 	return(
 		<div className='HomePage'>
 			<div className='BackgroundPage'>
-				<h1>Bienvenido al modulo de administracion</h1>
+				<h1>Bienvenido al Sistema de Gestion de Inscripciones Extension</h1>
 				<h3>
-					En este modulo podra gestionar y emitir facturas a los pacientes de 
-					de las clinicas odontologicas de la facultad para distintas areas las
-					cuales son necesarias para agendar una cita correctamente.
+				Este sistema permite gestionar las inscripciones de los estudiantes de 
+				extension de la Facultad de Odontologia de la Universidad del Zulia.
 				</h3>
 				<h3>Para empezar seleccione una opcion del menu en la barra de navegacion</h3>
 			</div>

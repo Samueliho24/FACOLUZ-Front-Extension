@@ -24,7 +24,16 @@ const LatPanel = () => {
                 <Button className='Button' size={'large'} onClick={()=>{setView('Home')}} variant='solid' icon={<HomeOutlined />}> <p className='invisible'>Inicio</p></Button> 
                 <Button className='Button' size={'large'} onClick={()=>{setView('EmitirFactura')}} variant='solid' icon={<UserOutlined />}> <p className='invisible'>Emitir factura</p></Button> 
                 <Button className='Button' size={'large'} onClick={()=>{setView('VerificarFactura')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Verificar factura</p></Button> 
-                <Button className='Button' size={'large'} onClick={()=>{setView('ConsultarRegistros')}} variant='solid' icon={<SolutionOutlined />}><p className='invisible'>Consultar registros</p></Button> 
+                <Button className='Button' size={'large'} onClick={()=>{setView('ConsultarRegistros')}} variant='solid' icon={<SolutionOutlined />}><p className='invisible'>Consultar registros</p></Button>
+
+
+
+                <Button className='Button' size={'large'} onClick={()=>{setView('Estudiantes')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Estudiantes</p></Button>
+                <Button className='Button' size={'large'} onClick={()=>{setView('Profesores')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Profesores</p></Button>
+                <Button className='Button' size={'large'} onClick={()=>{setView('Cursos')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Cursos</p></Button>
+
+
+                
                 {userData.type === 5 &&<Button className='Button' size={'large'} onClick={()=>{setView('Configuracion')}} variant='solid' icon={<SettingFilled />}><p className='invisible'>Configuracion</p></Button> }
                 <Button className='Button' size={'large'} onClick={()=>{setConfirmLogout(true)}} variant='solid' icon={<LogoutOutlined />}><p className='invisible'>Cerrar sesion</p></Button> 
             </div>

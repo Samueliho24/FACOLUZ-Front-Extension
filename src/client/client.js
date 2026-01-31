@@ -55,6 +55,44 @@ export async function getSettings(){
 	return await http.get('api/getSettings', token, null)
 }
 
+//Endpoints del proceso de inscripcion
+
+export async function registerStudents(data){
+	return await http.post('api/registerStudents', token, data)
+}
+
+export async function getStudentsById(id){
+	return await http.get(`api/getStudentsById/${id}`, token, null)
+}
+
+export async function getStudents(page){
+	return await http.get(`api/getStudents/${page}`, token, null)
+}
+
+export async function openPeriod(data){
+	return await http.post('api/openPeriod', token, data)
+}
+export async function closePeriod(data){
+	return await http.post('api/closePeriod', token, data)
+}
+
+export async function setCourses(data){
+	return await http.post('api/setCourses', token, data)
+}
+
+export async function setModules(data){
+	return await http.post('api/setModules', token, data)
+}
+
+export async function registerStudentsEnrollment(data){
+	return await http.post('api/registerStudentsEnrollment', token, data)
+}
+
+export async function updateEnrollmentState(data){
+	return await http.patch('api/updateEnrollmentState', token, data)
+}
+
+
 
 
 // export async function getSearchedUsers(text, page){

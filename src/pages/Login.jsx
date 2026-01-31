@@ -50,7 +50,7 @@ const Login = () => {
 					<img src={logoluz} className='logoluz'/>
 					<img src={logofaco} className='logofaco'/>
 				</div>
-				<h1>Modulo administrativo</h1>
+				<h1>Sistema de Gestion de Extension</h1>
 				<h2>Iniciar sesion</h2>
 				<Form.Item name='identification'>
 					<Input placeholder='Identificacion' disabled={loading} />
