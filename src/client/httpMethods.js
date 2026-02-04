@@ -6,7 +6,7 @@ import axios from 'axios'
 
 async function init(){
 	ip = await window.env.getBackendAddress();
-	url = `${ip}:3005`
+	url = `${ip}:3006`
 }
 
 init()

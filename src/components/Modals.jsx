@@ -1,4 +1,4 @@
-import { Modal, Button, Input, InputNumber, Select, Form, Space, message } from 'antd'
+import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker } from 'antd'
 import { useState, useEffect, useContext } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
@@ -7,6 +7,7 @@ import { verifyInvoice, deleteUser, createUser, changePassword, changeUserType ,
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
+import InputPhone from "../components/InputPhone"
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -96,7 +97,7 @@ export const GenerateReportModal = ({open, onCancel}) => {
 	)
 }
 
-export const AddNewUserModal = ({open, onCancel, updateList}) => {
+export const AddNewStudent = ({open, onCancel, updateList}) => {
 
 	//Control de la UI
 	const {messageApi} = useContext(appContext)
@@ -209,10 +210,19 @@ export const AddNewUserModal = ({open, onCancel, updateList}) => {
 					<Input disabled={loading} onChange={(e) => setName(e.target.value)} placeholder='Nombre' style={{width: '50%'}}/>
 					<Input disabled={loading} onChange={(e) => setLastname(e.target.value)} placeholder='Apellido' style={{width: '50%'}}/>
 				</Space.Compact>
-				
-				<Input.Password disabled={loading} placeholder='Contraseña' onChange={(e) => setPassword(e.target.value)}/>
-				<Input.Password disabled={loading} placeholder='Confirmar contraseña' onChange={(e) => setConfirmPassword(e.target.value)}/>
-				<Select disabled={loading} onChange={(e) => setUserType(e)} placeholder='Tipo de Usuario' options={lists.userTypeList.slice(0, 5)}/>
+
+				Fecha de Nacimiento:
+				<DatePicker/>
+
+				Telefono:
+				<InputPhone />
+
+				<Input placeholder='Correo electronico'/>
+
+				<Input.TextArea placeholder='Direccion'/>
+
+				Grado de instruccion:
+				<Select options={lists.instructionGradeList}/>
 			</div>
 		</Modal>
 	)
@@ -436,6 +446,112 @@ export const ChangeUserTypeModal = ({open, onCancel, info}) => {
 				onChange={(e) => setSelectedType(e)}
 				defaultValue={info.type}
 			/>
+		</Modal>
+	)
+}
+
+export const EditCourse = ({open, onCancel, selectedCourse}) => {
+
+	const [showList, setShowList] = useState([])
+	
+	useEffect(() => {
+		
+	}, [])
+
+	return(
+		<Modal
+			open={open}
+			onCancel={onCancel}
+		>
+			<h1>Lista de Modulos</h1>
+			<div className='bar'>
+				<Select defaultValue={"Seleccione un Modulo"}/>
+				<Button>Agregar</Button>
+			</div>
+
+			{showList.length === 0 ? (
+				<h2>Este curso aun no tiene modulos</h2>
+			):(
+				<List>
+				{showList.map((item) => {
+					<List.Item>
+						<h3>{item.name}</h3>
+						<Button>Retirar modulo</Button>
+					</List.Item>
+				})}
+				</List>
+			)}
+		</Modal>
+	)
+}
+
+export const AddNewModule = ({open, onCancel}) => {
+
+	const [moduleName, setModuleName] = useState("")
+
+	const sendModule = () => {
+		console.log("subido")
+	}
+
+	return(
+		<Modal
+			open={open}
+			onCancel={onCancel}
+			title="Agregar nuevo modulo"
+		>
+			<Input
+				placeholder='Nombre del modulo'
+				onChange={e => setModuleName(e.target.value)}	
+			/>
+		</Modal>
+	)
+}
+
+export const AddNewCourse = ({open, onCancel}) => {
+
+	const [moduleName, setModuleName] = useState("")
+
+	const sendModule = () => {
+		console.log("subido")
+	}
+
+	return(
+		<Modal
+			open={open}
+			onCancel={onCancel}
+			title="Agregar nuevo curso"
+		>
+			<Input
+				placeholder='Nombre del curso'
+				onChange={e => setModuleName(e.target.value)}	
+			/>
+		</Modal>
+	)
+}
+
+export const AddStudentToModule = ({open, onCancel, info}) => {
+	return(
+		<Modal
+			open={open}
+			onCancel={onCancel}
+			title="Inscribir alumno al modulo"
+		>
+			<Input 
+				placeholder="Cedula del estudiante"
+			/>
+			<Button>Verificar estudiante</Button>
+		</Modal>
+	)
+}
+
+export const RetireStudentFromModule = ({open, onCancel, info}) => {
+	return(
+		<Modal
+			open={open}
+			onCancel={onCancel}
+			title="Retirar al alumndo del modulo?"
+		>
+			
 		</Modal>
 	)
 }
