@@ -92,6 +92,14 @@ export async function getAllModules(data){
 	return await http.get('api/module', token, data)
 }
 
+export async function assignModuleToCourse(data){
+	return await http.post('api/assignModuleToCourse', token, data)
+}
+
+export async function getAssignedModules(data){
+	return await http.post('api/getAssignedModules', token, data)
+}
+
 export async function registerStudentsEnrollment(data){
 	return await http.post('api/registerStudentsEnrollment', token, data)
 }

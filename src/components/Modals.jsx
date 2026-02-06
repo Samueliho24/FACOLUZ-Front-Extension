@@ -3,7 +3,7 @@ import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createUser, changePassword, changeUserType ,getIdUsers, createNewModule} from '../client/client'
+import { verifyInvoice, deleteUser, createUser, changePassword, changeUserType ,getIdUsers, createNewModule, getAllModules, assignModuleToCourse, getAssignedModules} from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -453,32 +453,68 @@ export const ChangeUserTypeModal = ({open, onCancel, info}) => {
 export const EditCourse = ({open, onCancel, selectedCourse}) => {
 
 	const [showList, setShowList] = useState([])
+	const [modulesList, setModulesList] = useState([])
+	const [selectedModule, setSelectedModule] = useState([])
+	
+	async function getModules(){
+		const res = await getAllModules()
+		if(res.status == 200){
+			const optionsList = res.data.map(item => ({value: item.id, label: item.description}))
+			setModulesList(optionsList)
+		}
+	}
+
+	async function assignNewModule(){
+		const data = {
+			moduleId: selectedModule,
+			courseId: selectedCourse
+		}
+		const res = await assignModuleToCourse(data)
+		if(res.status == 200){
+			getAssignedModules()
+		}
+	}
+
+	async function getModulesForCourse(){
+		const data = {
+			courseId: selectedCourse
+		}
+		const res = await getAssignedModules(data)
+		if(res.status == 200){
+			setShowList(res.data)
+		}
+	}
 	
 	useEffect(() => {
-		
-	}, [])
+		getModules()
+		getModulesForCourse()
+	}, [selectedCourse])
 
 	return(
 		<Modal
 			open={open}
 			onCancel={onCancel}
+			destroyOnHidden
 		>
 			<h1>Lista de Modulos</h1>
 			<div className='bar'>
-				<Select defaultValue={"Seleccione un Modulo"}/>
-				<Button>Agregar</Button>
+				<Select
+					defaultValue={"Seleccione un Modulo"}
+					options={modulesList}
+					onChange={e => setSelectedModule(e)}/>
+				<Button onClick={() => assignNewModule()}>Agregar</Button>
 			</div>
 
 			{showList.length === 0 ? (
 				<h2>Este curso aun no tiene modulos</h2>
 			):(
 				<List>
-				{showList.map((item) => {
+				{showList.map((item) => (
 					<List.Item>
-						<h3>{item.name}</h3>
+						<h3>{lists.searchOnList(modulesList, item.moduleid)}</h3>
 						<Button>Retirar modulo</Button>
 					</List.Item>
-				})}
+				))}
 				</List>
 			)}
 		</Modal>
