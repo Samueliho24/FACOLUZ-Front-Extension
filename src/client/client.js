@@ -61,8 +61,8 @@ export async function registerStudents(data){
 	return await http.post('api/registerStudents', token, data)
 }
 
-export async function getStudentsById(id){
-	return await http.get(`api/getStudentsById/${id}`, token, null)
+export async function getStudentById(id){
+	return await http.get(`api/getStudentById/${id}`, token, null)
 }
 
 export async function getStudents(page){
@@ -72,6 +72,15 @@ export async function getStudents(page){
 export async function openPeriod(data){
 	return await http.post('api/openPeriod', token, data)
 }
+
+export async function getCurrentPeriod(){
+	return await http.get('api/getCurrentPeriod', token, null)
+}
+
+export async function changeEndDatePeriod(data){
+	return await http.patch('api/changeEndDatePeriod', token, data)
+}
+
 export async function closePeriod(data){
 	return await http.post('api/closePeriod', token, data)
 }
@@ -88,8 +97,16 @@ export async function getAllCourses(data){
 	return await http.get('api/course', token, data)
 }
 
-export async function getAllModules(data){
-	return await http.get('api/module', token, data)
+export async function getAllModules(){
+	return await http.get('api/getAllModules', token, null)
+}
+
+export async function getSearchedModule(description){
+	return await http.get(`api/getSearchedModule/${description}`, token, null)
+}
+
+export async function getEnrolledStudentsByModule(moduleId){
+	return await http.get(`api/getEnrolledStudentsByModule/${moduleId}`, token, null)
 }
 
 export async function assignModuleToCourse(data){
@@ -100,8 +117,8 @@ export async function getAssignedModules(data){
 	return await http.post('api/getAssignedModules', token, data)
 }
 
-export async function registerStudentsEnrollment(data){
-	return await http.post('api/registerStudentsEnrollment', token, data)
+export async function registerEnrollment(data){
+	return await http.post('api/registerEnrollment', token, data)
 }
 
 export async function updateEnrollmentState(data){

@@ -15,6 +15,25 @@ export const instructionGradeList = [
     {label: 'Postgrado', value: 6},
 ]
 
+export const moduleList = [
+    {label: 'Nociones basicas de la Anatomia Dental y Oclusion', value: 1},
+    {label: 'Realaciones Humanas', value: 2},
+    {label: 'Sistema de Atencion Odontologica', value: 3},
+    {label: 'Semiologia e Historia Clinica', value: 4},
+    {label: 'Bioetica y Odontologia Legal', value: 5},
+    {label: 'Bioseguridad y Esterilizacion en Odontologia', value: 6},
+    {label: 'Practica Profesional I', value: 7},
+    {label: 'Asistencia de Procedimientos Clincos Odontologicos', value: 8},
+    {label: 'Biomateriales Odontologicos', value: 9},
+    {label: 'Nociones Basicas en Radiologia e Imagenologia Odontologica', value: 10},
+    {label: 'Epidemiologia y Sistema de informacion', value: 11},
+    {label: 'Ingles Intrumental', value: 12},
+    {label: 'Educacion y Promocion de la Salud Bucal', value: 13},
+    {label: 'Fotografia Clinica y Marketing en Odontologia', value: 14},
+    {label: 'Practica Profesional II', value: 15},
+    {label: 'Servicios Comunitario', value: 16},
+]
+
 export const bloodTypeList = [
     {label: 'A+', value: 0},
     {label: 'O+', value: 1},

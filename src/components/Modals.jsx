@@ -3,7 +3,7 @@ import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createUser, changePassword, changeUserType ,getIdUsers, createNewModule, getAllModules, assignModuleToCourse, getAssignedModules} from '../client/client'
+import { verifyInvoice, deleteUser, createUser, changePassword, changeUserType ,openPeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, assignModuleToCourse, getAssignedModules} from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -585,3 +585,100 @@ export const RetireStudentFromModule = ({open, onCancel, info}) => {
 		</Modal>
 	)
 }
+
+export const ManagePeriodModal = ({open, period, onCancel}) => {
+
+	const [loading, setLoading] = useState(false)
+	const [year, setYear] = useState('')
+	const [periodId, setPeriodId] = useState('')
+	const [startDate, setStartDate] = useState('')
+	const [endDate, setEndDate] = useState('')
+	const {messageApi} = useContext(appContext)
+
+	const submitChangeType = async () => {
+		setLoading(true)
+		if(period){
+			const data = {
+				year: period.year,
+				periodId: period.period,
+				endDate: endDate
+			}
+			const res = await changeEndDatePeriod(data)
+			setLoading(false)
+			if(res.status == 200){
+				messageApi.open({
+					type: 'success',
+					content: 'Se ha cambiado la fecha de culminacion del periodo'
+				})
+				onCancel()	
+			}else{
+				messageApi.open({
+					type: 'error',
+					content: res.response.data
+				})
+			}
+		}else{
+			const data = {
+				year: year,
+				periodId: periodId,
+				startDate: startDate,
+				endDate: endDate
+			}
+			const res = await openPeriod(data)
+			setLoading(false)
+			if(res.status == 200){
+				messageApi.open({
+					type: 'success',
+					content: 'Periodo iniciado con exito'
+				})
+				onCancel()	
+			}else{
+				messageApi.open({
+					type: 'error',
+					content: res.response.data
+				})
+			}
+			}
+	}
+
+	
+	return(
+		<Modal
+			destroyOnClose
+			title='Gestion de periodo academico'
+			closable={false}
+			open={open}
+			footer={[
+				<Button variant='text' color='danger' onClick={() => {onCancel()}} disabled={loading}>Cancelar</Button>,
+				<Button
+					type='primary'
+					onClick={submitChangeType}
+					disabled={loading}
+				>Aceptar</Button>
+			]}
+		>
+
+			{period ? (
+				<DatePicker style={{width: '150px'}} onChange={e => setEndDate(e)}/>
+			) : (
+				<>
+				<Form>
+					<Form.Item label='Año del periodo'>
+						<DatePicker style={{width: '150px'}}  picker="year" onChange={e => setYear(e)}/>
+					</Form.Item>
+					<Form.Item label='Periodo (1 o 2)'>
+						<Select placeholder='Periodo (1 o 2)' options={[{value: 1, label: 1}, {value: 2, label: 2}]} onChange={e => setPeriodId(e)} />
+					</Form.Item>
+					<Form.Item label='Fecha de inicio del periodo'>
+						<DatePicker style={{width: '150px'}} onChange={e => setStartDate(e)}/>
+					</Form.Item>
+					<Form.Item label='Fecha de fin del periodo'>
+						<DatePicker style={{width: '150px'}} onChange={e => setEndDate(e)}/>
+					</Form.Item>
+				</Form>
+				</>
+			)}
+		</Modal>
+	)
+}
+

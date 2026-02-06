@@ -489,3 +489,181 @@ body{
 		}
 	}
 }
+.ManagePeriods{
+	@include pageBasis;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	scrollbar-width: none;
+
+	h3{color: tomato;}
+	h1, h3{width: 55%;}
+	.Content{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+}
+
+.Enrollments{
+	@include pageBasis;
+	
+	.searchBar{
+		// background-color: var(--moduleColor);
+		border-radius: var(--moduleRadius);
+		padding: var(--modulepPadding);
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		width: 95%;
+	}
+
+	.listContainer{
+		// background-color: var(--moduleColor);
+		padding: var(--modulepPadding);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 10px;
+		border-radius: var(--moduleRadius);
+		width: 95%;
+		overflow-y: scroll;
+
+		.shortList{
+			background-color: white;
+			width: 75%;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+		}
+
+		.mainList{
+			background-color: white;
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			overflow-y: scroll;
+			scrollbar-width: none;
+
+			.listItem{
+				// background-color: var(--listItemColor);
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				align-self: center;
+				margin: 0;
+				padding: 0 15px 0 15px;
+				// width: 90%;
+				// border-radius: var(--moduleRadius);
+				// padding: 10px 20px;
+
+				.buttons{
+					display: flex;
+					gap: 10px;
+				}
+			}
+		}
+	}
+}
+
+.ModuleEnrollment{
+	@include pageBasis;
+	
+	.listContainer{
+		// background-color: var(--moduleColor);
+		padding: var(--modulepPadding);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		border-radius: var(--moduleRadius);
+		width: 95%;
+		overflow-y: scroll;
+		h2{
+			padding: 0 0;
+		}
+
+		.Button{
+			border-radius: 5px;
+			margin: 1vh;
+			width: 150px;
+			justify-content: center;
+		}
+
+		.shortList{
+			background-color: white;
+			width: 75%;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+		}
+
+		.mainList{
+			background-color: white;
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			overflow-y: scroll;
+			scrollbar-width: none;
+
+			.listItem{
+				// background-color: var(--listItemColor);
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				align-self: center;
+				margin: 0;
+				padding: 0 15px 0 15px;
+				// width: 90%;
+				// border-radius: var(--moduleRadius);
+				// padding: 10px 20px;
+
+				.buttons{
+					display: flex;
+					gap: 10px;
+				}
+			}
+		}
+	}
+}
+
+.NewEnrollment{
+	@include pageBasis;
+	.searchBar{
+		// background-color: var(--moduleColor);
+		border-radius: var(--moduleRadius);
+		padding: var(--modulepPadding);
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		width: 95%;
+	}
+
+	.listContainer{
+		// background-color: var(--moduleColor);
+		padding: var(--modulepPadding);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 10px;
+		margin: 10px;
+		border-radius: var(--moduleRadius);
+		width: 95%;
+		overflow-y: scroll;
+
+		.row{
+			width: 50%;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 3px;
+
+			.rowItem{
+				width: 60%;
+			}
+		}
+	}
+}
+

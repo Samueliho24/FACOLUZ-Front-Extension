@@ -27,11 +27,12 @@ const LatPanel = () => {
                 <Button className='Button' size={'large'} onClick={()=>{setView('ConsultarRegistros')}} variant='solid' icon={<SolutionOutlined />}><p className='invisible'>Consultar registros</p></Button>
 
 
-
+                <Button className='Button' size={'large'} onClick={()=>{setView('Enrollments')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Inscripciones</p></Button>
+                <Button className='Button' size={'large'} onClick={()=>{setView('Periodos')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Periodos</p></Button>
                 <Button className='Button' size={'large'} onClick={()=>{setView('Estudiantes')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Estudiantes</p></Button>
                 <Button className='Button' size={'large'} onClick={()=>{setView('Modulos')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Modulos</p></Button>
                 <Button className='Button' size={'large'} onClick={()=>{setView('Cursos')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Cursos</p></Button>
-
+                
 
                 
                 {userData.type === 5 &&<Button className='Button' size={'large'} onClick={()=>{setView('Configuracion')}} variant='solid' icon={<SettingFilled />}><p className='invisible'>Configuracion</p></Button> }

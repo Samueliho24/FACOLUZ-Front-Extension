@@ -8,8 +8,10 @@ const ContextProvider = ({children}) => {
 	const [userData, setUserData] = useState('')
 	const [logged, setLogged] = useState(false)
 	const [prices, setPrices] = useState('')
+	const [currentModuleEnrollment, setCurrentModuleEnrollment] = useState('')
+	const [periodData, setPeriodData] = useState('')
 	const [messageApi, contextHolder] = message.useMessage()
-
+	
 	return(
 		<appContext.Provider value={{
 			userData,
@@ -18,6 +20,10 @@ const ContextProvider = ({children}) => {
 			setLogged,
 			prices,
 			setPrices,
+			currentModuleEnrollment,
+			setCurrentModuleEnrollment,
+			periodData,
+			setPeriodData,
 			messageApi,
 			contextHolder
 		}} >
