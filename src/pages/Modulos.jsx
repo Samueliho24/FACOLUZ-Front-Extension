@@ -62,6 +62,7 @@ const Students = () => {
                             <div className="info">
                                 <h3>{item.description}</h3>
                             </div>
+                            <Button>Suspender modulo</Button>
                         </List.Item>
                     ))}
                 </List>

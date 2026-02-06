@@ -7,8 +7,8 @@ export function searchFullOnList(list, id){
 }
 
 export const instructionGradeList = [
-    {label: 'Ninguno', value: 0},
-    {label: 'Prescolar', value: 1},
+    {label: 'Ninguno', value: 1},
+    {label: 'Prescolar', value: 2},
     {label: 'Primaria', value: 3},
     {label: 'Bachillerato', value: 4},
     {label: 'Universitario', value: 5},

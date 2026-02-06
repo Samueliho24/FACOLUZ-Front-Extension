@@ -147,8 +147,8 @@ export async function getIdUsers(id) {
 	return await http.get('api/getIdUsers', token, id)
 }
 
-export async function createUser(data) {
-	return await http.post('api/createUser', token, data)
+export async function createStudent(data) {
+	return await http.post('api/registerStudents', token, data)
 }
 
 export async function deleteUser(id){

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Input, Select } from 'antd'
 
-const InputPhone = ({setter}) => {
+const InputPhone = ({value, setter}) => {
 
     const phonePrefixList = (
         <Select defaultValue="0414" onChange={e=>setPhonePrefix(e)}>
@@ -16,18 +16,18 @@ const InputPhone = ({setter}) => {
 
     const [phonePrefix, setPhonePrefix] = useState('0414')
 
-    const [internValue, setInternValue] = useState('')
+    // const [internValue, setInternValue] = useState('')
     const regex = new RegExp(/^\d+$/)
 
     const validate = (e) => {
         const check = regex.test(e)
         if(check){
             setter(`${phonePrefix}${e}`)
-            setInternValue(e)
+            setter(e)
         }else{
             const corrected = e.slice(0,-1)
             setter(`${phonePrefix}${corrected}`)
-            setInternValue(corrected)
+            setter(corrected)
         }
     }
 
@@ -35,7 +35,7 @@ const InputPhone = ({setter}) => {
         <Input
             addonBefore={phonePrefixList}
             onChange={e=>validate(e.target.value)}
-            value={internValue}
+            value={value}
             maxLength={7}
         />
     )
