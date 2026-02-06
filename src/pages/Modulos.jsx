@@ -1,14 +1,48 @@
-import React, { useState, useContext } from "react"
+import React, { useState, useContext, useEffect } from "react"
 import { appContext } from "../context/appContext" 
 import { Input, Button, List, Divider } from "antd"
 import { AddNewModule } from "../components/Modals"
+import { createNewModule, getAllModules } from "../client/client"
 
 const Students = () => {
 
     const [showList, setShowList] = useState([])
-    const {contextHolder} = useContext(appContext)
+    const {contextHolder, messageApi} = useContext(appContext)
 
     const [addModal, setAddModal] = useState(false)
+
+	const submitNewModule = async(data) => {
+		const res = await createNewModule(data)
+		if(res.status == 200){
+			messageApi.open({
+                type: 'success',
+                content: "Modulo creado"
+            })
+            setAddModal(false)
+            getInfo()
+		}else{
+            messageApi.open({
+                type: "error",
+                content: "ah ocurrido un error"
+            })
+		}
+	}
+
+    async function getInfo(){
+        const res = await getAllModules()
+        if(res.status == 200){
+            setShowList(res.data)
+        }else{
+            messageApi.open({
+                type: "error",
+                content: "ah ocurrido un error"
+            })
+        }
+    }
+
+    useEffect(() => {
+        getInfo()
+    }, [])
 
     return(
         <div className="VerificarFactura Page">
@@ -22,16 +56,17 @@ const Students = () => {
             </div>
 
             <List>
-                {showList.map((item) => {
+                {showList.map((item) => (
                     <List.Item>
-                        {item.name}
+                        {item.description}
                     </List.Item>
-                })}
+                ))}
             </List>
 
             <AddNewModule 
                 open={addModal}
                 onCancel={() => setAddModal(false)}
+                action={submitNewModule}
             />
         </div>
     )

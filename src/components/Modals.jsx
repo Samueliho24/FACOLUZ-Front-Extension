@@ -1,9 +1,9 @@
 import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker } from 'antd'
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createUser, changePassword, changeUserType ,getIdUsers} from '../client/client'
+import { verifyInvoice, deleteUser, createUser, changePassword, changeUserType ,getIdUsers, createNewModule} from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -485,19 +485,16 @@ export const EditCourse = ({open, onCancel, selectedCourse}) => {
 	)
 }
 
-export const AddNewModule = ({open, onCancel}) => {
+export const AddNewModule = ({open, onCancel, action}) => {
 
 	const [moduleName, setModuleName] = useState("")
-
-	const sendModule = () => {
-		console.log("subido")
-	}
 
 	return(
 		<Modal
 			open={open}
 			onCancel={onCancel}
 			title="Agregar nuevo modulo"
+			onOk={() => action({description: moduleName})}
 		>
 			<Input
 				placeholder='Nombre del modulo'
@@ -507,19 +504,16 @@ export const AddNewModule = ({open, onCancel}) => {
 	)
 }
 
-export const AddNewCourse = ({open, onCancel}) => {
+export const AddNewCourse = ({open, onCancel, action}) => {
 
 	const [moduleName, setModuleName] = useState("")
-
-	const sendModule = () => {
-		console.log("subido")
-	}
 
 	return(
 		<Modal
 			open={open}
 			onCancel={onCancel}
 			title="Agregar nuevo curso"
+			onOk={() => action({description: moduleName})}
 		>
 			<Input
 				placeholder='Nombre del curso'

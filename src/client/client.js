@@ -76,12 +76,20 @@ export async function closePeriod(data){
 	return await http.post('api/closePeriod', token, data)
 }
 
-export async function setCourses(data){
-	return await http.post('api/setCourses', token, data)
+export async function createNewCourse(data){
+	return await http.post('api/course', token, data)
 }
 
-export async function setModules(data){
-	return await http.post('api/setModules', token, data)
+export async function createNewModule(data){
+	return await http.post('api/module', token, data)
+}
+
+export async function getAllCourses(data){
+	return await http.get('api/course', token, data)
+}
+
+export async function getAllModules(data){
+	return await http.get('api/module', token, data)
 }
 
 export async function registerStudentsEnrollment(data){
