@@ -47,7 +47,7 @@ const Students = () => {
     }, [])
 
     return(
-        <div className="VerificarFactura Page">
+        <div className="ConsultarRegistros Page">
             <Divider className='PageTitle'><h1>Cursos</h1></Divider>
 			{contextHolder}
             <div className="searchBar">
@@ -57,14 +57,18 @@ const Students = () => {
                 <Button onClick={() => setAddModal(true)}>Agregar</Button>
             </div>
 
-            <List>
-                {showList.map(item => (
-                    <List.Item>
-                        <h3>{item.description}</h3>
-                        <Button onClick={() => {setSelectedCourse(item.id); setEditModal(true)}}>Editar</Button>
-                    </List.Item>
-                ))}
-            </List>
+            <div className='listContainer Content' >
+                <List bordered className='mainList'>
+                    {showList.map(item => (
+                        <List.Item className='listItem'>
+                            <div className="info">
+                                <h3>{item.description}</h3>
+                            </div>
+                            <Button onClick={() => {setSelectedCourse(item.id); setEditModal(true)}}>Editar</Button>
+                        </List.Item>
+                    ))}
+                </List>
+            </div>
 
             <AddNewCourse 
                 open={addModal}
