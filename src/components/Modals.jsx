@@ -481,7 +481,7 @@ export const EditCourse = ({open, onCancel, selectedCourse}) => {
 		}
 		const res = await assignModuleToCourse(data)
 		if(res.status == 200){
-			getAssignedModules()
+			getModulesForCourse()
 		}
 	}
 
@@ -507,8 +507,9 @@ export const EditCourse = ({open, onCancel, selectedCourse}) => {
 			destroyOnHidden
 		>
 			<h1>Lista de Modulos</h1>
-			<div className='bar'>
+			<div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-evenly', marginBottom: '5px'}}>
 				<Select
+					style={{width: '70%'}}
 					defaultValue={"Seleccione un Modulo"}
 					options={modulesList}
 					onChange={e => setSelectedModule(e)}/>
@@ -518,7 +519,7 @@ export const EditCourse = ({open, onCancel, selectedCourse}) => {
 			{showList.length === 0 ? (
 				<h2>Este curso aun no tiene modulos</h2>
 			):(
-				<List>
+				<List bordered size='small'>
 				{showList.map((item) => (
 					<List.Item>
 						<h3>{lists.searchOnList(modulesList, item.moduleid)}</h3>
