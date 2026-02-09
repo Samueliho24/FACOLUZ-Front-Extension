@@ -200,7 +200,7 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 			]}
 		>
 			<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-				<InputNumber onBlur={(e) => {findUser(Number(e.target.value))}} onChange={(e) => setIdNumber(e)} placeholder='Numero' style={{width: '50%'}}/>
+				<InputNumber onBlur={(e) => {findUser(Number(e.target.value))}} onChange={(e) => setIdNumber(e)} placeholder='Numero de cedula' style={{width: '100%'}}/>
 				<Space.Compact style={{width: '100%'}}>
 					<Input disabled={loading} onChange={(e) => setName(e.target.value)} placeholder='Nombre' style={{width: '50%'}}/>
 					<Input disabled={loading} onChange={(e) => setLastname(e.target.value)} placeholder='Apellido' style={{width: '50%'}}/>
@@ -220,7 +220,8 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 				<Input
 					placeholder='Correo electronico'
 					value={email}
-					onChange={e => setEmail(e.target.value)}	
+					onChange={e => setEmail(e.target.value)}
+					type='email'	
 				/>
 
 				<Input.TextArea
@@ -482,6 +483,7 @@ export const EditCourse = ({open, onCancel, selectedCourse}) => {
 		const res = await assignModuleToCourse(data)
 		if(res.status == 200){
 			getModulesForCourse()
+			setSelectedModule({value: 0, label: "Seleccione"})
 		}
 	}
 
@@ -542,6 +544,7 @@ export const AddNewModule = ({open, onCancel, action}) => {
 			onCancel={onCancel}
 			title="Agregar nuevo modulo"
 			onOk={() => action({description: moduleName})}
+			destroyOnHidden
 		>
 			<Input
 				placeholder='Nombre del modulo'
@@ -561,6 +564,7 @@ export const AddNewCourse = ({open, onCancel, action}) => {
 			onCancel={onCancel}
 			title="Agregar nuevo curso"
 			onOk={() => action({description: moduleName})}
+			destroyOnHidden
 		>
 			<Input
 				placeholder='Nombre del curso'
@@ -576,6 +580,7 @@ export const AddStudentToModule = ({open, onCancel, info}) => {
 			open={open}
 			onCancel={onCancel}
 			title="Inscribir alumno al modulo"
+			destroyOnHidden
 		>
 			<Input 
 				placeholder="Cedula del estudiante"

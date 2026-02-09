@@ -55,6 +55,7 @@ const Students = () => {
             <AddNewStudent 
                 open={addModal}
                 onCancel={() => setAddModal(false)}
+                updateList={() => getInfo()}
             />
         </div>
     )

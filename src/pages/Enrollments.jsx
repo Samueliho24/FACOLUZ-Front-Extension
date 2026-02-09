@@ -39,7 +39,7 @@ const Enrollments = () => {
             <div className="searchBar">
                 <Input placeholder="Buscar Modulo" id="searchInput" />
                 <Button onClick={() => getContent()}>Buscar</Button>
-                <Button onClick={() => setView('NewEnrollment')}>Inscripbir</Button>
+                <Button onClick={() => setView('NewEnrollment')}>Inscribir</Button>
             </div>
 
             <div className='listContainer Content' >

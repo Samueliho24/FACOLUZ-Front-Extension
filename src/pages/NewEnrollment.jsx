@@ -8,10 +8,12 @@ import { getStudentById, registerEnrollment} from '../client/client';
 
 
 const Enrollments = () => {
+    const {messageApi, periodData, contextHolder} = useContext(appContext)
     const [addModal, setAddModal] = useState(false)
     const [student, setStudent] = useState(null)
     const {view, setView} = useContext(routerContext)
-    const {messageApi, periodData, contextHolder} = useContext(appContext)
+    const [selectedModule, setSelectedModule] = useState(null)
+
 
     const Enrollment = async() => {
         const data = {
@@ -41,7 +43,7 @@ const Enrollments = () => {
         const res = await getStudentById(searchInput)
         console.log(res)
         if(res.status == 200) {
-            setStudent(res.data)
+            setStudent(res.data[0])
         }else{
             messageApi.open({
 				type: 'error',
@@ -61,18 +63,37 @@ const Enrollments = () => {
                 <Button onClick={() => setAddModal(true)}>Agregar</Button>
             </div>
 
-            <div className="Content">
-                <h3>Nombre y apellido del estudiante: {student?.name || ""}</h3>
-                <h3>Cedula: {student?.cedula || ""}</h3>
-                <h3>Telefono: {student?.phone || ""}</h3>
-                <h3>Correo: {student?.email || ""}</h3>
-                <h3>Periodo academico: 2026-2</h3>
-                <Select placeholder="Modulo" options={moduleList}/>
-                <Button color="purple" variant="solid" onClick={() => Enrollment()}>Inscribir</Button>
-                <Button color="purple" variant="solid" onClick={() => setView('Enrollments')}>Cancelar</Button>
+            <div className="Content" style={{display: "flex", alignItems: 'center', flexDirection: 'column'}}>
+                {student === null ? (
+                    <h3>Ingrese la cedula del estudiante a inscribir</h3>
+                ):(<>
+                    <h3>Nombre y apellido del estudiante: {`${student?.name} ${student?.lastname}`}</h3>
+                    <h3>Cedula: {student?.studentsId}</h3>
+                    <h3>Telefono: {student?.phone}</h3>
+                    <h3>Correo: {student?.email}</h3>
+                    <h3>Periodo academico: 2026-2</h3>
+                </>)}
+                <div className='buttons' style={{display: 'flex', alignItems: 'center', gap: "8px", width: '100%', justifyContent: 'center'}}>
+                    <Select
+                        defaultValue={"Seleccione un Modulo"}
+                        value={selectedModule}
+                        options={moduleList}
+                        style={{width:"50%"}}
+                        onChange={e => setSelectedModule(e)}
+                        placeholder={"Seleccione un modulo"}/>
+                    <Button
+                        color="purple"
+                        variant="solid"
+                        onClick={() => Enrollment()}
+                        disabled={selectedModule === null || student === null}
+                    >Inscribir</Button>
+                    <Button color="purple" variant="solid" onClick={() => setView('Enrollments')}>Cancelar</Button>
+                </div>
             </div>
-            <div className="EmptyFooter"/>
-            <AddNewStudent open={addModal} onCancel={() => setAddModal(false)} />
+            <div className="EmptyFooter"/>  
+            <AddNewStudent
+                open={addModal}
+                onCancel={() => setAddModal(false)}/>
         </div>
     )
 }
