@@ -23,11 +23,11 @@ const InputPhone = ({value, setter}) => {
         const check = regex.test(e)
         if(check){
             setter(`${phonePrefix}${e}`)
-            setter(e)
+            // setter(e)    
         }else{
             const corrected = e.slice(0,-1)
             setter(`${phonePrefix}${corrected}`)
-            setter(corrected)
+            // setter(corrected)
         }
     }
 
@@ -35,7 +35,6 @@ const InputPhone = ({value, setter}) => {
         <Input
             addonBefore={phonePrefixList}
             onChange={e=>validate(e.target.value)}
-            value={value}
             maxLength={7}
         />
     )
