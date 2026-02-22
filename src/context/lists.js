@@ -8,11 +8,9 @@ export function searchFullOnList(list, id){
 
 export const instructionGradeList = [
     {label: 'Ninguno', value: 1},
-    {label: 'Prescolar', value: 2},
-    {label: 'Primaria', value: 3},
-    {label: 'Bachillerato', value: 4},
-    {label: 'Universitario', value: 5},
-    {label: 'Postgrado', value: 6},
+    {label: 'Bachillerato', value: 2},
+    {label: 'Universitario', value: 3},
+    {label: 'Postgrado', value: 4},
 ]
 
 export const moduleList = [
@@ -118,19 +116,10 @@ export const changeLogsActionType = [
 ]
 
 export const BillableItems = [
-    {label: 'Cirugia', value: 1, price: 5},
-    {label: 'Endodoncia', value: 2, price: 5},
-    {label: 'Ortodoncia', value: 3, price: 5},
-    {label: 'Peridoncia', value: 4, price: 5},
-    {label: 'Protesis total', value: 5, price: 5},
-    {label: 'Protesis parcial removible', value: 6, price: 5},
-    {label: 'Protesis parcial fija', value: 7, price: 5},
-    {label: 'CIA (Consulta)', value: 8, price: 5},
-    {label: 'CIAN (Consulta)', value: 9, price: 5},
-    {label: 'CIA (Historia)', value: 10, price: 10},
-    {label: 'CIAN (Historia)', value: 11, price: 10},
-    {label: 'Emergencia de CIA', value: 12, price: 5},
-    {label: 'Emergencia de CIAN', value: 13, price: 5}
+    {label: 'Inscripcion', value: 1, price: 5},
+    {label: 'Materia', value: 2, price: 5},
+    {label: 'Actividad especial', value: 3, price: 5},
+    {label: 'Reimpresion de certificado', value: 4, price: 5},
 ]
 
 export const paymentMethods = [

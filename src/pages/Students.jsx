@@ -44,7 +44,7 @@ const Students = () => {
                     {showList.map((item) => (
                         <List.Item className='listItem'>
                             <div className="info">
-                                <h4>{item.studentsId} - {item.name} {item.lastname}</h4>
+                                <h4>{item.studentsIdentification} - {item.name} {item.lastname}</h4>
                             </div>
                             <Button color="danger">Desactivar</Button>
                         </List.Item>

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { Input, Button, Divider, Select } from 'antd'
+import { Input, Button, Divider, Select, InputNumber } from 'antd'
 import { issueInvoice, getSearchedPatient, getIdInvoice, getDolarPrice } from '../client/client'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
@@ -18,7 +18,9 @@ const EmitirFactura = () => {
 	const [paymentMethod, setPaymentMethod] = useState({value: 0, label: "Metodo de pago"})
 	const [reference, setReference] = useState('')
 	const [amount, setAmount] = useState(0)
+	const [quantity, setQuantity] = useState(0)
 	const [dolarPrice, setDolarPrice] = useState(0)
+	const [changeCurrency, setChangeCurrency] = useState({value: 0, label: "Moneda de devolucion:", price: 0})
 
 	useEffect(() => {
 		getDolar()
@@ -101,22 +103,9 @@ const EmitirFactura = () => {
 			<div className='listContainer Content' >
 				<div className='row'>
 					<Input
-						placeholder='cedula:'
+						placeholder='cedula del estudiante:'
 						value={patientId}
-						onChange={e => setPatientId(e.target.value)}
-						className='rowItem'/>
-					<Input
-						placeholder='Nombre:'
-						className='rowItem'
-						value={patientName}
-						onChange={e => setPatientName(e.target.value)}
-					/>
-					<Input
-						placeholder='Telefono:'
-						className='rowItem'
-						value={patientPhone}
-						onChange={e => setPatientPhone(e.target.value)}
-					/>
+						onChange={e => setPatientId(e.target.value)}/>
 				</div>
 				<div className='row'>
 					<Select 
@@ -126,10 +115,16 @@ const EmitirFactura = () => {
 						value={selectedBillable}
 						onChange={updateBillable}/>
 					<Input 
-						placeholder='Monto:'
+						placeholder='a recibir:'
 						className='rowItem'
-						value={`Monto: ${amount}`}
+						value={`a recibir: ${amount}`}
 						disabled={true}/>
+					<InputNumber 
+						className='rowItem'
+						value={quantity}
+						onChange={e => setQuantity(e)}
+						prefix="recibido:"
+						/>
 				</div>
 				<div className='row'>
 					<Select 
@@ -138,6 +133,13 @@ const EmitirFactura = () => {
 						defaultValue={{value: 0, label: "Metodo de pago"}}
 						value={paymentMethod}
 						onChange={updatePayment}
+					/>
+					<Select 
+						options={lists.paymentMethods}
+						className='rowItem'
+						defaultValue={{value: 0, label: "Moneda de devolucion"}}
+						value={changeCurrency}
+						onChange={e => setChangeCurrency(e)}
 					/>
 					<Input
 						placeholder='Referencia'
