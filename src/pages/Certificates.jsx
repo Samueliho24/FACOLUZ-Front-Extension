@@ -3,8 +3,8 @@ import { Button, Divider, Input, List, Tooltip } from "antd";
 import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
 import { getCertificateList } from '../client/client';
-import { UnlockOutlined } from '@ant-design/icons';
-import { mergeDate } from '../../../FACOLUZ-Back-Extension/functions/formatDateTime';
+import { PrinterOutlined } from '@ant-design/icons';
+import { mergeDate } from '../functions/formatDateTime';
 
 const Enrollments = () => {
     const [open, setOpen] = useState(false);
@@ -64,7 +64,7 @@ const Enrollments = () => {
 								<h3>{item.name} {item.lastname} -- {item.course_name} -- Fecha: {mergeDate(Date(item.mergeDate))}</h3>
 							</div>
 							<div className='buttons'>
-								<Tooltip onClick={() => {saveCertificate(item.certificate_id)}} title='Imprimir certificado'><Button shape='circle' variant='solid' color='primary' size='large' icon={<UnlockOutlined />} /></Tooltip>
+								<Tooltip onClick={() => {saveCertificate(item.certificate_id)}} title='Imprimir certificado'><Button shape='circle' variant='solid' color='primary' size='large' icon={<PrinterOutlined />} /></Tooltip>
 							</div>
 						</List.Item>
 					)) }

@@ -3,7 +3,7 @@ import { Button, Divider, Input, List, Tooltip } from "antd";
 import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
 import { getAllModules, getSearchedModule } from '../client/client';
-import { UnlockOutlined } from '@ant-design/icons';
+import { MenuOutlined } from '@ant-design/icons';
 
 
 
@@ -50,7 +50,7 @@ const Enrollments = () => {
 								<h3>{item.description} </h3>
 							</div>
 							<div className='buttons'>
-								<Tooltip onClick={() => {setView('ModuleEnrollment'); setCurrentModuleEnrollment(item)}} title='Lista de inscritos'><Button shape='circle' variant='solid' color='primary' size='large' icon={<UnlockOutlined />} /></Tooltip>
+								<Tooltip onClick={() => {setView('ModuleEnrollment'); setCurrentModuleEnrollment(item)}} title='Lista de inscritos'><Button shape='circle' variant='solid' color='primary' size='large' icon={<MenuOutlined />} /></Tooltip>
 							</div>
 						</List.Item>
 					)) }
