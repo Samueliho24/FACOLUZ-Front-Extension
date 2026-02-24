@@ -170,3 +170,7 @@ export async function changeUserType(data) {
 export async function getAllChangeLogs(page) {
 	return await http.get(`api/getAllChangeLogs/${page}`, token, null)
 }
+
+export async function getCertificateList(){
+	return await http.get("api/certificateList", token, null)
+}

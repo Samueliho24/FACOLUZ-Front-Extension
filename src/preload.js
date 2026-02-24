@@ -10,5 +10,6 @@ contextBridge.exposeInMainWorld('env', {
 })
 
 contextBridge.exposeInMainWorld('api', {
-    getDailyReport: () => ipcRenderer.invoke('getDailyReport')
+    getDailyReport: () => ipcRenderer.invoke('getDailyReport'),
+    saveCertificate: (certificate_id) => ipcRenderer.invoke('saveCertificate', certificate_id)
 })

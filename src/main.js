@@ -50,6 +50,23 @@ ipcMain.handle('getDailyReport', async() => {
   return {ok: true, path: filePath}
 })
 
+
+ipcMain.handle('saveCertificate', async(e, certificate_id) => {
+  console.log("Hola")
+  console.log(certificate_id)
+  console.log("Hola")
+  const address = `http://localhost:3006/api/certificate/${certificate_id}`
+  const res = await axios.get(address, {
+    responseType: 'arraybuffer'
+  })
+  const currentDate = new Date
+  const reportDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate())
+  const pdfBuffer = Buffer.from(res.data)
+  const filePath = path.join(app.getPath('downloads'), "Certificado.pdf")
+  writeFileSync(filePath, pdfBuffer)
+  return {ok: true, path: filePath}
+})
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.

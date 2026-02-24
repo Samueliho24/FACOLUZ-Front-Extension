@@ -25,6 +25,7 @@ const LatPanel = () => {
                 <Button className='Button' size={'large'} onClick={()=>{setView('EmitirFactura')}} variant='solid' icon={<UserOutlined />}> <p className='invisible'>Emitir factura</p></Button> 
                 {/* <Button className='Button' size={'large'} onClick={()=>{setView('VerificarFactura')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Verificar factura</p></Button>  */}
                 <Button className='Button' size={'large'} onClick={()=>{setView('ConsultarRegistros')}} variant='solid' icon={<SolutionOutlined />}><p className='invisible'>Consultar registros</p></Button>
+                <Button className='Button' size={'large'} onClick={()=>{setView('Certificados')}} variant='solid' icon={<SolutionOutlined />}><p className='invisible'>Certificados</p></Button>
 
 
                 <Button className='Button' size={'large'} onClick={()=>{setView('Enrollments')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Inscripciones</p></Button>
