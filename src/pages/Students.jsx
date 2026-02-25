@@ -2,13 +2,14 @@ import React, { useState, useContext, useEffect } from "react"
 import { appContext } from "../context/appContext" 
 import { Input, Button, List, Divider } from "antd"
 import { AddNewStudent } from "../components/Modals"
-import { getStudents } from "../client/client"
+import { getStudents, filterStudents } from "../client/client"
 
 const Students = () => {
 
     const {contextHolder, messageApi} = useContext(appContext)
     const [showList, setShowList] = useState([])
     const [page, setPage] = useState(1)
+    const [searchText, setSearchText] = useState('')
 
     const [addModal, setAddModal] = useState(false)
 
@@ -24,6 +25,20 @@ const Students = () => {
         }
     }
 
+    async function searchStudents(){
+        const q = (searchText || '').trim()
+        if(q === ''){
+            getInfo()
+            return
+        }
+        const res = await filterStudents(q)
+        if(res.status == 200){
+            setShowList(res.data)
+        }else{
+            messageApi.open({ type: 'error', content: 'Error al buscar' })
+        }
+    }
+
     useEffect(() => {
         getInfo()
     }, [page])
@@ -34,8 +49,10 @@ const Students = () => {
 			{contextHolder}
             <div className="searchBar">
                 <Input
-                    placeholder="Buscar estudiante"/>
-                <Button>Buscar</Button>
+                    placeholder="Buscar estudiante"
+                    value={searchText}
+                    onChange={e => setSearchText(e.target.value)} />
+                <Button onClick={searchStudents}>Buscar</Button>
                 <Button onClick={() => setAddModal(true)}>Agregar</Button>
             </div>
 

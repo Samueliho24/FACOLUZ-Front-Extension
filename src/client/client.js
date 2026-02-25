@@ -109,12 +109,16 @@ export async function getEnrolledStudentsByModule(moduleId){
 	return await http.get(`api/getEnrolledStudentsByModule/${moduleId}`, token, null)
 }
 
-export async function assignModuleToCourse(data){
-	return await http.post('api/assignModuleToCourse', token, data)
-}
-
 export async function getAssignedModules(data){
 	return await http.post('api/getAssignedModules', token, data)
+}
+
+export async function updateAssignedModules(data){
+    return await http.post('api/updateAssignedModules', token, data)
+}
+
+export async function deactivateModule(data){
+	return await http.post('api/deactivateModule', token, data)
 }
 
 export async function registerEnrollment(data){
@@ -134,6 +138,9 @@ export async function updateEnrollmentState(data){
 	
 export async function getAllUsers(page) {
 	return await http.get(`api/getAllUsers/${page}`, token, null)
+}
+export async function filterStudents(param){
+    return await http.get(`api/filterStudents/${param}`, token, null)
 }
 export async function getSearchedSDeactivatedUsers(text, page){
 	return await http.get(`api/getSearchedSDeactivatedUsers/${text}/${page}`, token, null)

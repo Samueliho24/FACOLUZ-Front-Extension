@@ -1,15 +1,18 @@
 import React, { useState, useContext, useEffect } from "react"
 import { appContext } from "../context/appContext" 
 import { Input, Button, List, Divider } from "antd"
-import { AddNewModule } from "../components/Modals"
-import { createNewModule, getAllModules } from "../client/client"
+import { AddNewModule, DesactivateModuleModal } from "../components/Modals"
+import { createNewModule, getAllModules, deactivateModule, getSearchedModule } from "../client/client"
 
-const Students = () => {
+const Modules = () => {
 
     const [showList, setShowList] = useState([])
     const {contextHolder, messageApi} = useContext(appContext)
 
     const [addModal, setAddModal] = useState(false)
+    const [desactivateModalOpen, setDesactivateModalOpen] = useState(false)
+    const [selectedModule, setSelectedModule] = useState(null)
+    const [searchText, setSearchText] = useState("")
 
 	const submitNewModule = async(data) => {
 		const res = await createNewModule(data)
@@ -40,6 +43,20 @@ const Students = () => {
         }
     }
 
+    async function searchModules(){
+        const q = (searchText || '').trim()
+        if(q === ''){
+            getInfo()
+            return
+        }
+        const res = await getSearchedModule(q)
+        if(res.status == 200){
+            setShowList(res.data)
+        }else{
+            messageApi.open({ type: 'error', content: 'Error al buscar' })
+        }
+    }
+
     useEffect(() => {
         getInfo()
     }, [])
@@ -50,8 +67,10 @@ const Students = () => {
 			{contextHolder}
             <div className="searchBar">
                 <Input
-                    placeholder="Buscar modulo"/>
-                <Button>Buscar</Button>
+                    placeholder="Buscar modulo"
+                    value={searchText}
+                    onChange={e => setSearchText(e.target.value)} />
+                <Button onClick={searchModules}>Buscar</Button>
                 <Button onClick={() => setAddModal(true)}>Agregar</Button>
             </div>
 
@@ -62,7 +81,7 @@ const Students = () => {
                             <div className="info">
                                 <h3>{item.description}</h3>
                             </div>
-                            <Button>Suspender modulo</Button>
+                            <Button onClick={() => { setSelectedModule(item); setDesactivateModalOpen(true) }}>Suspender modulo</Button>
                         </List.Item>
                     ))}
                 </List>
@@ -73,8 +92,25 @@ const Students = () => {
                 onCancel={() => setAddModal(false)}
                 action={submitNewModule}
             />
+
+            <DesactivateModuleModal
+                open={desactivateModalOpen}
+                onCancel={() => { setDesactivateModalOpen(false); setSelectedModule(null) }}
+                module={selectedModule}
+                action={async (id) => {
+                    const res = await deactivateModule({ moduleId: id })
+                    if(res.status == 200){
+                        setDesactivateModalOpen(false)
+                        setSelectedModule(null)
+                        getInfo()
+                    }
+                    return res
+                }}
+            />
+
+            
         </div>
     )
 }
 
-export default Students
+export default Modules

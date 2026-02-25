@@ -3,7 +3,7 @@ import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, assignModuleToCourse, getAssignedModules} from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules } from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -463,6 +463,8 @@ export const ChangeUserTypeModal = ({open, onCancel, info}) => {
 
 export const EditCourse = ({open, onCancel, selectedCourse}) => {
 
+	const {messageApi} = useContext(appContext)
+
 	const [showList, setShowList] = useState([])
 	const [modulesList, setModulesList] = useState([])
 	const [selectedModule, setSelectedModule] = useState([])
@@ -476,14 +478,35 @@ export const EditCourse = ({open, onCancel, selectedCourse}) => {
 	}
 
 	async function assignNewModule(){
-		const data = {
-			moduleId: selectedModule,
-			courseId: selectedCourse
+		const moduleValue = selectedModule?.value ?? selectedModule
+		if(!moduleValue){
+			messageApi.open({type: 'error', content: 'Seleccione un módulo'})
+			return
 		}
-		const res = await assignModuleToCourse(data)
+		if (showList?.some(item => String(item.moduleid) === String(moduleValue))) {
+			messageApi.open({type: 'error', content: 'El módulo ya está asignado a este curso'})
+			return
+		}
+		const newItem = { moduleid: moduleValue }
+		setShowList(prev => [...prev, newItem])
+		setSelectedModule(null)
+	}
+
+	function removeModule(moduleId){
+		setShowList(prev => prev.filter(i => String(i.moduleid) !== String(moduleId)))
+	}
+
+	async function submitModules(){
+		const moduleIds = showList.map(i => i.moduleid)
+		const data = { courseId: selectedCourse, moduleIds }
+		const res = await updateAssignedModules(data)
 		if(res.status == 200){
+			messageApi.open({type: 'success', content: 'Módulos actualizados'})
+			// refresh from server to get ids, etc.
 			getModulesForCourse()
-			setSelectedModule({value: 0, label: "Seleccione"})
+			onCancel()
+		}else{
+			messageApi.open({type: 'error', content: 'Error al actualizar módulos'})
 		}
 	}
 
@@ -507,6 +530,10 @@ export const EditCourse = ({open, onCancel, selectedCourse}) => {
 			open={open}
 			onCancel={onCancel}
 			destroyOnHidden
+			footer={[
+				<Button key="cancel" onClick={onCancel}>Cancelar</Button>,
+				<Button key="submit" type="primary" onClick={submitModules}>Aceptar</Button>
+			]}
 		>
 			<h1>Lista de Modulos</h1>
 			<div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-evenly', marginBottom: '5px'}}>
@@ -523,9 +550,9 @@ export const EditCourse = ({open, onCancel, selectedCourse}) => {
 			):(
 				<List bordered size='small'>
 				{showList.map((item) => (
-					<List.Item>
+					<List.Item key={item.moduleid}>
 						<h3>{lists.searchOnList(modulesList, item.moduleid)}</h3>
-						<Button>Retirar modulo</Button>
+						<Button onClick={() => removeModule(item.moduleid)}>Retirar módulo</Button>
 					</List.Item>
 				))}
 				</List>
@@ -550,6 +577,53 @@ export const AddNewModule = ({open, onCancel, action}) => {
 				placeholder='Nombre del modulo'
 				onChange={e => setModuleName(e.target.value)}	
 			/>
+		</Modal>
+	)
+}
+
+export const DesactivateModuleModal = ({open, onCancel, module, action}) => {
+
+	const {messageApi} = useContext(appContext)
+	const [loading, setLoading] = useState(false)
+
+	const handleDesactivate = async () => {
+		setLoading(true)
+		try{
+			if(typeof action === 'function'){
+				const res = await action(module?.id ?? module)
+				setLoading(false)
+				if(res && res.status === 200){
+					messageApi.open({type: 'success', content: 'Módulo suspendido'})
+					onCancel()
+				}else{
+					messageApi.open({type: 'error', content: res?.response?.data || 'Error al suspender el módulo'})
+				}
+			}else{
+				setLoading(false)
+				messageApi.open({type: 'error', content: 'Acción no disponible'})
+			}
+		}catch(err){
+			setLoading(false)
+			console.log(err)
+			messageApi.open({type: 'error', content: 'Error del servidor'})
+		}
+	}
+
+	return(
+		<Modal
+			open={open}
+			onCancel={onCancel}
+			title='Suspender módulo'
+			destroyOnClose
+			footer={[
+				<Button key="cancel" onClick={onCancel} disabled={loading}>Cancelar</Button>,
+				<Button key="desactivate" type='primary' color='danger' onClick={handleDesactivate} disabled={loading}>Suspender módulo</Button>
+			]}
+		>
+			<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+				<p>¿Desea suspender el módulo <strong>{module?.description ?? module?.name ?? ''}</strong>?</p>
+				<p>Esta acción evitará que el módulo esté disponible para nuevas asignaciones.</p>
+			</div>
 		</Modal>
 	)
 }

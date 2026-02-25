@@ -2,7 +2,7 @@ import React, { useContext,useEffect,useState } from 'react';
 import { Button, Divider, Input, List, Tooltip } from "antd";
 import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
-import { getCertificateList } from '../client/client';
+import { getCertificateList, filterStudents } from '../client/client';
 import { PrinterOutlined } from '@ant-design/icons';
 import { mergeDate } from '../functions/formatDateTime';
 
@@ -25,7 +25,7 @@ const Enrollments = () => {
             res = await getCertificateList()
             console.log(res)
         }else{
-            // res = await getSearchedModule(searchInput)
+            res = await filterStudents(searchInput)
         }
         setShowList(res.data)
     }
