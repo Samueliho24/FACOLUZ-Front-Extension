@@ -78,9 +78,9 @@ const ConsultarRegistros = () => {
 							</div>
 							<div className='buttons'>
 								<Tooltip
-									title='Verificar'
+									title='Ver pagos'
 								>
-									{item.status === "Pendiente" && <Button 
+									<Button 
 										variant='solid'
 										shape='circle'
 										color='primary'
@@ -88,10 +88,10 @@ const ConsultarRegistros = () => {
 										icon ={<CheckCircleOutlined />}
 										title='Verificar'
 										onClick={() => {setSelectedItem(item); setInvoiceModal(true)}}
-									/>}
+									/>
 								</Tooltip>
 
-								{item.status === "Recibida" && <Button 
+								{item.status === "Pagado" && <Button 
 									variant='solid'
 									shape='circle'
 									color='primary'

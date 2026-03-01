@@ -8,6 +8,7 @@ import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
 import InputPhone from "../components/InputPhone"
+import TextArea from 'antd/es/input/TextArea'
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -82,7 +83,6 @@ export const VerifyInvoiceModal = ({open, onCancel, invoice, updateList}) => {
 
 export const GenerateReportModal = ({open, onCancel}) => {
 	
-
 	return(
 		<Modal
 			title='Generar reporte?'
@@ -772,3 +772,66 @@ export const ManagePeriodModal = ({open, period, onCancel}) => {
 	)
 }
 
+export const PaymentsForInvoice = ({open, onCancel, InvoiceId}) => {
+	
+	const [showList, setShowList] = useState([])
+
+	useEffect(() => {
+
+	}, [InvoiceId])
+
+	return(
+		<Modal
+			open={open}
+			onCancel={() => onCancel()}
+			destroyOnHidden
+			title="Historial de pagos"
+		>
+			<List>
+				{showList.map((item) => (
+					<List.Item>
+						<h3>{item.date} - {item.amount} - {item.PaymentMethod} - {item.exchangeRate}</h3>
+					</List.Item>
+				))}
+			</List>
+		</Modal>
+	)
+}
+
+export const MakePayment = ({open, onCancel, InvoiceId}) => {
+	return (
+		<Modal
+			open={open}
+			onCancel={() => onCancel()}
+			destroyOnHidden
+			title="Realizar pago"
+		>
+			<div>
+				<Space.Compact>
+					<InputNumber
+						placeholder='monto:'
+					/>
+					<Select 
+						defaultValue="Moneda"
+						options={lists.paymentMethods}
+					/>
+				</Space.Compact>
+				<Input 
+					placeholder='Referencia:'
+				/>
+								<Space.Compact>
+					<InputNumber
+						placeholder='cambio'
+					/>
+					<Select 
+						defaultValue="Moneda"
+						options={lists.paymentMethods}
+					/>
+				</Space.Compact>
+				<TextArea 
+					placeholder='Observaciones:'
+				/>
+			</div>
+		</Modal>
+	)
+}
