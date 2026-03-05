@@ -19,7 +19,7 @@ const Students = () => {
             setShowList(res.data)
         }else{
             messageApi.open({
-                type: "success",
+                type: "error",
                 content: "ah ocurrido un error"
             })
         }

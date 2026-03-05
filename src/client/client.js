@@ -181,3 +181,11 @@ export async function getAllChangeLogs(page) {
 export async function getCertificateList(){
 	return await http.get("api/certificateList", token, null)
 }
+
+export async function makePayment(data){
+	return await http.post("api/payments", token, data)
+}
+
+export async function getPaymentsForInvoice(invoiceId){
+	return await http.post(`api/payments/${invoiceId}`, token, null)
+}
