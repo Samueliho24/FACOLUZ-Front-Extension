@@ -74,7 +74,7 @@ const ConsultarRegistros = () => {
 					{ showList && showList.map(item => (
 						<List.Item className='listItem'>
 							<div className='info'>
-								<h4>{getDate(item.date)} -- {getTime(item.date)} -- {item.StudentIdentification} -- {item.billableitem}  </h4>
+								<h4>{`${getDate(item.date)} -- ${getTime(item.date)} -- ${item.name} ${item.lastname}(${item.studentsIdentification}) -- ${item.status}`}</h4>
 							</div>
 							<div className='buttons'>
 								<Tooltip
