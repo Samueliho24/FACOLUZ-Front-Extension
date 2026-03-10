@@ -187,5 +187,5 @@ export async function makePayment(data){
 }
 
 export async function getPaymentsForInvoice(invoiceId){
-	return await http.post(`api/payments/${invoiceId}`, token, null)
+	return await http.get(`api/payments/${invoiceId}`, token, null)
 }

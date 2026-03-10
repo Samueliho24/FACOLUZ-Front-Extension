@@ -3,7 +3,7 @@ import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules } from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice } from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -772,12 +772,20 @@ export const ManagePeriodModal = ({open, period, onCancel}) => {
 	)
 }
 
-export const PaymentsForInvoice = ({open, onCancel, InvoiceId}) => {
+export const InfoForInvoice = ({open, onCancel, InvoiceId}) => {
 	
 	const [showList, setShowList] = useState([])
 
-	useEffect(() => {
+	async function getInfo(){
+		const res = await getPaymentsForInvoice(InvoiceId)
+		console.log(res)
+		if(res.status == 200){
+			setShowList(res.data)
+		}
+	}
 
+	useEffect(() => {
+		getInfo()
 	}, [InvoiceId])
 
 	return(
@@ -787,49 +795,115 @@ export const PaymentsForInvoice = ({open, onCancel, InvoiceId}) => {
 			destroyOnHidden
 			title="Historial de pagos"
 		>
-			<List>
-				{showList.map((item) => (
-					<List.Item>
-						<h3>{item.date} - {item.amount} - {item.PaymentMethod} - {item.exchangeRate}</h3>
-					</List.Item>
-				))}
-			</List>
+			{showList.length > 0 ?(
+				<List>
+					{showList.map((item) => (
+						<List.Item>
+							<h3>{item.date} - {item.amount} - {item.PaymentMethod} - {item.exchangeRate}</h3>
+						</List.Item>
+					))}
+				</List>
+			):(
+				<h3>No hay pagos para mostrar</h3>
+			)}
+			
 		</Modal>
 	)
 }
 
 export const MakePayment = ({open, onCancel, InvoiceId}) => {
+
+	const [paymentMethod, setPaymentMethod] = useState()
+	const [changeMethod, setChangeMethod] = useState()
+	const [paymentSuffix, setPaymentSuffix] = useState("")
+	const [changeSuffix, setChangeSuffix] = useState("")
+
+	const updatePaymentMethod = (e) => {
+		setPaymentMethod(e)
+		switch(e){
+			case (1 || 2): 
+				setPaymentSuffix("Bs")
+				break
+			case (3 || 4): 
+				setPaymentSuffix("$")
+				break
+		}
+	}
+
+	const updateChangeMethod = (e) => {
+		setChangeMethod(e)
+		switch(e){
+			case (1 || 2):
+				setChangeSuffix("Bs")
+				break
+			case (3 || 4): 
+				setChangeSuffix("$")
+				break
+		}
+	}
+
+	async function submit(){
+
+		const paymentAmount = document.getElementById("paymentAmount").value
+		const changeAmount = document.getElementById("changeAmount").value
+		const observations = document.getElementById("observations").value
+		const reference = document.getElementById("reference").value
+
+		const data = {
+			InvoiceId: InvoiceId,
+			paymentAmmount: paymentAmount,
+			paymentMethod: paymentMethod,
+			reference: reference,
+			changeAmount: changeAmount,
+			changeMethod: changeMethod,
+			observations: observations
+		}
+
+		console.log(data)
+	}
+
 	return (
 		<Modal
 			open={open}
 			onCancel={() => onCancel()}
 			destroyOnHidden
 			title="Realizar pago"
+			onOk={() => submit()}
 		>
-			<div>
-				<Space.Compact>
+			<div style={{width: "100%"}}>
+				<Space.Compact style={{width: "100%"}}>
 					<InputNumber
 						placeholder='monto:'
+						suffix={paymentSuffix}
+						id='paymentAmount'
 					/>
 					<Select 
 						defaultValue="Moneda"
 						options={lists.paymentMethods}
+						value={paymentMethod}
+						onChange={e => updatePaymentMethod(e)}
 					/>
 				</Space.Compact>
 				<Input 
 					placeholder='Referencia:'
+					id='reference'
 				/>
-								<Space.Compact>
+				<Space.Compact  style={{width: "100%"}}>
 					<InputNumber
 						placeholder='cambio'
+						suffix={changeSuffix}
+						id='changeAmount'
 					/>
 					<Select 
 						defaultValue="Moneda"
 						options={lists.paymentMethods}
+						value={changeMethod}
+						onChange={e => updateChangeMethod(e)}
 					/>
 				</Space.Compact>
 				<TextArea 
 					placeholder='Observaciones:'
+					id='observations'
 				/>
 			</div>
 		</Modal>

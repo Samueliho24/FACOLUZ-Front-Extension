@@ -8,7 +8,7 @@ import {CheckCircleOutlined } from '@ant-design/icons'
 import { getTime, getDate } from '../functions/formatDates'
 import { appContext } from '../context/appContext'
 import Pagination from "../components/Pagination"
-import { VerifyInvoiceModal } from '../components/Modals'
+import { InfoForInvoice, MakePayment } from '../components/Modals'
 
 const ConsultarRegistros = () => {
     const {contextHolder, messageApi} = useContext(appContext)
@@ -18,6 +18,7 @@ const ConsultarRegistros = () => {
 	const [page, setPage] = useState(1)
 	//Control de modal
 	const [invoiceModal, setInvoiceModal] = useState(false)
+	const [makePaymentModal, setMakePaymentModal] = useState(false)
     useEffect(() => {
         getContent()
     }, [page])
@@ -77,41 +78,27 @@ const ConsultarRegistros = () => {
 								<h4>{`${getDate(item.date)} -- ${getTime(item.date)} -- ${item.name} ${item.lastname}(${item.studentsIdentification}) -- ${item.status}`}</h4>
 							</div>
 							<div className='buttons'>
-								<Tooltip
-									title='Ver pagos'
-								>
+								<Button 
+									variant='solid'
+									shape='circle'
+									color='primary'
+									size='large'
+									icon ={<CheckCircleOutlined />}
+									title='Informacion de factura'
+									onClick={() => {setSelectedItem(item.id); setInvoiceModal(true)}}
+								/>
+
+								{item.status === "Pendiente" && 
 									<Button 
 										variant='solid'
 										shape='circle'
 										color='primary'
 										size='large'
 										icon ={<CheckCircleOutlined />}
-										title='Verificar'
-										onClick={() => {setSelectedItem(item); setInvoiceModal(true)}}
+										title='Abonar pago'
+										onClick={() => {setSelectedItem(item.id); setMakePaymentModal(true)}}
 									/>
-								</Tooltip>
-
-								{item.status === "Pagado" && <Button 
-									variant='solid'
-									shape='circle'
-									color='primary'
-									size='large'
-									icon ={<CheckCircleOutlined />}
-									title='Verificar'
-									onClick={() => {setSelectedItem(item); setInvoiceModal(true)}}
-									disabled={true}
-								/>}
-
-								{item.status === "Rechazada" && <Button 
-									variant='solid'
-									shape='circle'
-									color='primary'
-									size='large'
-									icon ={<CheckCircleOutlined />}
-									title='Verificar'
-									onClick={() => {setSelectedItem(item); setInvoiceModal(true)}}
-									disabled={true}
-								/>}
+								}
 							</div>
 						</List.Item>
 					)) }
@@ -120,10 +107,18 @@ const ConsultarRegistros = () => {
 			</div>
 
 			<div className='EmptyFooter'/>
-			<VerifyInvoiceModal 
-				invoice={selectedItem}
+
+			<InfoForInvoice 
+				InvoiceId={selectedItem}
 				open={invoiceModal}
 				onCancel={() => setInvoiceModal(false)}
+				updateList={updateList}
+			/>
+
+			<MakePayment 
+				InvoiceId={selectedItem}
+				open={makePaymentModal}
+				onCancel={() => setMakePaymentModal(false)}
 				updateList={updateList}
 			/>
         </div>
