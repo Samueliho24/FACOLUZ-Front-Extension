@@ -3,7 +3,7 @@ import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice } from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment } from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -817,6 +817,7 @@ export const MakePayment = ({open, onCancel, InvoiceId}) => {
 	const [changeMethod, setChangeMethod] = useState()
 	const [paymentSuffix, setPaymentSuffix] = useState("")
 	const [changeSuffix, setChangeSuffix] = useState("")
+	const [changeRate, setChangeRate] = useState(0)
 
 	const updatePaymentMethod = (e) => {
 		setPaymentMethod(e)
@@ -844,9 +845,11 @@ export const MakePayment = ({open, onCancel, InvoiceId}) => {
 
 	async function submit(){
 
+		const {messageApi} = useContext(appContext)
+
 		const paymentAmount = document.getElementById("paymentAmount").value
 		const changeAmount = document.getElementById("changeAmount").value
-		const observations = document.getElementById("observations").value
+		const comments = document.getElementById("comments").value
 		const reference = document.getElementById("reference").value
 
 		const data = {
@@ -856,10 +859,24 @@ export const MakePayment = ({open, onCancel, InvoiceId}) => {
 			reference: reference,
 			changeAmount: changeAmount,
 			changeMethod: changeMethod,
-			observations: observations
+			comments: comments,
+			changeRate: changeRate
 		}
 
-		console.log(data)
+		const res = await makePayment(data)
+		if(res.status == 201){
+			messageApi.open({
+				type: 'success',
+				content: 'Pago realizado con exito'
+			})
+			onCancel()
+		}else{
+			messageApi.open({
+				type: 'error',
+				content: 'ha ocurrido un error al registar el pago'
+			})
+			onCancel()
+		}
 	}
 
 	return (
@@ -903,7 +920,7 @@ export const MakePayment = ({open, onCancel, InvoiceId}) => {
 				</Space.Compact>
 				<TextArea 
 					placeholder='Observaciones:'
-					id='observations'
+					id='comments'
 				/>
 			</div>
 		</Modal>
