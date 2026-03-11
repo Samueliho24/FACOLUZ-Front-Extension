@@ -3,7 +3,7 @@ import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment } from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice } from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -813,11 +813,22 @@ export const InfoForInvoice = ({open, onCancel, InvoiceId}) => {
 
 export const MakePayment = ({open, onCancel, InvoiceId}) => {
 
+	const {messageApi} = useContext(appContext)
+
 	const [paymentMethod, setPaymentMethod] = useState()
 	const [changeMethod, setChangeMethod] = useState()
 	const [paymentSuffix, setPaymentSuffix] = useState("")
 	const [changeSuffix, setChangeSuffix] = useState("")
 	const [changeRate, setChangeRate] = useState(0)
+
+	useEffect(() => {
+		getDolar()
+	}, [])
+
+	async function getDolar(){
+		const res = await getDolarPrice()
+		setChangeRate(res)
+	}
 
 	const updatePaymentMethod = (e) => {
 		setPaymentMethod(e)
@@ -845,8 +856,6 @@ export const MakePayment = ({open, onCancel, InvoiceId}) => {
 
 	async function submit(){
 
-		const {messageApi} = useContext(appContext)
-
 		const paymentAmount = document.getElementById("paymentAmount").value
 		const changeAmount = document.getElementById("changeAmount").value
 		const comments = document.getElementById("comments").value
@@ -857,11 +866,13 @@ export const MakePayment = ({open, onCancel, InvoiceId}) => {
 			paymentAmmount: paymentAmount,
 			paymentMethod: paymentMethod,
 			reference: reference,
-			changeAmount: changeAmount,
-			changeMethod: changeMethod,
+			changeAmount: changeAmount == "" ? 0 : changeAmount,
+			changeMethod: changeMethod ? changeMethod : null,
 			comments: comments,
 			changeRate: changeRate
 		}
+
+		console.log(data)
 
 		const res = await makePayment(data)
 		if(res.status == 201){
