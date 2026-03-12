@@ -85,7 +85,7 @@ const ConsultarRegistros = () => {
 									size='large'
 									icon ={<CheckCircleOutlined />}
 									title='Informacion de factura'
-									onClick={() => {setSelectedItem(item.id); setInvoiceModal(true)}}
+									onClick={() => {setSelectedItem(item); setInvoiceModal(true)}}
 								/>
 
 								{item.status === "Pendiente" && 
@@ -96,7 +96,7 @@ const ConsultarRegistros = () => {
 										size='large'
 										icon ={<CheckCircleOutlined />}
 										title='Abonar pago'
-										onClick={() => {setSelectedItem(item.id); setMakePaymentModal(true)}}
+										onClick={() => {setSelectedItem(item); setMakePaymentModal(true)}}
 									/>
 								}
 							</div>
@@ -109,14 +109,14 @@ const ConsultarRegistros = () => {
 			<div className='EmptyFooter'/>
 
 			<InfoForInvoice 
-				InvoiceId={selectedItem}
+				Invoice={selectedItem}
 				open={invoiceModal}
 				onCancel={() => setInvoiceModal(false)}
 				updateList={updateList}
 			/>
 
 			<MakePayment 
-				InvoiceId={selectedItem}
+				Invoice={selectedItem}
 				open={makePaymentModal}
 				onCancel={() => setMakePaymentModal(false)}
 				updateList={updateList}

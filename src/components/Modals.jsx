@@ -9,6 +9,7 @@ import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
 import InputPhone from "../components/InputPhone"
 import TextArea from 'antd/es/input/TextArea'
+import { mergeDate } from '../functions/formatDateTime'
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -772,21 +773,29 @@ export const ManagePeriodModal = ({open, period, onCancel}) => {
 	)
 }
 
-export const InfoForInvoice = ({open, onCancel, InvoiceId}) => {
+export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 	
 	const [showList, setShowList] = useState([])
+	const [remainingDebt, setRemainingDebt] = useState(0)
 
 	async function getInfo(){
-		const res = await getPaymentsForInvoice(InvoiceId)
+		const res = await getPaymentsForInvoice(Invoice.id)
 		console.log(res)
 		if(res.status == 200){
 			setShowList(res.data)
 		}
+		setRemainingDebt(0)
+		let paid = 0
+		res.data.forEach((item) => {
+			paid += item.paidAmount
+			let remaining = Invoice.chargedAmount - paid
+			setRemainingDebt(remaining)
+		});
 	}
 
 	useEffect(() => {
 		getInfo()
-	}, [InvoiceId])
+	}, [Invoice])
 
 	return(
 		<Modal
@@ -795,11 +804,12 @@ export const InfoForInvoice = ({open, onCancel, InvoiceId}) => {
 			destroyOnHidden
 			title="Historial de pagos"
 		>
+			<h4>Restante: ${remainingDebt.toFixed(2)}</h4>
 			{showList.length > 0 ?(
-				<List>
+				<List bordered>
 					{showList.map((item) => (
 						<List.Item>
-							<h3>{item.date} - {item.amount} - {item.PaymentMethod} - {item.exchangeRate}</h3>
+							<p>{mergeDate(item.date)} - Pagado: ${item.paidAmount} - {item.receivedPaymentMethod} - Tasa: {item.changeRate} Bs/$</p>
 						</List.Item>
 					))}
 				</List>
@@ -811,7 +821,7 @@ export const InfoForInvoice = ({open, onCancel, InvoiceId}) => {
 	)
 }
 
-export const MakePayment = ({open, onCancel, InvoiceId}) => {
+export const MakePayment = ({open, onCancel, Invoice}) => {
 
 	const {messageApi} = useContext(appContext)
 
@@ -831,6 +841,7 @@ export const MakePayment = ({open, onCancel, InvoiceId}) => {
 	}
 
 	const updatePaymentMethod = (e) => {
+		console.log(Invoice)
 		setPaymentMethod(e)
 		switch(e){
 			case (1 || 2): 
@@ -862,7 +873,7 @@ export const MakePayment = ({open, onCancel, InvoiceId}) => {
 		const reference = document.getElementById("reference").value
 
 		const data = {
-			InvoiceId: InvoiceId,
+			InvoiceId: Invoice.id,
 			paymentAmmount: paymentAmount,
 			paymentMethod: paymentMethod,
 			reference: reference,
