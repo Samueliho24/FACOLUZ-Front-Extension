@@ -45,7 +45,6 @@ const ConsultarRegistros = () => {
 	}
 
 	const updateList = (newStatus) => {
-		console.log("ejecuta")
 		const list = showList
 		const i = showList.findIndex((i) => i.id == selectedItem.id)
 		console.log({Position: i, item: list[i], id: selectedItem.id})
@@ -112,14 +111,13 @@ const ConsultarRegistros = () => {
 				Invoice={selectedItem}
 				open={invoiceModal}
 				onCancel={() => setInvoiceModal(false)}
-				updateList={updateList}
 			/>
 
 			<MakePayment 
 				Invoice={selectedItem}
 				open={makePaymentModal}
 				onCancel={() => setMakePaymentModal(false)}
-				updateList={updateList}
+				updateList={() => updateList()}
 			/>
         </div>
     )

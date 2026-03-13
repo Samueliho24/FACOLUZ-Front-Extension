@@ -821,7 +821,7 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 	)
 }
 
-export const MakePayment = ({open, onCancel, Invoice}) => {
+export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 
 	const {messageApi} = useContext(appContext)
 
@@ -891,6 +891,7 @@ export const MakePayment = ({open, onCancel, Invoice}) => {
 				type: 'success',
 				content: 'Pago realizado con exito'
 			})
+			updateList()
 			onCancel()
 		}else{
 			messageApi.open({
