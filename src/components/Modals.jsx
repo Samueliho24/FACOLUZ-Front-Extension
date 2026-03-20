@@ -4,7 +4,7 @@ import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto } from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, createTeacher, deactivateTeacher, deactivateStudent } from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -81,8 +81,9 @@ export const VerifyInvoiceModal = ({open, onCancel, invoice, updateList}) => {
 				{invoice.reference && <p><strong>Referencia de pago:</strong> {invoice.reference} </p>}
 				<p><strong>Estado:</strong> {invoice.status} </p>
 			</div>
-		</Modal>)
-	}
+		</Modal>
+	)
+}
 
 export const GenerateReportModal = ({open, onCancel}) => {
 	
@@ -1068,3 +1069,74 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 		</Modal>
 	)
 }
+
+export const EditPeriodModal = ({open, onCancel, period, refreshPeriods}) => {
+    const { messageApi } = useContext(appContext);
+    const [loading, setLoading] = useState(false);
+    const [endDate, setEndDate] = useState(period?.endDate || '');
+    const [changed, setChanged] = useState(false);
+
+    useEffect(() => {
+        setEndDate(period?.endDate || '');
+        setChanged(false);
+    }, [period, open]);
+
+    if (!period) return null;
+
+    // Detecta si la nueva fecha es diferente a la anterior y válida
+    const handleDateChange = (e) => {
+        const newDate = e ? e.format('YYYY-MM-DD') : '';
+        setEndDate(newDate);
+        setChanged(newDate && newDate !== period.endDate);
+    };
+
+    const handleChangeEndDate = async () => {
+        setLoading(true);
+        try {
+            const data = {
+                year: period.year,
+                period: period.period,
+                newEndDate: endDate
+            };
+            const res = await changeEndDatePeriod(data);
+            if (res.status === 200) {
+                messageApi.success('Fecha de fin actualizada');
+                onCancel();
+                refreshPeriods();
+            } else {
+                messageApi.error('Error al actualizar la fecha de fin');
+            }
+        } catch (err) {
+            messageApi.error('Error al actualizar la fecha de fin');
+        }
+        setLoading(false);
+    };
+
+    return (
+        <Modal
+            title={`Editar periodo: ${period.period} - ${period.year}`}
+            open={open}
+            closable={false}
+            destroyOnClose
+            footer={[
+                <Button key="cancel" onClick={onCancel} variant='text' disabled={loading}>Cancelar</Button>,
+                <Button key="edit" onClick={handleChangeEndDate} variant='solid' color='primary' disabled={loading || !changed}>Aceptar</Button>
+            ]}
+        >
+            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                <p><strong>Periodo:</strong> {period.period}</p>
+                <p><strong>Año:</strong> {period.year}</p>
+                <p><strong>Fecha de inicio:</strong> {getDate(period.startDate)}</p>
+                <div>
+                    <strong>Fecha de fin:</strong>
+                    <DatePicker
+                        format="DD-MM-YYYY"
+                        value={endDate ? dayjs(endDate) : null}
+                        onChange={handleDateChange}
+                        style={{width:'100%'}}
+                    />
+                </div>
+            </div>
+        </Modal>
+    );
+};

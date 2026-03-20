@@ -16,6 +16,7 @@ import NewEnrollment from "../pages/NewEnrollment"
 import ModuleEnrollment from "../pages/ModuleEnrollment"
 import Certificates from "../pages/Certificates"
 import Section from "../pages/Section"
+import Teachers from "../pages/Teachers";
 
 const Router = () => {
 
@@ -34,6 +35,7 @@ const Router = () => {
             case "Enrollments": return <Enrollments />
             case "Periodos": return <Periodos />
             case "Estudiantes": return <Estudiantes />
+            case "Profesores": return <Teachers />
             case "Modulos": return <Modulos />
             case "Cursos": return <Cursos />
             case "Certificados": return <Certificates/>

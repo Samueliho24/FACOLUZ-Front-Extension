@@ -150,13 +150,16 @@ export async function updateEnrollmentState(data){
 	return await http.patch('api/updateEnrollmentState', token, data)
 }
 
+export async function getTeachers(page){
+    return await http.get(`api/getTeachers/${page}`, token, null)
+}
+export async function filterTeachers(param){
+    return await http.get(`api/filterTeachers/${param}`, token, null)
+}
+export async function createTeacher(data){
+    return await http.post('api/registerTeacher', token, data)
+}
 
-
-
-// export async function getSearchedUsers(text, page){
-// 	return await http.get(`api/getSearchedUsers/${text}/${page}`, token, null)
-// }
-	
 export async function getAllUsers(page) {
 	return await http.get(`api/getAllUsers/${page}`, token, null)
 }
@@ -213,4 +216,12 @@ export async function getPaymentsForInvoice(invoiceId){
 
 export async function updatePhoto(){
 	return await http.post()
+}
+
+export async function deactivateTeacher(id){
+    return await http.post('api/deactivateTeacher', token, {id})
+}
+
+export async function deactivateStudent(id){
+    return await http.post('api/deactivateStudent', token, {id})
 }

@@ -31,6 +31,7 @@ const LatPanel = () => {
                 <Button className='Button' size={'large'} onClick={()=>{setView('Enrollments')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Inscripciones</p></Button>
                 <Button className='Button' size={'large'} onClick={()=>{setView('Periodos')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Periodos</p></Button>
                 <Button className='Button' size={'large'} onClick={()=>{setView('Estudiantes')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Estudiantes</p></Button>
+                <Button className='Button' size={'large'} onClick={()=>{setView('Profesores')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Profesores</p></Button>
                 <Button className='Button' size={'large'} onClick={()=>{setView('Modulos')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Modulos</p></Button>
                 <Button className='Button' size={'large'} onClick={()=>{setView('Cursos')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Cursos</p></Button>
                 

@@ -1,38 +1,36 @@
 import React, { useState, useContext, useEffect } from "react"
 import { appContext } from "../context/appContext" 
 import { Input, Button, List, Divider } from "antd"
-import { AddNewStudent, DeactivateStudentModal } from "../components/Modals"
-import { getStudents, filterStudents, deactivateStudent } from "../client/client"
+import { AddNewTeacher, DeactivateTeacherModal } from "../components/Modals"
+import { getTeachers, filterTeachers, deactivateTeacher } from "../client/client"
 
-const Students = () => {
-
+const Teachers = () => {
     const {contextHolder, messageApi} = useContext(appContext)
     const [showList, setShowList] = useState([])
     const [page, setPage] = useState(1)
     const [searchText, setSearchText] = useState('')
-
     const [addModal, setAddModal] = useState(false)
-    const [deactivateModal, setDeactivateModal] = useState({open: false, studentId: null})
+    const [deactivateModal, setDeactivateModal] = useState({open: false, teacherId: null})
 
     async function getInfo(){
-        const res = await getStudents(page)
+        const res = await getTeachers(page)
         if(res.status == 200){
             setShowList(res.data)
         }else{
             messageApi.open({
                 type: "error",
-                content: "ah ocurrido un error"
+                content: "Ha ocurrido un error"
             })
         }
     }
 
-    async function searchStudents(){
+    async function searchTeachers(){
         const q = (searchText || '').trim()
         if(q === ''){
             getInfo()
             return
         }
-        const res = await filterStudents(q)
+        const res = await filterTeachers(q)
         if(res.status == 200){
             setShowList(res.data)
         }else{
@@ -40,20 +38,22 @@ const Students = () => {
         }
     }
 
+    
+
     useEffect(() => {
         getInfo()
     }, [page])
 
     return(
         <div className="ConsultarRegistros Page">
-            <Divider className='PageTitle'><h1>Estudiantes</h1></Divider>
-			{contextHolder}
+            <Divider className='PageTitle'><h1>Profesores</h1></Divider>
+            {contextHolder}
             <div className="searchBar">
                 <Input
-                    placeholder="Buscar estudiante"
+                    placeholder="Buscar profesor"
                     value={searchText}
                     onChange={e => setSearchText(e.target.value)} />
-                <Button onClick={searchStudents}>Buscar</Button>
+                <Button onClick={searchTeachers}>Buscar</Button>
                 <Button onClick={() => setAddModal(true)}>Agregar</Button>
             </div>
 
@@ -62,27 +62,27 @@ const Students = () => {
                     {showList.map((item) => (
                         <List.Item className='listItem' key={item.id}>
                             <div className="info">
-                                <h4>{item.studentsIdentification} - {item.name} {item.lastname}</h4>
+                                <h4>{item.identification} - {item.name} {item.lastname}</h4>
                             </div>
-                            {item.state === 'Activo' && <Button color="danger" onClick={() => setDeactivateModal({open: true, studentId: item.id})}>Desactivar</Button>}
+                            {item.state === 'Activo' && <Button color="danger" onClick={() => setDeactivateModal({open: true, teacherId: item.id})}>Desactivar</Button>}
                         </List.Item>
                     ))}
                 </List>
             </div>
 
-            <AddNewStudent 
+            <AddNewTeacher 
                 open={addModal}
                 onCancel={() => setAddModal(false)}
                 updateList={() => getInfo()}
             />
-            <DeactivateStudentModal
+            <DeactivateTeacherModal
                 open={deactivateModal.open}
-                studentId={deactivateModal.studentId}
-                onCancel={() => setDeactivateModal({open: false, studentId: null})}
+                teacherId={deactivateModal.teacherId}
+                onCancel={() => setDeactivateModal({open: false, teacherId: null})}
                 updateList={() => getInfo()}
             />
         </div>
     )
 }
 
-export default Students
+export default Teachers
