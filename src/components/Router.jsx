@@ -15,6 +15,7 @@ import Enrollments from "../pages/Enrollments"
 import NewEnrollment from "../pages/NewEnrollment"
 import ModuleEnrollment from "../pages/ModuleEnrollment"
 import Certificates from "../pages/Certificates"
+import Section from "../pages/Section"
 
 const Router = () => {
 
@@ -36,6 +37,7 @@ const Router = () => {
             case "Modulos": return <Modulos />
             case "Cursos": return <Cursos />
             case "Certificados": return <Certificates/>
+            case "Section": return <Section />
             default: return <ErrorPage />
         }
     }catch(err){

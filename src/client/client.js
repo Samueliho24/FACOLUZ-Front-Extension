@@ -69,8 +69,13 @@ export async function getStudents(page){
 	return await http.get(`api/getStudents/${page}`, token, null)
 }
 
+//Periodos y Secciones
 export async function openPeriod(data){
 	return await http.post('api/openPeriod', token, data)
+}
+
+export async function getPeriods(){
+	return await http.get(`api/getPeriods`, token, null)
 }
 
 export async function getCurrentPeriod(){
@@ -83,6 +88,22 @@ export async function changeEndDatePeriod(data){
 
 export async function closePeriod(data){
 	return await http.post('api/closePeriod', token, data)
+}
+
+// Secciones
+export async function openSection(data){
+	return await http.post('api/openSection', token, data)
+}
+
+export async function getSections(){
+	return await http.get('api/getSections', token, null)
+}
+
+export async function getCurrentSection(){
+	return await http.get('api/getCurrentSection', token, null)
+}
+export async function closeSection(data){
+	return await http.post('api/closeSection', token, data)
 }
 
 export async function createNewCourse(data){

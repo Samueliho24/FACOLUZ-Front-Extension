@@ -1,11 +1,11 @@
 import axios from 'axios'
 
-// const ip = import.meta.env.VITE_BACK_ADDRESS
-	let ip
+const ip = import.meta.env.VITE_BACK_ADDRESS
+	//let ip
 	let url
 
 async function init(){
-	ip = await window.env.getBackendAddress();
+	//ip = await window.env.getBackendAddress();
 	url = `${ip}:3006`
 }
 

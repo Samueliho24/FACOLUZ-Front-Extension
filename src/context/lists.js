@@ -32,6 +32,11 @@ export const moduleList = [
     {label: 'Servicios Comunitario', value: 16},
 ]
 
+export const monthNames = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+]
+
 export const bloodTypeList = [
     {label: 'A+', value: 0},
     {label: 'O+', value: 1},

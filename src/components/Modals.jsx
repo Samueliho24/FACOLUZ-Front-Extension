@@ -1,3 +1,4 @@
+import { openSection, closeSection } from '../client/client'
 import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker } from 'antd'
 import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
@@ -10,6 +11,7 @@ import { getDate, getTime } from '../functions/formatDateTime'
 import InputPhone from "../components/InputPhone"
 import TextArea from 'antd/es/input/TextArea'
 import { mergeDate } from '../functions/formatDateTime'
+import dayjs from 'dayjs';
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -677,7 +679,7 @@ export const RetireStudentFromModule = ({open, onCancel, info}) => {
 	)
 }
 
-export const ManagePeriodModal = ({open, period, onCancel}) => {
+export const OpenPeriodModal = ({open, period, onCancel, refreshPeriods}) => {
 
 	const [loading, setLoading] = useState(false)
 	const [year, setYear] = useState('')
@@ -686,50 +688,31 @@ export const ManagePeriodModal = ({open, period, onCancel}) => {
 	const [endDate, setEndDate] = useState('')
 	const {messageApi} = useContext(appContext)
 
+	// Recibe el callback para actualizar la lista
+	
 	const submitChangeType = async () => {
 		setLoading(true)
-		if(period){
-			const data = {
-				year: period.year,
-				periodId: period.period,
-				endDate: endDate
-			}
-			const res = await changeEndDatePeriod(data)
-			setLoading(false)
-			if(res.status == 200){
-				messageApi.open({
-					type: 'success',
-					content: 'Se ha cambiado la fecha de culminacion del periodo'
-				})
-				onCancel()	
-			}else{
-				messageApi.open({
-					type: 'error',
-					content: res.response.data
-				})
-			}
+		const data = {
+			year: year,
+			period: periodId,
+			startDate: startDate,
+			endDate: endDate
+		}
+		const res = await openPeriod(data)
+		setLoading(false)
+		if(res.status == 200){
+			messageApi.open({
+				type: 'success',
+				content: 'Periodo iniciado con exito'
+			})
+			onCancel()
+			refreshPeriods()    
 		}else{
-			const data = {
-				year: year,
-				periodId: periodId,
-				startDate: startDate,
-				endDate: endDate
-			}
-			const res = await openPeriod(data)
-			setLoading(false)
-			if(res.status == 200){
-				messageApi.open({
-					type: 'success',
-					content: 'Periodo iniciado con exito'
-				})
-				onCancel()	
-			}else{
-				messageApi.open({
-					type: 'error',
-					content: res.response.data
-				})
-			}
-			}
+			messageApi.open({
+				type: 'error',
+				content: res.response.data
+			})
+		}
 	}
 
 	
@@ -754,21 +737,157 @@ export const ManagePeriodModal = ({open, period, onCancel}) => {
 			) : (
 				<>
 				<Form>
-					<Form.Item label='Año del periodo'>
-						<DatePicker style={{width: '150px'}}  picker="year" onChange={e => setYear(e)}/>
-					</Form.Item>
-					<Form.Item label='Periodo (1 o 2)'>
-						<Select placeholder='Periodo (1 o 2)' options={[{value: 1, label: 1}, {value: 2, label: 2}]} onChange={e => setPeriodId(e)} />
+					<Form.Item label='Periodo'>
+						<DatePicker.MonthPicker format="MMM-YYYY" style={{width: '150px'}}  onChange={e => {setYear(e.year());setPeriodId(e.month()+1);}}/>
 					</Form.Item>
 					<Form.Item label='Fecha de inicio del periodo'>
-						<DatePicker style={{width: '150px'}} onChange={e => setStartDate(e)}/>
+						<DatePicker format="DD/MM/YYYY" style={{width: '150px'}} onChange={e => setStartDate(e)}/>
 					</Form.Item>
 					<Form.Item label='Fecha de fin del periodo'>
-						<DatePicker style={{width: '150px'}} onChange={e => setEndDate(e)}/>
+						<DatePicker format="DD/MM/YYYY" style={{width: '150px'}} onChange={e => setEndDate(e)}/>
 					</Form.Item>
 				</Form>
 				</>
 			)}
+		</Modal>
+	)
+}
+
+export const ClosePeriodModal = ({open, onCancel, period, refreshPeriods}) => {
+	const { messageApi } = useContext(appContext)
+	const [loading, setLoading] = useState(false)
+
+	const handleClose = async () => {
+		if (!period) return;
+		setLoading(true)
+		try {
+			const res = await closePeriod({ year: period.year, period: period.period })
+			if (res.status === 200) {
+				messageApi.success('Periodo cerrado exitosamente')
+				onCancel()
+				refreshPeriods()
+			} else {
+				messageApi.error('Error al cerrar el periodo')
+			}
+		} catch (err) {
+			messageApi.error('Error al cerrar el periodo')
+		}
+		setLoading(false)
+	}
+
+	return (
+		<Modal
+			title={`¿Desea cerrar el periodo ${period ? (period.year + ' - ' + period.period) : ''}?`}
+			open={open}
+			closable={false}
+			destroyOnClose
+			footer={[
+				<Button key="cancel" onClick={onCancel} variant='text' disabled={loading}>Cancelar</Button>,
+				<Button key="close" onClick={handleClose} variant='solid' color='danger' disabled={loading}>Cerrar periodo</Button>
+			]}
+		>
+			<p>Esta acción marcará el periodo como finalizado y no podrá ser modificado.</p>
+		</Modal>
+	)
+}
+
+export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => {
+    const { messageApi } = useContext(appContext)
+    const [loading, setLoading] = useState(false)
+    const [periodId, setPeriodId] = useState('')
+    const [moduleId, setModuleId] = useState('')
+    const [teacherId, setTeacherId] = useState('')
+    const [code, setCode] = useState('')
+    const [modality, setModality] = useState('')
+    const [quota, setQuota] = useState('')
+
+    const handleAddSection = async () => {
+		const data = {
+			periodId,
+			moduleId,
+			teacherId,
+			code,
+			modality,
+			quota: Number(quota)
+		}
+        setLoading(true)
+        try {
+            const res = await openSection(data)
+            if (res.status === 200) {
+                messageApi.success('Sección creada correctamente')
+                onCancel()
+                refreshSections()
+            } else {
+                messageApi.error('Error al crear la sección')
+            }
+        } catch (err) {
+            messageApi.error('Error al crear la sección')
+        }
+        setLoading(false)
+    }
+
+    return (
+        <Modal
+            title='Agregar nueva sección'
+            open={open}
+            closable={false}
+            destroyOnClose
+            footer={[
+                <Button key="cancel" onClick={onCancel} variant='text' disabled={loading}>Cancelar</Button>,
+                <Button key="add" onClick={handleAddSection} variant='solid' color='primary' disabled={loading || !periodId || !moduleId || !teacherId || !code || !modality || !quota}>Agregar</Button>
+            ]}
+        >
+            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                <Input placeholder='ID del periodo' value={periodId} onChange={e => setPeriodId(e.target.value)} />
+                <Input placeholder='ID del módulo' value={moduleId} onChange={e => setModuleId(e.target.value)} />
+                <Input placeholder='ID del docente' value={teacherId} onChange={e => setTeacherId(e.target.value)} />
+                <Input placeholder='Código de sección' value={code} onChange={e => setCode(e.target.value)} maxLength={1} />
+                <Select
+                    placeholder='Modalidad'
+                    value={modality}
+                    onChange={setModality}
+                    options={[{value:'Intensivo',label:'Intensivo'},{value:'Sabatino',label:'Sabatino'}]}
+                />
+                <InputNumber placeholder='Cupo' value={quota} onChange={setQuota} min={1} style={{width:'100%'}} />
+            </div>
+        </Modal>
+    )
+}
+
+export const CloseSectionModal = ({open, onCancel, section, refreshSections}) => {
+	const { messageApi } = useContext(appContext)
+	const [loading, setLoading] = useState(false)
+
+	const handleClose = async () => {
+		if (!section) return;
+		setLoading(true)
+		try {
+			const res = await closeSection({ sectionId: section.id })
+			if (res.status === 200) {
+				messageApi.success('Sección cerrada exitosamente')
+				onCancel()
+				refreshSections()
+			} else {
+				messageApi.error('Error al cerrar la sección')
+			}
+		} catch (err) {
+			messageApi.error('Error al cerrar la sección')
+		}
+		setLoading(false)
+	}
+
+	return (
+		<Modal
+			title={`¿Desea cerrar la sección ${section ? section.name : ''}?`}
+			open={open}
+			closable={false}
+			destroyOnClose
+			footer={[
+				<Button key="cancel" onClick={onCancel} variant='text' disabled={loading}>Cancelar</Button>,
+				<Button key="close" onClick={handleClose} variant='solid' color='danger' disabled={loading}>Cerrar sección</Button>
+			]}
+		>
+			<p>Esta acción marcará la sección como finalizada y no podrá ser modificada.</p>
 		</Modal>
 	)
 }
@@ -946,44 +1065,6 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 					id='comments'
 				/>
 			</div>
-		</Modal>
-	)
-}
-
-export const UpdatePhoto = ({open, onCancel, studentId}) => {
-
-	const [loading, setLoading] = useState(false)
-	const {messageApi} = useContext(appContext)
-
-	async function upload(){
-		const picInput = document.getElementById(picInput).files[0]
-		const formData = new FormData
-		formData.append("picture", picInput)
-		formData.append("studentId", studentId)
-		const res = await updatePhoto(formData)
-		if(res.status == 201){
-			messageApi({
-				type: "success",
-				content: "Foto actualizada con exito"
-			})
-			onCancel()
-		}else{
-			messageApi.open({
-				type: "success",
-				content: "ha ocurrido un error"
-			})
-			onCancel()
-		}
-	}
-
-	return(
-		<Modal
-			open={open}
-			onCancel={() => onCancel()}
-			destroyOnHidden
-			title="Actualizar foto"
-		>
-			<input type='file' id="picInput"/>
 		</Modal>
 	)
 }

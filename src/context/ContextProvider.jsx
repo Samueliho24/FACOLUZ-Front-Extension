@@ -9,7 +9,7 @@ const ContextProvider = ({children}) => {
 	const [logged, setLogged] = useState(false)
 	const [prices, setPrices] = useState('')
 	const [currentModuleEnrollment, setCurrentModuleEnrollment] = useState('')
-	const [periodData, setPeriodData] = useState('')
+	const [currentPeriodSection, setCurrentPeriodSection] = useState('')
 	const [messageApi, contextHolder] = message.useMessage()
 	
 	return(
@@ -22,8 +22,8 @@ const ContextProvider = ({children}) => {
 			setPrices,
 			currentModuleEnrollment,
 			setCurrentModuleEnrollment,
-			periodData,
-			setPeriodData,
+			currentPeriodSection,
+			setCurrentPeriodSection,
 			messageApi,
 			contextHolder
 		}} >
