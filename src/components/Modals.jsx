@@ -3,7 +3,7 @@ import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice } from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto } from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -946,6 +946,44 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 					id='comments'
 				/>
 			</div>
+		</Modal>
+	)
+}
+
+export const UpdatePhoto = ({open, onCancel, studentId}) => {
+
+	const [loading, setLoading] = useState(false)
+	const {messageApi} = useContext(appContext)
+
+	async function upload(){
+		const picInput = document.getElementById(picInput).files[0]
+		const formData = new FormData
+		formData.append("picture", picInput)
+		formData.append("studentId", studentId)
+		const res = await updatePhoto(formData)
+		if(res.status == 201){
+			messageApi({
+				type: "success",
+				content: "Foto actualizada con exito"
+			})
+			onCancel()
+		}else{
+			messageApi.open({
+				type: "success",
+				content: "ha ocurrido un error"
+			})
+			onCancel()
+		}
+	}
+
+	return(
+		<Modal
+			open={open}
+			onCancel={() => onCancel()}
+			destroyOnHidden
+			title="Actualizar foto"
+		>
+			<input type='file' id="picInput"/>
 		</Modal>
 	)
 }
