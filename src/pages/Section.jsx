@@ -59,7 +59,7 @@ const Sections = () => {
             <div className="searchBar">
                 <Input placeholder="Buscar sección"/>
                 <Button>Buscar</Button>
-                {!(currentPeriodSection && currentPeriodSection.state === 'Finalizado') && (
+                {!(currentPeriodSection && currentPeriodSection.status === 'Finalizado') && (
                     <Button onClick={() => setModalOpen(true)}>Agregar</Button>
                 )}
             </div>
@@ -71,11 +71,11 @@ const Sections = () => {
                             return (
                                 <List.Item className='listItem' key={item.id}>
                                     <div className="info">
-                                        <h3>Seccion {item.code} - {item.modality} - {item.status}</h3>
+                                        <h3>{item.description} - Seccion {item.code} - {item.status}</h3>
                                     </div>
                                     <div className="buttons">
                                         <Tooltip title='Ver alumnos'><Button variant='solid' color='primary' size='large' onClick={() => { setCurrentSection(item); setView('SectionDetail'); }} >Alumnos</Button></Tooltip>
-                                        {!(currentPeriodSection && currentPeriodSection.state === 'Finalizado') && item.state !== 'Finalizado' && (
+                                        {!(currentPeriodSection && currentPeriodSection.status === 'Finalizado') && item.status !== 'Finalizado' && (
                                             <Tooltip title='Cerrar sección'>
                                                 <Button variant='solid' color='primary' size='large' onClick={() => { setSectionToClose(item); setCloseModalOpen(true); }}>Cerrar</Button>
                                             </Tooltip>

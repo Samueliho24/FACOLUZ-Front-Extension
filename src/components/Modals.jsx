@@ -767,6 +767,7 @@ export const OpenPeriodModal = ({open, period, onCancel, refreshPeriods}) => {
 	const [loading, setLoading] = useState(false)
 	const [year, setYear] = useState('')
 	const [periodId, setPeriodId] = useState('')
+	const [modality, setModality] = useState('')
 	const [startDate, setStartDate] = useState('')
 	const [endDate, setEndDate] = useState('')
 	const {messageApi} = useContext(appContext)
@@ -778,6 +779,7 @@ export const OpenPeriodModal = ({open, period, onCancel, refreshPeriods}) => {
 		const data = {
 			year: year,
 			period: periodId,
+			modality: modality,
 			startDate: startDate,
 			endDate: endDate
 		}
@@ -822,6 +824,14 @@ export const OpenPeriodModal = ({open, period, onCancel, refreshPeriods}) => {
 				<Form>
 					<Form.Item label='Periodo'>
 						<DatePicker.MonthPicker format="MMM-YYYY" style={{width: '150px'}}  onChange={e => {setYear(e.year());setPeriodId(e.month()+1);}}/>
+					</Form.Item>
+					<Form.Item label= 'Modalidad'>
+						<Select
+							placeholder='Modalidad'
+							value={modality ? modality : undefined}
+							onChange={setModality}
+							options={[{value:'Intensivo',label:'Intensivo'},{value:'Sabatino',label:'Sabatino'}]}
+						/>
 					</Form.Item>
 					<Form.Item label='Fecha de inicio del periodo'>
 						<DatePicker format="DD/MM/YYYY" style={{width: '150px'}} onChange={e => setStartDate(e)}/>
@@ -881,7 +891,6 @@ export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => 
     const [moduleId, setModuleId] = useState('')
     const [teacherId, setTeacherId] = useState('')
     const [code, setCode] = useState('')
-    const [modality, setModality] = useState('')
     const [quota, setQuota] = useState('')
 
 	useEffect(() => {
@@ -893,7 +902,6 @@ export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => 
             setModuleId('');
             setTeacherId('');
             setCode('');
-            setModality('');
             setQuota('');
         }
     }, [currentPeriodSection, open])
@@ -904,7 +912,6 @@ export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => 
 			moduleId,
 			teacherId,
 			code,
-			modality,
 			quota: Number(quota)
 		}
         setLoading(true)
@@ -931,7 +938,7 @@ export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => 
             destroyOnClose
             footer={[
                 <Button key="cancel" onClick={onCancel} variant='text' disabled={loading}>Cancelar</Button>,
-                <Button key="add" onClick={handleAddSection} variant='solid' color='primary' disabled={loading || !periodId || !moduleId || !teacherId || !code || !modality || !quota}>Agregar</Button>
+                <Button key="add" onClick={handleAddSection} variant='solid' color='primary' disabled={loading || !periodId || !moduleId || !teacherId || !code || !quota}>Agregar</Button>
             ]}
         >
             <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
@@ -948,12 +955,7 @@ export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => 
                     options={teacherList.map(t => ({ value: t.id, label: `${t.name} ${t.lastName}` }))}
                 />
                 <Input placeholder='Código de sección' value={code} onChange={e => setCode(e.target.value.toUpperCase())} maxLength={1} />
-                <Select
-                    placeholder='Modalidad'
-                    value={modality ? modality : undefined}
-                    onChange={setModality}
-                    options={[{value:'Intensivo',label:'Intensivo'},{value:'Sabatino',label:'Sabatino'}]}
-                />
+                
                 <InputNumber placeholder='Cupo' value={quota} onChange={setQuota} min={1} style={{width:'100%'}} />
             </div>
         </Modal>
@@ -984,7 +986,7 @@ export const CloseSectionModal = ({open, onCancel, section, refreshSections}) =>
 
 	return (
 		<Modal
-			title={`¿Desea cerrar la sección ${section ? section.name : ''}?`}
+			title={`¿Desea cerrar la sección ${section ? section.code: ''}?`}
 			open={open}
 			closable={false}
 			destroyOnClose
@@ -1266,7 +1268,7 @@ export const AddNewTeacher = ({open, onCancel, updateList}) => {
     }
 
     const submitNewTeacher = async () => {
-        if(!identification || !name || !lastname || !email || !phone){
+        if(!identification || !name || !lastname || !email || phone==''){
             messageApi.open({ type: 'error', content: 'Debe ingresar todos los datos' })
             return
         }
@@ -1297,7 +1299,7 @@ export const AddNewTeacher = ({open, onCancel, updateList}) => {
             destroyOnClose
             footer={[
                 <Button onClick={cleanForm} variant='link' color='danger'>Cancelar</Button>,
-                <Button disabled={loading || !identification || !name || !lastname || !email || !phone} onClick={submitNewTeacher} variant='solid' color='primary'>Agregar</Button>
+                <Button disabled={loading || !identification || !name || !lastname || !email || phone==''} onClick={submitNewTeacher} variant='solid' color='primary'>Agregar</Button>
             ]}
         >
             <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
@@ -1323,10 +1325,9 @@ export const AddNewTeacher = ({open, onCancel, updateList}) => {
                     onChange={e => setEmail(e.target.value)}
                     type='email'
                 />
-                <Input
-                    placeholder='Telefono'
+                <InputPhone
                     value={phone}
-                    onChange={e => setPhone(e.target.value)}
+                    setter={e => setPhone(e)}
                 />
             </div>
         </Modal>

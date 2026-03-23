@@ -41,11 +41,11 @@ const SectionEnrollment = () => {
             <div className='listContainer Content' >
                 <List bordered className='mainList'>
                         {showList.map(item => {
-                            const month = monthNames[item.periodId - 1] || item.periodId;
+                            const month = monthNames[item.period - 1] || item.period;
                             return (
                                 <List.Item className='listItem' key={item.id}>
                                     <div className="info">
-                                        <h3>{item.name} - {month} - {item.state}</h3>
+                                        <h3>Periodo {month}-{item.year} - Seccion {item.code} - 0/{item.quota}</h3>
                                     </div>
                                     <div></div>
                                     <div className="buttons">

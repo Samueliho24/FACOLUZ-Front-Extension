@@ -30,7 +30,7 @@ const ModuleEnrollment = () => {
                         { showList.map(item => (
                             <List.Item className='listItem' key={item.id}>
                                 <div className='info'>
-                                    <h3>{item.studentName} {item.studentLastname} - {item.studentId} - {item.phone} - {item.state}</h3>
+                                    <h3>{item.studentName} {item.studentLastname} - {item.studentId} - {item.phone} - {item.status}</h3>
                                 </div>
                                 <div className='buttons'>
                                     <Tooltip onClick={() => {setView('ModuleEnrollment'); setCurrentModuleEnrollment(item)}} title='Lista de inscritos'><Button shape='circle' variant='solid' color='primary' size='large' icon={<UnlockOutlined />} /></Tooltip>
