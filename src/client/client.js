@@ -222,8 +222,8 @@ export async function getPaymentsForInvoice(invoiceId){
 	return await http.get(`api/payments/${invoiceId}`, token, null)
 }
 
-export async function updatePhoto(){
-	return await http.post()
+export async function updatePhoto(formData, studentId){
+	return await http.post(`api/studentPhoto/${studentId}`, token, formData)
 }
 
 export async function deactivateStudent(id){

@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react"
 import { appContext } from "../context/appContext" 
 import { Input, Button, List, Divider } from "antd"
-import { AddNewStudent, DeactivateStudentModal } from "../components/Modals"
+import { AddNewStudent, DeactivateStudentModal, UpdatePhoto } from "../components/Modals"
 import { getStudents, filterStudents, deactivateStudent } from "../client/client"
 
 const Students = () => {
@@ -13,6 +13,8 @@ const Students = () => {
 
     const [addModal, setAddModal] = useState(false)
     const [deactivateModal, setDeactivateModal] = useState({open: false, studentId: null})
+    const [photoModal, setPhotoModal] = useState(false)
+    const [selectedStudent, setSelectedStudent] = useState("")
 
     async function getInfo(){
         const res = await getStudents(page)
@@ -64,7 +66,17 @@ const Students = () => {
                             <div className="info">
                                 <h4>{item.studentsIdentification} - {item.name} {item.lastname}</h4>
                             </div>
-                            {item.status === 'Activo' && <Button color="danger" onClick={() => setDeactivateModal({open: true, studentId: item.id})}>Desactivar</Button>}
+                            <Button
+                                onClick={() => {setSelectedStudent(item.id); setPhotoModal(true)}}
+                            >
+                                Actualizar foto
+                            </Button>
+                            {item.status === 'Activo' && 
+                                <Button
+                                    color="danger" 
+                                    onClick={() => setDeactivateModal({open: true, studentId: item.id})}
+                                >Desactivar</Button>
+                            }
                         </List.Item>
                     ))}
                 </List>
@@ -80,6 +92,12 @@ const Students = () => {
                 studentId={deactivateModal.studentId}
                 onCancel={() => setDeactivateModal({open: false, studentId: null})}
                 updateList={() => getInfo()}
+            />
+
+            <UpdatePhoto 
+                open={photoModal}
+                onCancel={() => setPhotoModal(false)}
+                studentId={selectedStudent}
             />
         </div>
     )

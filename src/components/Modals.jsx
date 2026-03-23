@@ -730,20 +730,21 @@ export const UpdatePhoto = ({open, onCancel, studentId}) => {
 	const {messageApi} = useContext(appContext)
 
 	async function upload(){
-		const picInput = document.getElementById(picInput).files[0]
+		setLoading(true)
+		const picInput = document.getElementById("picInput").files[0]
 		const formData = new FormData
-		formData.append("picture", picInput)
-		formData.append("studentId", studentId)
-		const res = await updatePhoto(formData)
+		formData.append("file", picInput)
+		const res = await updatePhoto(formData, studentId)
+		setLoading(false)
 		if(res.status == 201){
-			messageApi({
+			messageApi.open({
 				type: "success",
 				content: "Foto actualizada con exito"
 			})
 			onCancel()
 		}else{
 			messageApi.open({
-				type: "success",
+				type: "error",
 				content: "ha ocurrido un error"
 			})
 			onCancel()
@@ -755,7 +756,12 @@ export const UpdatePhoto = ({open, onCancel, studentId}) => {
 			open={open}
 			onCancel={() => onCancel()}
 			destroyOnHidden
-			title="Actualizar foto"
+			title="Selecciona una foto para subir"
+			footer={[
+				<Button onClick={upload}>
+					Actualizar foto
+				</Button>
+			]}
 		>
 			<input type='file' id="picInput"/>
 		</Modal>
