@@ -50,7 +50,7 @@ const Enrollments = () => {
 								<h3>{item.description} </h3>
 							</div>
 							<div className='buttons'>
-								<Tooltip onClick={() => {setView('ModuleEnrollment'); setCurrentModuleEnrollment(item)}} title='Lista de inscritos'><Button shape='circle' variant='solid' color='primary' size='large' icon={<MenuOutlined />} /></Tooltip>
+								<Tooltip onClick={() => {setView('SectionEnrollment'); setCurrentModuleEnrollment(item)}} title='Lista de inscritos'><Button shape='circle' variant='solid' color='primary' size='large' icon={<MenuOutlined />} /></Tooltip>
 							</div>
 						</List.Item>
 					)) }

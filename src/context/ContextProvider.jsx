@@ -10,6 +10,8 @@ const ContextProvider = ({children}) => {
 	const [prices, setPrices] = useState('')
 	const [currentModuleEnrollment, setCurrentModuleEnrollment] = useState('')
 	const [currentPeriodSection, setCurrentPeriodSection] = useState('')
+	const [moduleList, setModuleList] = useState([])
+	const [teacherList, setTeacherList] = useState([])
 	const [messageApi, contextHolder] = message.useMessage()
 	
 	return(
@@ -24,6 +26,10 @@ const ContextProvider = ({children}) => {
 			setCurrentModuleEnrollment,
 			currentPeriodSection,
 			setCurrentPeriodSection,
+			moduleList,
+			setModuleList,
+			teacherList,
+			setTeacherList,
 			messageApi,
 			contextHolder
 		}} >

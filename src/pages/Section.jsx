@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Button, Divider, Input, List, Tooltip } from "antd";
-import { getSections, closeSection } from "../client/client";
+import { getSections, closeSection, getAllModules, getTeachers } from "../client/client";
 import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
 import { OpenSectionModal, CloseSectionModal } from '../components/Modals'
@@ -9,8 +9,10 @@ import { getDate } from "../functions/formatDateTime";
 
 const Sections = () => {
     const [section, setSection] = useState(null)
-    
-    const {contextHolder, messageApi, currentPeriodSection} = useContext(appContext)
+    const [moduleList, setModuleList] = useState([]);
+    const [teacherList, setTeacherList] = useState([]);
+
+    const {contextHolder, messageApi, currentPeriodSection, setModuleList: setCtxModuleList, setTeacherList: setCtxTeacherList} = useContext(appContext)
     const [modalOpen, setModalOpen] = useState(false)
     const [showList, setShowList] = useState([])
     const [closeModalOpen, setCloseModalOpen] = useState(false)
@@ -19,14 +21,29 @@ const Sections = () => {
     
     // Función para refrescar la lista de secciones
     const refreshSections = async () => {
-        const res = await getSections()
+        const res = await getSections(currentPeriodSection.id)
         if(res.status == 200){
             setShowList(res.data)
         }
     }
 
+        // Cargar listas de módulos y profesores al cargar la ventana
+    const loadModuleAndTeacherLists = async () => {
+        const modulesRes = await getAllModules();
+        const teachersRes = await getTeachers(1); // Asume página 1, ajustar si es necesario
+        if (modulesRes.status === 200) {
+            setModuleList(modulesRes.data);
+            if (setCtxModuleList) setCtxModuleList(modulesRes.data);
+        }
+        if (teachersRes.status === 200) {
+            setTeacherList(teachersRes.data);
+            if (setCtxTeacherList) setCtxTeacherList(teachersRes.data);
+        }
+    };
+
     useEffect(() => {
         refreshSections()
+        loadModuleAndTeacherLists()
     }, [])
 
     return(
@@ -54,7 +71,7 @@ const Sections = () => {
                             return (
                                 <List.Item className='listItem' key={item.id}>
                                     <div className="info">
-                                        <h3>{item.name} - {month} - {item.state}</h3>
+                                        <h3>Seccion {item.code} - {item.modality} - {item.status}</h3>
                                     </div>
                                     <div className="buttons">
                                         <Tooltip title='Ver alumnos'><Button variant='solid' color='primary' size='large' onClick={() => { setCurrentSection(item); setView('SectionDetail'); }} >Alumnos</Button></Tooltip>

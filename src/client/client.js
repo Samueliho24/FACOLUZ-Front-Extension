@@ -95,8 +95,8 @@ export async function openSection(data){
 	return await http.post('api/openSection', token, data)
 }
 
-export async function getSections(){
-	return await http.get('api/getSections', token, null)
+export async function getSections(id){
+	return await http.get(`api/getSections/${id}`, token, null)
 }
 
 export async function getCurrentSection(){
@@ -104,6 +104,10 @@ export async function getCurrentSection(){
 }
 export async function closeSection(data){
 	return await http.post('api/closeSection', token, data)
+}
+
+export async function getSectionByModule(moduleId){
+	return await http.get(`api/getSectionByModule/${moduleId}`, token, null)
 }
 
 export async function createNewCourse(data){
@@ -149,7 +153,7 @@ export async function registerEnrollment(data){
 export async function updateEnrollmentState(data){
 	return await http.patch('api/updateEnrollmentState', token, data)
 }
-
+//Teachers
 export async function getTeachers(page){
     return await http.get(`api/getTeachers/${page}`, token, null)
 }
@@ -158,6 +162,10 @@ export async function filterTeachers(param){
 }
 export async function createTeacher(data){
     return await http.post('api/registerTeacher', token, data)
+}
+
+export async function deactivateTeacher(id){
+    return await http.post('api/deactivateTeacher', token, {id})
 }
 
 export async function getAllUsers(page) {

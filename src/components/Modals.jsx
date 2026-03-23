@@ -4,7 +4,7 @@ import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, createTeacher, deactivateTeacher, deactivateStudent } from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent } from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -793,7 +793,7 @@ export const ClosePeriodModal = ({open, onCancel, period, refreshPeriods}) => {
 }
 
 export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => {
-    const { messageApi } = useContext(appContext)
+    const { messageApi, currentPeriodSection, moduleList, teacherList } = useContext(appContext)
     const [loading, setLoading] = useState(false)
     const [periodId, setPeriodId] = useState('')
     const [moduleId, setModuleId] = useState('')
@@ -802,12 +802,26 @@ export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => 
     const [modality, setModality] = useState('')
     const [quota, setQuota] = useState('')
 
+	useEffect(() => {
+        if (currentPeriodSection) {
+            setPeriodId(currentPeriodSection.id || currentPeriodSection.periodId || '')
+        }
+        if (!open) {
+            // Limpiar campos al cerrar el modal
+            setModuleId('');
+            setTeacherId('');
+            setCode('');
+            setModality('');
+            setQuota('');
+        }
+    }, [currentPeriodSection, open])
+
     const handleAddSection = async () => {
 		const data = {
 			periodId,
 			moduleId,
 			teacherId,
-			code,
+			code: code.toUpperCase(),
 			modality,
 			quota: Number(quota)
 		}
@@ -839,13 +853,22 @@ export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => 
             ]}
         >
             <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-                <Input placeholder='ID del periodo' value={periodId} onChange={e => setPeriodId(e.target.value)} />
-                <Input placeholder='ID del módulo' value={moduleId} onChange={e => setModuleId(e.target.value)} />
-                <Input placeholder='ID del docente' value={teacherId} onChange={e => setTeacherId(e.target.value)} />
+                <Select
+                    placeholder='Módulo'
+                    value={moduleId ? moduleId : undefined}
+                    onChange={setModuleId}
+                    options={moduleList.map(m => ({ value: m.id, label: m.description }))}
+                />
+                <Select
+                    placeholder='Docente'
+                    value={teacherId ? teacherId : undefined}
+                    onChange={setTeacherId}
+                    options={teacherList.map(t => ({ value: t.id, label: `${t.name} ${t.lastName}` }))}
+                />
                 <Input placeholder='Código de sección' value={code} onChange={e => setCode(e.target.value)} maxLength={1} />
                 <Select
                     placeholder='Modalidad'
-                    value={modality}
+                    value={modality ? modality : undefined}
                     onChange={setModality}
                     options={[{value:'Intensivo',label:'Intensivo'},{value:'Sabatino',label:'Sabatino'}]}
                 />

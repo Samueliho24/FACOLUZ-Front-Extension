@@ -64,7 +64,7 @@ const Teachers = () => {
                             <div className="info">
                                 <h4>{item.identification} - {item.name} {item.lastname}</h4>
                             </div>
-                            {item.state === 'Activo' && <Button color="danger" onClick={() => setDeactivateModal({open: true, teacherId: item.id})}>Desactivar</Button>}
+                            {item.status === 'Activo' && <Button color="danger" onClick={() => setDeactivateModal({open: true, teacherId: item.id})}>Desactivar</Button>}
                         </List.Item>
                     ))}
                 </List>
