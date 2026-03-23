@@ -226,10 +226,6 @@ export async function updatePhoto(){
 	return await http.post()
 }
 
-export async function deactivateTeacher(id){
-    return await http.post('api/deactivateTeacher', token, {id})
-}
-
 export async function deactivateStudent(id){
     return await http.post('api/deactivateStudent', token, {id})
 }

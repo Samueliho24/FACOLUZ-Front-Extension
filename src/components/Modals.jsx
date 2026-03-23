@@ -472,6 +472,7 @@ export const EditCourse = ({open, onCancel, selectedCourse}) => {
 	const [showList, setShowList] = useState([])
 	const [modulesList, setModulesList] = useState([])
 	const [selectedModule, setSelectedModule] = useState([])
+	const [orderModule,setOrderModule] = useState(null)
 	
 	async function getModules(){
 		const res = await getAllModules()
@@ -491,9 +492,15 @@ export const EditCourse = ({open, onCancel, selectedCourse}) => {
 			messageApi.open({type: 'error', content: 'El módulo ya está asignado a este curso'})
 			return
 		}
+
 		const newItem = { moduleid: moduleValue }
-		setShowList(prev => [...prev, newItem])
+		setShowList(prev => {
+			const newList = [...prev];
+			newList.splice((orderModule && orderModule>0) ? orderModule-1 : newList.length, 0, newItem); 
+			return newList})
+		console.log(showList)
 		setSelectedModule(null)
+		setOrderModule(null)
 	}
 
 	function removeModule(moduleId){
@@ -546,6 +553,7 @@ export const EditCourse = ({open, onCancel, selectedCourse}) => {
 					defaultValue={"Seleccione un Modulo"}
 					options={modulesList}
 					onChange={e => setSelectedModule(e)}/>
+				<InputNumber style={{width: '20%'}} placeholder='Posicion del modulo' value={orderModule} onChange={e => setOrderModule(e)} maxLength={2}/>
 				<Button onClick={() => assignNewModule()}>Agregar</Button>
 			</div>
 
@@ -676,6 +684,80 @@ export const RetireStudentFromModule = ({open, onCancel, info}) => {
 			title="Retirar al alumndo del modulo?"
 		>
 			
+		</Modal>
+	)
+}
+
+export const DeactivateStudentModal = ({open, onCancel, studentId, updateList}) => {
+    const { messageApi } = useContext(appContext)
+    const [loading, setLoading] = useState(false)
+
+    const handleDeactivate = async () => {
+        setLoading(true)
+        const res = await deactivateStudent(studentId)
+        if(res.status === 200){
+            messageApi.open({ type: 'success', content: 'Estudiante desactivado correctamente' })
+            setLoading(false)
+            updateList()
+            onCancel()
+        }else{
+            messageApi.open({ type: 'error', content: 'Error al desactivar estudiante' })
+            setLoading(false)
+        }
+    }
+
+    return(
+        <Modal
+            title='¿Desea desactivar este estudiante?'
+            open={open}
+            closable={false}
+            destroyOnClose
+            footer={[
+                <Button onClick={onCancel} variant='text' color='primary' disabled={loading}>Cancelar</Button>,
+                <Button onClick={handleDeactivate} variant='solid' color='danger' disabled={loading}>Desactivar</Button>
+            ]}
+        >
+            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                <p>Esta acción marcará al estudiante como inactivo y no podrá ser inscrito en nuevos módulos.</p>
+            </div>
+        </Modal>
+    )
+}
+
+export const UpdatePhoto = ({open, onCancel, studentId}) => {
+
+	const [loading, setLoading] = useState(false)
+	const {messageApi} = useContext(appContext)
+
+	async function upload(){
+		const picInput = document.getElementById(picInput).files[0]
+		const formData = new FormData
+		formData.append("picture", picInput)
+		formData.append("studentId", studentId)
+		const res = await updatePhoto(formData)
+		if(res.status == 201){
+			messageApi({
+				type: "success",
+				content: "Foto actualizada con exito"
+			})
+			onCancel()
+		}else{
+			messageApi.open({
+				type: "success",
+				content: "ha ocurrido un error"
+			})
+			onCancel()
+		}
+	}
+
+	return(
+		<Modal
+			open={open}
+			onCancel={() => onCancel()}
+			destroyOnHidden
+			title="Actualizar foto"
+		>
+			<input type='file' id="picInput"/>
 		</Modal>
 	)
 }
@@ -821,7 +903,7 @@ export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => 
 			periodId,
 			moduleId,
 			teacherId,
-			code: code.toUpperCase(),
+			code,
 			modality,
 			quota: Number(quota)
 		}
@@ -865,7 +947,7 @@ export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => 
                     onChange={setTeacherId}
                     options={teacherList.map(t => ({ value: t.id, label: `${t.name} ${t.lastName}` }))}
                 />
-                <Input placeholder='Código de sección' value={code} onChange={e => setCode(e.target.value)} maxLength={1} />
+                <Input placeholder='Código de sección' value={code} onChange={e => setCode(e.target.value.toUpperCase())} maxLength={1} />
                 <Select
                     placeholder='Modalidad'
                     value={modality ? modality : undefined}
@@ -1163,3 +1245,126 @@ export const EditPeriodModal = ({open, onCancel, period, refreshPeriods}) => {
         </Modal>
     );
 };
+//Teachers
+export const AddNewTeacher = ({open, onCancel, updateList}) => {
+    const { messageApi } = useContext(appContext)
+    const [loading, setLoading] = useState(false)
+    const [identification, setIdentification] = useState('')
+    const [name, setName] = useState('')
+    const [lastname, setLastname] = useState('')
+    const [email, setEmail] = useState('')
+    const [phone, setPhone] = useState('')
+
+    const cleanForm = () => {
+        setIdentification('')
+        setName('')
+        setLastname('')
+        setEmail('')
+        setPhone('')
+        setLoading(false)
+        onCancel()
+    }
+
+    const submitNewTeacher = async () => {
+        if(!identification || !name || !lastname || !email || !phone){
+            messageApi.open({ type: 'error', content: 'Debe ingresar todos los datos' })
+            return
+        }
+        setLoading(true)
+        const data = {
+            identification: Number(identification),
+            name,
+            lastname,
+            email,
+            phone
+        }
+        const res = await createTeacher(data)
+        if(res.status === 200){
+            messageApi.open({ type: 'success', content: 'Profesor registrado correctamente' })
+            cleanForm()
+            updateList()
+        }else{
+            messageApi.open({ type: 'error', content: 'Error al registrar profesor' })
+            setLoading(false)
+        }
+    }
+
+    return(
+        <Modal
+            title='Agregar nuevo profesor'
+            open={open} 
+            closable={false}
+            destroyOnClose
+            footer={[
+                <Button onClick={cleanForm} variant='link' color='danger'>Cancelar</Button>,
+                <Button disabled={loading || !identification || !name || !lastname || !email || !phone} onClick={submitNewTeacher} variant='solid' color='primary'>Agregar</Button>
+            ]}
+        >
+            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                <Input
+                    placeholder='Numero de cedula'
+                    value={identification}
+                    onChange={e => setIdentification(e.target.value)}
+                    type='number'
+                />
+                <Input
+                    placeholder='Nombre'
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                />
+                <Input
+                    placeholder='Apellido'
+                    value={lastname}
+                    onChange={e => setLastname(e.target.value)}
+                />
+                <Input
+                    placeholder='Correo electronico'
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    type='email'
+                />
+                <Input
+                    placeholder='Telefono'
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                />
+            </div>
+        </Modal>
+    )
+}
+
+export const DeactivateTeacherModal = ({open, onCancel, teacherId, updateList}) => {
+    const { messageApi } = useContext(appContext)
+    const [loading, setLoading] = useState(false)
+
+    const handleDeactivate = async () => {
+        setLoading(true)
+        const res = await deactivateTeacher(teacherId)
+        if(res.status === 200){
+            messageApi.open({ type: 'success', content: 'Profesor desactivado correctamente' })
+            setLoading(false)
+            updateList()
+            onCancel()
+        }else{
+            messageApi.open({ type: 'error', content: 'Error al desactivar profesor' })
+            setLoading(false)
+        }
+    }
+
+    return(
+        <Modal
+            title='¿Desea desactivar este profesor?'
+            open={open}
+            closable={false}
+            destroyOnClose
+            footer={[
+                <Button onClick={onCancel} variant='text' color='primary' disabled={loading}>Cancelar</Button>,
+                <Button onClick={handleDeactivate} variant='solid' color='danger' disabled={loading}>Desactivar</Button>
+            ]}
+        >
+            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                <p>Esta acción marcará al profesor como inactivo y no podrá ser asignado a nuevas secciones.</p>
+            </div>
+        </Modal>
+    )
+}
