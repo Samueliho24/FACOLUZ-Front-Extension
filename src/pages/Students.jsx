@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from "react"
 import { appContext } from "../context/appContext" 
-import { Input, Button, List, Divider } from "antd"
+import { Input, Button, List, Divider, message } from "antd"
 import { AddNewStudent, DeactivateStudentModal, UpdatePhoto } from "../components/Modals"
-import { getStudents, filterStudents, deactivateStudent } from "../client/client"
+import { getStudents, filterStudents, deactivateStudent, printStudentCard } from "../client/client"
 
 const Students = () => {
 
@@ -42,6 +42,21 @@ const Students = () => {
         }
     }
 
+    async function print(e){
+        const res = await await window.api.printStudentCard(e)
+        if(res.ok === true){
+            messageApi.open({
+                type: 'success',
+                content: "Carnet guardado en descargas"
+            })
+        }else{
+            messageApi.open({
+                type: "error",
+                content: "ha ocurrido un error"
+            })
+        }
+    }
+
     useEffect(() => {
         getInfo()
     }, [page])
@@ -66,11 +81,19 @@ const Students = () => {
                             <div className="info">
                                 <h4>{item.studentsIdentification} - {item.name} {item.lastname}</h4>
                             </div>
+
+                            <Button
+                                onClick={() => {print(item.id)}}
+                            >
+                                Imprimir carnet
+                            </Button>
+
                             <Button
                                 onClick={() => {setSelectedStudent(item.id); setPhotoModal(true)}}
                             >
                                 Actualizar foto
                             </Button>
+                            
                             {item.status === 'Activo' && 
                                 <Button
                                     color="danger" 

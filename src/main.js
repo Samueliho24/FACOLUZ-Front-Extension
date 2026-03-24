@@ -51,7 +51,7 @@ ipcMain.handle('getDailyReport', async() => {
 })
 
 
-ipcMain.handle('saveCertificate', async(e, certificate_id) => {
+ipcMain.handle('saveCertificate', async(_e, certificate_id) => {
   console.log("Hola")
   console.log(certificate_id)
   console.log("Hola")
@@ -63,6 +63,17 @@ ipcMain.handle('saveCertificate', async(e, certificate_id) => {
   const reportDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate())
   const pdfBuffer = Buffer.from(res.data)
   const filePath = path.join(app.getPath('downloads'), "Certificado.pdf")
+  writeFileSync(filePath, pdfBuffer)
+  return {ok: true, path: filePath}
+})
+
+ipcMain.handle('printStudentCard', async(_e, studentId) => {
+  const address = `http://localhost:3006/api/getStudentCard/${studentId}`
+  const res = await axios.get(address, {
+    responseType: 'arraybuffer'
+  })
+  const pdfBuffer = Buffer.from(res.data)
+  const filePath = path.join(app.getPath('downloads'), "Carnet.pdf")
   writeFileSync(filePath, pdfBuffer)
   return {ok: true, path: filePath}
 })

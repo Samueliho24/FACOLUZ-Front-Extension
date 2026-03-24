@@ -226,6 +226,10 @@ export async function updatePhoto(formData, studentId){
 	return await http.post(`api/studentPhoto/${studentId}`, token, formData)
 }
 
+export async function printStudentCard(studentId) {
+	return await http.get(`api/getStudentCard/${studentId}`, token, null)
+}
+
 export async function deactivateStudent(id){
     return await http.post('api/deactivateStudent', token, {id})
 }
