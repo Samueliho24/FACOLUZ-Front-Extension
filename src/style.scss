@@ -664,6 +664,16 @@ body{
 				width: 60%;
 			}
 		}
+		.rowEnrollment{
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 3px;
+
+			.rowItem{
+				width: 60%;
+			}
+		}
 	}
 }
 

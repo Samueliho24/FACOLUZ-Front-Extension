@@ -65,6 +65,14 @@ export async function getStudentById(id){
 	return await http.get(`api/getStudentById/${id}`, token, null)
 }
 
+export async function getStudentsInSection(id) {
+	return await http.get(`api/getStudentsInSection/${id}`, token, null)
+}
+
+export async function getLastEnrollmentByStudentId(studentId){
+	return await http.get(`api/getLastEnrollmentByStudentId/${studentId}`, token, null)
+}
+
 export async function getStudents(page){
 	return await http.get(`api/getStudents/${page}`, token, null)
 }

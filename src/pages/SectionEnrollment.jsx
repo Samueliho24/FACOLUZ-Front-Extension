@@ -1,15 +1,17 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Button, Divider, Input, List, Tooltip } from "antd";
-import { getSections, getSectionByModule } from "../client/client";
+import { getSections, getSectionByModule, getStudentsInSection } from "../client/client";
 import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
 import { monthNames } from "../context/lists";
 import { getDate } from "../functions/formatDateTime";
+import { getStudentListOfSection } from '../components/Modals'
 
 const SectionEnrollment = () => {
     const {contextHolder, messageApi, currentModuleEnrollment} = useContext(appContext)
     const [modalOpen, setModalOpen] = useState(false)
     const [showList, setShowList] = useState([])
+    const [currentSection, setCurrentSection] = useState(null)
     const [closeModalOpen, setCloseModalOpen] = useState(false)
     const [sectionToClose, setSectionToClose] = useState(null)
     const {view, setView} = useContext(routerContext)
@@ -22,8 +24,20 @@ const SectionEnrollment = () => {
         }
     }
 
+    const countStudentsInSection = async (sectionId) => {
+    try {
+        const response = await getStudentsInSection(sectionId);
+        setCurrentSection(response);
+        return response.length;
+    } catch (error) {
+        console.error(error);
+        return 0;
+    }
+};
+
     useEffect(() => {
         refreshSections()
+        countStudentsInSection()
     }, [])
 
     return(
@@ -50,14 +64,18 @@ const SectionEnrollment = () => {
                                     <div></div>
                                     <div className="buttons">
 
-                                        <Tooltip title='Ver alumnos'><Button variant='solid' color='primary' size='large' onClick={() => { setCurrentSection(item); setView('SectionDetail'); }} >Alumnos</Button></Tooltip>
+                                        <Tooltip title='Ver alumnos'><Button variant='solid' color='primary' size='large' onClick={() => { setCurrentSection(item); setCloseModalOpen(true) }} >Alumnos</Button></Tooltip>
                                     </div>
                                 </List.Item>
                             );
                         })}
                 </List>
             </div>
-            
+            <getStudentListOfSection
+                open={closeModalOpen}
+                onCancel={() => {setCloseModalOpen(false); setCurrentSection(null)}}
+                sectionId={currentSection}
+            />
         </div>
     )
 }

@@ -1375,3 +1375,56 @@ export const DeactivateTeacherModal = ({open, onCancel, teacherId, updateList}) 
         </Modal>
     )
 }
+
+export const getStudentListOfSection = (open, onCancel, sectionId) => {
+    const [students, setStudents] = useState([])
+    const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
+        const fetchStudents = async () => {
+            setLoading(true)
+            const res = await getStudentsInSection(sectionId.id)
+            if(res.status === 200){
+                setStudents(res.data)
+            }else{
+                messageApi.open({ type: 'error', content: 'Error al obtener los estudiantes de la sección' })
+            }
+            setLoading(false)
+        }
+        fetchStudents()
+    }, [sectionId])
+
+    const listData = students.map(student => ({
+        title: `${student.name} ${student.lastname}`,
+        description: `Identificación: ${student.studentsIdentification}`,
+        key: student.id
+    }))
+
+    return(
+        <Modal
+            title='Estudiantes inscritos en la sección'
+            open={open}
+            closable={false}
+            destroyOnClose
+            footer={[
+                <Button onClick={onCancel} variant='text' color='primary' disabled={loading}>Cancelar</Button>,
+            ]}
+        >
+            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                <List
+                    loading={loading}
+                    dataSource={listData}
+                    renderItem={item => (
+                        <List.Item>
+                            <Tooltip title={item.title}>
+                                <List.Item.Meta
+                                    description={item.description}
+                                />
+                            </Tooltip>
+                        </List.Item>
+                    )}
+                />
+            </div>
+        </Modal>
+)
+}
