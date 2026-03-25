@@ -83,7 +83,6 @@ const Periodos = () => {
                 refreshPeriods={refreshPeriods}
             />
 
-            {/* Modal de edición de periodo */}
             <EditPeriodModal
                 open={editModalOpen}
                 onCancel={() => { setEditModalOpen(false); setPeriodToEdit(null); }}

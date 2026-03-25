@@ -29,7 +29,8 @@ export const moduleList = [
     {label: 'Educacion y Promocion de la Salud Bucal', value: 13},
     {label: 'Fotografia Clinica y Marketing en Odontologia', value: 14},
     {label: 'Practica Profesional II', value: 15},
-    {label: 'Servicios Comunitario', value: 16},
+    {label: 'Salud Colectiva y Buen Vivir', value: 16}
+    //Servicio comunitario va incluido en las practicas profesionales
 ]
 
 export const monthNames = [

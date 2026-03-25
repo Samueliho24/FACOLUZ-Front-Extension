@@ -1,10 +1,10 @@
 import { openSection, closeSection } from '../client/client'
-import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker } from 'antd'
+import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip } from 'antd'
 import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent } from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection } from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -1376,27 +1376,30 @@ export const DeactivateTeacherModal = ({open, onCancel, teacherId, updateList}) 
     )
 }
 
-export const getStudentListOfSection = (open, onCancel, sectionId) => {
+export const StudentListOfSectionModal = ({open, onCancel, sectionId}) => {
     const [students, setStudents] = useState([])
     const [loading, setLoading] = useState(false)
 
+	const fetchStudents = async () => {
+		setLoading(true)
+		const res = await getStudentsInSection(sectionId.id)
+		if(res.status === 200){
+			setStudents(res.data)
+		}else{
+			messageApi.open({ type: 'error', content: 'Error al obtener los estudiantes de la sección' })
+		}
+		setLoading(false)
+	}
+
     useEffect(() => {
-        const fetchStudents = async () => {
-            setLoading(true)
-            const res = await getStudentsInSection(sectionId.id)
-            if(res.status === 200){
-                setStudents(res.data)
-            }else{
-                messageApi.open({ type: 'error', content: 'Error al obtener los estudiantes de la sección' })
-            }
-            setLoading(false)
-        }
         fetchStudents()
     }, [sectionId])
 
     const listData = students.map(student => ({
         title: `${student.name} ${student.lastname}`,
-        description: `Identificación: ${student.studentsIdentification}`,
+        description: `Cedula: ${student.studentsIdentification}`,
+		date: `${getDate(student.dateEnrollment)}`,
+		status: `${student.status}`,
         key: student.id
     }))
 
@@ -1407,18 +1410,34 @@ export const getStudentListOfSection = (open, onCancel, sectionId) => {
             closable={false}
             destroyOnClose
             footer={[
-                <Button onClick={onCancel} variant='text' color='primary' disabled={loading}>Cancelar</Button>,
+				<Button onClick={() => downloadPDF(listData)} variant='solid' color='primary' disabled={loading}>Generar lista</Button>,
+                <Button onClick={onCancel} variant='text' color='primary' disabled={loading}>Cerrar</Button>,
             ]}
         >
             <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
                 <List
+					bordered
+					className='mainList'
                     loading={loading}
                     dataSource={listData}
                     renderItem={item => (
                         <List.Item>
                             <Tooltip title={item.title}>
                                 <List.Item.Meta
-                                    description={item.description}
+									title={item.title}
+									description={
+										<span style={{ color: '#474747' }}> {/* Aquí cambias el color general */}
+											{item.description} 
+											{'\t - \t Fecha de inscripción: ' + item.date}
+											<span style={{ 
+												color: item.status === 'Pagada' ? '#474747' : 'red',
+												fontWeight: 'bold' 
+											}}>
+												{'\t - \t Estado: ' + item.status}
+											</span>
+										</span>
+										//item.description + '\t - \t Fecha de inscripción: ' + item.date + '\t - \t Estado: ' + item.status
+									}
                                 />
                             </Tooltip>
                         </List.Item>

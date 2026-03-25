@@ -5,18 +5,14 @@ import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
 import { monthNames } from "../context/lists";
 import { getDate } from "../functions/formatDateTime";
-import { getStudentListOfSection } from '../components/Modals'
+import { StudentListOfSectionModal } from '../components/Modals'
 
 const SectionEnrollment = () => {
     const {contextHolder, messageApi, currentModuleEnrollment} = useContext(appContext)
-    const [modalOpen, setModalOpen] = useState(false)
     const [showList, setShowList] = useState([])
     const [currentSection, setCurrentSection] = useState(null)
-    const [closeModalOpen, setCloseModalOpen] = useState(false)
-    const [sectionToClose, setSectionToClose] = useState(null)
-    const {view, setView} = useContext(routerContext)
+    const [modalOpen, setModalOpen] = useState(false)
     
-    // Función para refrescar la lista de secciones
     const refreshSections = async () => {
         const res = await getSectionByModule(currentModuleEnrollment.id)
         if(res.status == 200){
@@ -24,21 +20,15 @@ const SectionEnrollment = () => {
         }
     }
 
-    const countStudentsInSection = async (sectionId) => {
-    try {
-        const response = await getStudentsInSection(sectionId);
-        setCurrentSection(response);
-        return response.length;
-    } catch (error) {
-        console.error(error);
-        return 0;
-    }
-};
-
     useEffect(() => {
         refreshSections()
-        countStudentsInSection()
     }, [])
+
+    function handlerStudentsList (item){
+        if(!item) return
+        setCurrentSection(item) 
+        setModalOpen(true) 
+    }
 
     return(
         <div className="ConsultarRegistros Page">
@@ -49,7 +39,6 @@ const SectionEnrollment = () => {
             <div className="searchBar">
                 <Input placeholder="Buscar sección"/>
                 <Button>Buscar</Button>
-                
             </div>
 
             <div className='listContainer Content' >
@@ -61,19 +50,19 @@ const SectionEnrollment = () => {
                                     <div className="info">
                                         <h3>Periodo {month}-{item.year} - Seccion {item.code} - 0/{item.quota}</h3>
                                     </div>
-                                    <div></div>
                                     <div className="buttons">
-
-                                        <Tooltip title='Ver alumnos'><Button variant='solid' color='primary' size='large' onClick={() => { setCurrentSection(item); setCloseModalOpen(true) }} >Alumnos</Button></Tooltip>
+                                        <Tooltip title='Ver alumnos'>
+                                            <Button variant='solid' color='primary' size='large' onClick={() => handlerStudentsList(item)} >Alumnos</Button>
+                                        </Tooltip>
                                     </div>
                                 </List.Item>
                             );
                         })}
                 </List>
             </div>
-            <getStudentListOfSection
-                open={closeModalOpen}
-                onCancel={() => {setCloseModalOpen(false); setCurrentSection(null)}}
+            <StudentListOfSectionModal
+                open={modalOpen}
+                onCancel={() => setModalOpen(false)}
                 sectionId={currentSection}
             />
         </div>
