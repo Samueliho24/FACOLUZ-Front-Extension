@@ -18,6 +18,7 @@ import Certificates from "../pages/Certificates"
 import Section from "../pages/Section"
 import Teachers from "../pages/Teachers"
 import SectionEnrollment from "../pages/SectionEnrollment"
+import Grades from "../pages/Grades"
 
 const Router = () => {
 
@@ -39,7 +40,8 @@ const Router = () => {
             case "Profesores": return <Teachers />
             case "Modulos": return <Modulos />
             case "Cursos": return <Cursos />
-            case "Certificados": return <Certificates/>
+            case "Certificates": return <Certificates/>
+            case "Grades": return <Grades/>
             case "Section": return <Section />
             case "SectionEnrollment": return <SectionEnrollment />
             default: return <ErrorPage />

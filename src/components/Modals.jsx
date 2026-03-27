@@ -1447,3 +1447,113 @@ export const StudentListOfSectionModal = ({open, onCancel, sectionId}) => {
         </Modal>
 )
 }
+
+//Notas
+
+export const LoadGradesModal = ({open, onCancel, sectionId, periodId}) => {
+    const [students, setStudents] = useState([])
+	const [periods, setPeriods] = useState([])
+	const [section, setSection]=useState(null)
+	const { messageApi } = useContext(appContext)
+
+    const [loading, setLoading] = useState(false)
+
+	const fetchStudents = async (section) => {
+		setLoading(true)
+		const res = await getStudentsInSection(section)
+		if(res.status === 200){
+			setStudents(res.data)
+		}else{
+			messageApi.open({ type: 'error', content: 'Error al obtener los estudiantes de la sección' })
+		}
+		setLoading(false)
+	}
+
+	const fetchSection = async (period) => {
+		setLoading(true)
+		const res = await getSectionByPeriod(period)
+		if(res.status === 200){
+			setSection(res.data)
+		}else{
+			messageApi.open({ type: 'error', content: 'Error al obtener la sección' })
+		}
+		setLoading(false)
+	}
+    useEffect(() => {
+		if(sectionId){
+			fetchStudents(sectionId.id)
+		}else{
+			periodId.map(item =>{
+				periods.push({label: 'Periodo ' + monthNames[item.period - 1] +' - ' + item.year, value: item.id})
+			})
+		}
+    }, [sectionId])
+
+    const listData = students.map(student => ({
+        title: `${student.name} ${student.lastname}`,
+        description: `Cedula: ${student.studentsIdentification}`,
+		date: `${getDate(student.dateEnrollment)}`,
+		status: `${student.status}`,
+        key: student.id
+    }))
+
+    return(
+        <Modal
+            title='Carga de Notas'
+            open={open}
+            closable={false}
+            destroyOnClose
+            footer={[
+				<Button onClick={() => downloadPDF(listData)} variant='solid' color='primary' disabled={loading}>Generar lista</Button>,
+                <Button onClick={onCancel} variant='text' color='primary' disabled={loading}>Cerrar</Button>,
+            ]}
+        >	
+			{!sectionId && (
+				<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+					<Select onChange={(e) => fetchSection(e)} options={periods}/>
+				</div>
+			)}
+			{students && students.length > 0 ? (
+				<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                <List
+					bordered
+					className='mainList'
+                    loading={loading}
+                    dataSource={listData}
+                    renderItem={item => (
+                        <List.Item>
+                            <Tooltip title={item.title}>
+                                <List.Item.Meta
+									title={item.title}
+									description={
+										<span style={{ color: '#474747' }}> {/* Aquí cambias el color general */}
+											{item.description} 
+											{'\t - \t Fecha de inscripción: ' + item.date}
+											<span style={{ 
+												color: item.status === 'Pagada' ? '#474747' : 'red',
+												fontWeight: 'bold' 
+											}}>
+												{'\t - \t Estado: ' + item.status}
+											</span>
+											<InputNumber style={{width: '100px'}} min={1} max={20} defaultValue={1} onChange={(value) => console.log(value)}/>
+										</span>
+										//item.description + '\t - \t Fecha de inscripción: ' + item.date + '\t - \t Estado: ' + item.status
+
+									}
+                                />
+                            </Tooltip>
+                        </List.Item>
+                    )}
+                />
+            </div>	
+			):(
+				<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+					<p>Debe seleccionar una sección para ver a sus estudiantes</p>
+				</div>
+			)}
+            
+        </Modal>
+)
+}
+
+
