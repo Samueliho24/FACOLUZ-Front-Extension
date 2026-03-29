@@ -68,4 +68,30 @@ export class httpMethods {
 			return(err)
 		}
 	}
+
+	async download(apiAddress, token, value){
+		try{
+			if(value){
+				let res = await axios.get(
+					`${url}/${apiAddress}/${value}`,
+					{
+						responseType: 'arraybuffer',
+						headers: {'Authorization': `Bearer ${token}`}
+					}
+				)
+				return res
+			}else if(value == null){
+				let res = await axios.get(
+					`${url}/${apiAddress}/`,
+					{
+						responseType: 'arraybuffer',
+						headers: {'Authorization': `Bearer ${token}`}
+					}
+				)
+				return res
+			}
+		}catch(err){
+			return(err)
+		}	
+	}
 }

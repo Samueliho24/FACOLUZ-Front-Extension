@@ -241,3 +241,7 @@ export async function printStudentCard(studentId) {
 export async function deactivateStudent(id){
     return await http.post('api/deactivateStudent', token, {id})
 }
+
+export async function saveCertificate(certificateId){
+	return await http.download(`api/certificate/${certificateId}`, token, null)
+}
