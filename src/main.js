@@ -1,8 +1,9 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
-import axios from 'axios';
-import { writeFileSync } from 'node:fs';
+import { saveCertificate } from './ipcFunctions/saveCertificate';
+import { printStudentCard } from './ipcFunctions/printStudentCard';
+import { getDailyReport } from './ipcFunctions/getDailyReport';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -34,49 +35,17 @@ const createWindow = () => {
   // mainWindow.webContents.openDevTools();
 };
 
+
+//Funciones que se ejecutan en el equipo local
 ipcMain.handle('get_Backend_Address', () => {
   return process.env.VITE_BACK_ADDRESS
 })
 
-ipcMain.handle('getDailyReport', async() => {
-  const res = await axios.get('http://localhost:3006/api/getDailyReport', {
-    responseType: 'arraybuffer'
-  })
-  const currentDate = new Date
-  const reportDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate())
-  const pdfBuffer = Buffer.from(res.data)
-  const filePath = path.join(app.getPath('downloads'), `Reporte del ${reportDate.getMonth()+1}-${reportDate.getFullYear()}.pdf`)
-  writeFileSync(filePath, pdfBuffer)
-  return {ok: true, path: filePath}
-})
+ipcMain.handle('getDailyReport', getDailyReport)
 
+ipcMain.handle('saveCertificate', (_e, certificate_id) => saveCertificate(_e, certificate_id))
 
-ipcMain.handle('saveCertificate', async(_e, certificate_id) => {
-  console.log("Hola")
-  console.log(certificate_id)
-  console.log("Hola")
-  const address = `http://localhost:3006/api/certificate/${certificate_id}`
-  const res = await axios.get(address, {
-    responseType: 'arraybuffer'
-  })
-  const currentDate = new Date
-  const reportDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate())
-  const pdfBuffer = Buffer.from(res.data)
-  const filePath = path.join(app.getPath('downloads'), "Certificado.pdf")
-  writeFileSync(filePath, pdfBuffer)
-  return {ok: true, path: filePath}
-})
-
-ipcMain.handle('printStudentCard', async(_e, studentId) => {
-  const address = `http://localhost:3006/api/getStudentCard/${studentId}`
-  const res = await axios.get(address, {
-    responseType: 'arraybuffer'
-  })
-  const pdfBuffer = Buffer.from(res.data)
-  const filePath = path.join(app.getPath('downloads'), "Carnet.pdf")
-  writeFileSync(filePath, pdfBuffer)
-  return {ok: true, path: filePath}
-})
+ipcMain.handle('printStudentCard', (_e, studentId) => printStudentCard(_e, studentId))
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
