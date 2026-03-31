@@ -2,7 +2,7 @@ import React, { useContext,useEffect,useState } from 'react';
 import { Button, Divider, Input, List, Tooltip } from "antd";
 import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
-import { getCertificateList, filterStudents } from '../client/client';
+import { getCertificateList, filterStudents, saveCertificate } from '../client/client';
 import { PrinterOutlined } from '@ant-design/icons';
 import { mergeDate } from '../functions/formatDateTime';
 
@@ -30,9 +30,10 @@ const Enrollments = () => {
         setShowList(res.data)
     }
 
-    const saveCertificate = async(certificate_id) => {
-		const res = await window.api.saveCertificate(certificate_id)
-		if(res.ok == true){
+    const callSaveCertificate = async(certificate_id) => {
+		const res = await saveCertificate(certificate_id)
+		if(res.status == 200){
+            window.api.saveCertificate(res.data)
 			messageApi.open({
 				type: 'success',
 				content: 'Reporte guardado en descargas'
@@ -64,7 +65,7 @@ const Enrollments = () => {
 								<h3>{item.name} {item.lastname} -- {item.course_name} -- Fecha: {mergeDate(Date(item.mergeDate))}</h3>
 							</div>
 							<div className='buttons'>
-								<Tooltip onClick={() => {saveCertificate(item.certificate_id)}} title='Imprimir certificado'><Button shape='circle' variant='solid' color='primary' size='large' icon={<PrinterOutlined />} /></Tooltip>
+								<Tooltip onClick={() => {callSaveCertificate(item.certificate_id)}} title='Imprimir certificado'><Button shape='circle' variant='solid' color='primary' size='large' icon={<PrinterOutlined />} /></Tooltip>
 							</div>
 						</List.Item>
 					)) }
