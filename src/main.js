@@ -41,11 +41,11 @@ ipcMain.handle('get_Backend_Address', () => {
   return process.env.VITE_BACK_ADDRESS
 })
 
-ipcMain.handle('getDailyReport', getDailyReport)
+ipcMain.handle('getDailyReport', (_e, resData) => getDailyReport(_e, resData))
 
-ipcMain.handle('saveCertificate', (_e, certificate_id) => saveCertificate(_e, certificate_id))
+ipcMain.handle('saveCertificate', (_e, resData) => saveCertificate(_e, resData))
 
-ipcMain.handle('printStudentCard', (_e, studentId) => printStudentCard(_e, studentId))
+ipcMain.handle('printStudentCard', (_e, resData, student_id) => printStudentCard(_e, resData, student_id))
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

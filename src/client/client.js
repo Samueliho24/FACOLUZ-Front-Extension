@@ -245,3 +245,11 @@ export async function deactivateStudent(id){
 export async function saveCertificate(certificateId){
 	return await http.download(`api/certificate/${certificateId}`, token, null)
 }
+
+export async function getStudentCard(studentId){
+	return await http.download(`api/getStudentCard/${studentId}`, token, null)
+}
+
+export async function getDailyReport(){
+	return await http.download(`api/getDailyReport`, token, null)
+}

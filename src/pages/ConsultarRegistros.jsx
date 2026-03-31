@@ -1,4 +1,4 @@
-import { getAllInvoices } from '../client/client'
+import { getAllInvoices, getDailyReport } from '../client/client'
 import { useContext, useEffect, useState } from 'react'
 import { searchOnList } from '../context/lists'
 import * as lists from '../context/lists'
@@ -29,9 +29,10 @@ const ConsultarRegistros = () => {
         setShowList(res.data)
     }
 
-	const getDailyReport = async() => {
-		const res = await window.api.getDailyReport()
-		if(res.ok == true){
+	const callGetDailyReport = async() => {
+		const res = await getDailyReport()
+		if(res.status === 200){
+			window.api.getDailyReport(res.data)
 			messageApi.open({
 				type: 'success',
 				content: 'Reporte guardado en descargas'
@@ -60,7 +61,7 @@ const ConsultarRegistros = () => {
     return(
         <div className="ConsultarRegistros Page">
             <Divider className='PageTitle'><h1>Historial de Facturacion</h1></Divider>
-            <Button className='generateReport' type='primary' onClick={getDailyReport}>Generar Reporte</Button>
+            <Button className='generateReport' type='primary' onClick={callGetDailyReport}>Generar Reporte</Button>
 			{contextHolder}
 			<div className='searchBar' >
 				<Input

@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react"
 import { appContext } from "../context/appContext" 
 import { Input, Button, List, Divider, message } from "antd"
 import { AddNewStudent, DeactivateStudentModal, UpdatePhoto } from "../components/Modals"
-import { getStudents, filterStudents, deactivateStudent, printStudentCard } from "../client/client"
+import { getStudents, filterStudents, deactivateStudent, getStudentCard } from "../client/client"
 
 const Students = () => {
 
@@ -43,8 +43,9 @@ const Students = () => {
     }
 
     async function print(e){
-        const res = await await window.api.printStudentCard(e)
-        if(res.ok === true){
+        const res = await getStudentCard(e)
+        if(res.status === 200){
+            window.api.printStudentCard(res.data, e)
             messageApi.open({
                 type: 'success',
                 content: "Carnet guardado en descargas"
