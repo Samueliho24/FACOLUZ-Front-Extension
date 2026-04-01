@@ -10,7 +10,5 @@ contextBridge.exposeInMainWorld('env', {
 })
 
 contextBridge.exposeInMainWorld('api', {
-    getDailyReport: (resData) => ipcRenderer.invoke('getDailyReport', resData),
-    saveCertificate: (resData) => ipcRenderer.invoke('saveCertificate', resData),
-    printStudentCard: (resData, student_id) => ipcRenderer.invoke('printStudentCard', resData, student_id)
+    saveFile: (resData, fileName) => ipcRenderer.invoke('saveFile', resData, fileName)
 })

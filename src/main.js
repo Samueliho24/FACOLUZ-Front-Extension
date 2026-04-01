@@ -1,9 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
-import { saveCertificate } from './ipcFunctions/saveCertificate';
-import { printStudentCard } from './ipcFunctions/printStudentCard';
-import { getDailyReport } from './ipcFunctions/getDailyReport';
+import { saveFile } from './ipcFunctions/saveFile';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -41,11 +39,7 @@ ipcMain.handle('get_Backend_Address', () => {
   return process.env.VITE_BACK_ADDRESS
 })
 
-ipcMain.handle('getDailyReport', (_e, resData) => getDailyReport(_e, resData))
-
-ipcMain.handle('saveCertificate', (_e, resData) => saveCertificate(_e, resData))
-
-ipcMain.handle('printStudentCard', (_e, resData, student_id) => printStudentCard(_e, resData, student_id))
+ipcMain.handle('saveFile', (_e, resData, fileName) => saveFile(_e, resData, fileName))
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

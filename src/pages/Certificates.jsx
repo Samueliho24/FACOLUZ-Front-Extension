@@ -30,10 +30,11 @@ const Enrollments = () => {
         setShowList(res.data)
     }
 
-    const callSaveCertificate = async(certificate_id) => {
-		const res = await saveCertificate(certificate_id)
-		if(res.status == 200){
-            window.api.saveCertificate(res.data)
+    const callSaveCertificate = async(certificate) => {
+		const res = await saveCertificate(certificate.certificate_id)
+		if(res.status === 200){
+            const fileName = `Certificado de ${certificate.course_name} a ${certificate.name} ${certificate.lastname}.pdf`
+            window.api.saveFile(res.data, fileName)
 			messageApi.open({
 				type: 'success',
 				content: 'Reporte guardado en descargas'
@@ -65,7 +66,7 @@ const Enrollments = () => {
 								<h3>{item.name} {item.lastname} -- {item.course_name} -- Fecha: {mergeDate(Date(item.mergeDate))}</h3>
 							</div>
 							<div className='buttons'>
-								<Tooltip onClick={() => {callSaveCertificate(item.certificate_id)}} title='Imprimir certificado'><Button shape='circle' variant='solid' color='primary' size='large' icon={<PrinterOutlined />} /></Tooltip>
+								<Tooltip onClick={() => {callSaveCertificate(item)}} title='Imprimir certificado'><Button shape='circle' variant='solid' color='primary' size='large' icon={<PrinterOutlined />} /></Tooltip>
 							</div>
 						</List.Item>
 					)) }

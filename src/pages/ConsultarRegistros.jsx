@@ -32,7 +32,10 @@ const ConsultarRegistros = () => {
 	const callGetDailyReport = async() => {
 		const res = await getDailyReport()
 		if(res.status === 200){
-			window.api.getDailyReport(res.data)
+			const currentDate = new Date
+			const reportDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate())
+			const fileName = `Reporte del ${reportDate.getMonth()+1}-${reportDate.getFullYear()}.pdf`
+			window.api.saveFile(res.data, fileName)
 			messageApi.open({
 				type: 'success',
 				content: 'Reporte guardado en descargas'

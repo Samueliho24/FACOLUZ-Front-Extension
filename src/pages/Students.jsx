@@ -44,9 +44,10 @@ const Students = () => {
     }
 
     async function print(e){
-        const res = await getStudentCard(e)
+        const res = await getStudentCard(e.id)
         if(res.status === 200){
-            window.api.printStudentCard(res.data, e)
+            const fileName = `Carnet de ${e.name} ${e.lastname} (${e.studentsIdentification}).pdf`
+            window.api.saveFile(res.data, fileName)
             messageApi.open({
                 type: 'success',
                 content: "Carnet guardado en descargas"
@@ -84,30 +85,29 @@ const Students = () => {
                                 <h4>{item.studentsIdentification} - {item.name} {item.lastname}</h4>
                             </div>
 
-                            <Button
-                                onClick={() => {print(item.id)}}
-                            >
-                                Imprimir carnet
-                            </Button>
-
-                            <Button
-                                onClick={() => {setSelectedStudent(item.id); setPhotoModal(true)}}
-                            >
-                                Actualizar foto
-                            </Button>
-
-                            <Button
-                                onClick={() => {setSelectedStudent(item.id); setDocsModal(true)}}
-                            >
-                                Documentacion
-                            </Button>
-                            
-                            {item.status === 'Activo' && 
+                            <div className="buttons">
                                 <Button
-                                    color="danger" 
-                                    onClick={() => setDeactivateModal({open: true, studentId: item.id})}
-                                >Desactivar</Button>
-                            }
+                                    onClick={() => {print(item)}}>
+                                    Imprimir carnet
+                                </Button>
+
+                                <Button
+                                    onClick={() => {setSelectedStudent(item.id); setPhotoModal(true)}}>
+                                    Actualizar foto
+                                </Button>
+
+                                <Button
+                                    onClick={() => {setSelectedStudent(item.id); setDocsModal(true)}}>
+                                    Documentacion
+                                </Button>
+                                
+                                {item.status === 'Activo' && 
+                                    <Button
+                                        color="danger" 
+                                        onClick={() => setDeactivateModal({open: true, studentId: item.id})}
+                                    >Desactivar</Button>
+                                }
+                            </div>
                         </List.Item>
                     ))}
                 </List>
