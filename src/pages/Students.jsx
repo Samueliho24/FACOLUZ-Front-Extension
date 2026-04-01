@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react"
 import { appContext } from "../context/appContext" 
 import { Input, Button, List, Divider, message } from "antd"
-import { AddNewStudent, DeactivateStudentModal, UpdatePhoto } from "../components/Modals"
+import { AddNewStudent, DeactivateStudentModal, UpdatePhoto, StudentDocsModal as Docs } from "../components/Modals"
 import { getStudents, filterStudents, deactivateStudent, getStudentCard } from "../client/client"
 
 const Students = () => {
@@ -14,6 +14,7 @@ const Students = () => {
     const [addModal, setAddModal] = useState(false)
     const [deactivateModal, setDeactivateModal] = useState({open: false, studentId: null})
     const [photoModal, setPhotoModal] = useState(false)
+    const [docsModal, setDocsModal] = useState(false)
     const [selectedStudent, setSelectedStudent] = useState("")
 
     async function getInfo(){
@@ -94,6 +95,12 @@ const Students = () => {
                             >
                                 Actualizar foto
                             </Button>
+
+                            <Button
+                                onClick={() => {setSelectedStudent(item.id); setDocsModal(true)}}
+                            >
+                                Documentacion
+                            </Button>
                             
                             {item.status === 'Activo' && 
                                 <Button
@@ -121,6 +128,12 @@ const Students = () => {
             <UpdatePhoto 
                 open={photoModal}
                 onCancel={() => setPhotoModal(false)}
+                studentId={selectedStudent}
+            />
+
+            <Docs
+                open={docsModal}
+                onCancel={() => setDocsModal(false)}
                 studentId={selectedStudent}
             />
         </div>

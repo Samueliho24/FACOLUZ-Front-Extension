@@ -134,3 +134,11 @@ export const paymentMethods = [
     {label: 'Dolares en efectivo', value: 3},
     {label: 'Exoneración', value: 4},
 ]
+
+export const studentDocs = [
+    {label: 'Titulo de bachiller', value: 1},
+    {label: 'Notas certificadas', value: 2},
+    {label: 'Certificado de salud', value: 3},
+    {label: 'Cedula de identidad', value: 4},
+    {label: 'Examen de higiene mental', value: 5},
+]

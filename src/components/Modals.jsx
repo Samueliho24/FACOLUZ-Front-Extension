@@ -12,6 +12,7 @@ import InputPhone from "../components/InputPhone"
 import TextArea from 'antd/es/input/TextArea'
 import { mergeDate } from '../functions/formatDateTime'
 import dayjs from 'dayjs';
+import { DownloadOutlined } from "@ant-design/icons"
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -1553,7 +1554,47 @@ export const LoadGradesModal = ({open, onCancel, sectionId, periodId}) => {
 			)}
             
         </Modal>
-)
+	)
 }
 
+export const StudentDocsModal = ({open, onCancel, studentId}) => {
+	
+	const [showList, setSHowList] = useState([1, 2, 3])
 
+	return(
+		<Modal
+			open={open}
+			onCancel={onCancel}
+			title="Documentacion"
+			destroyOnHidden
+			closable={false}
+			footer={[
+				<Button onClick={() => onCancel()}>Cerrar</Button>
+			]}
+		>
+			<div style={{margin: "0px 0px 5px 0px", display: 'flex', alignItems: 'center', justifyContent: 'space-evenly'}}>
+				<Select 
+					defaultValue={"Documento a subir"}
+					options={lists.studentDocs}
+				/>
+				<input type='file' name='newDocFileInput'/>
+			</div>
+			{showList.length === 0 ? (<>
+				<h3>No se han guardado documentos para este estudiante</h3>
+			</>):(<>
+				<List bordered size='small'>
+					{showList.map(item => (
+						<List.Item>
+							<p>nombre del documento</p>
+							<Button
+								shape='circle'
+								icon={<DownloadOutlined />}
+								title='Descargar'
+							/>
+						</List.Item>
+					))}
+				</List>
+			</>)}
+		</Modal>
+	)
+}
