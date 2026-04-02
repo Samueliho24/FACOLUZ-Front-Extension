@@ -1,4 +1,4 @@
-import { openSection, closeSection } from '../client/client'
+import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments } from '../client/client'
 import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip } from 'antd'
 import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
@@ -1559,7 +1559,67 @@ export const LoadGradesModal = ({open, onCancel, sectionId, periodId}) => {
 
 export const StudentDocsModal = ({open, onCancel, studentId}) => {
 	
-	const [showList, setSHowList] = useState([1, 2, 3])
+	const [loading, setLoading] = useState(false)
+	const [showList, setShowList] = useState([1, 2, 3])
+	const [selectedDocType, setSelectedDocType] = useState()
+	const { messageApi } = useContext(appContext)
+
+	useEffect(() => {
+		getDocs()
+	}, [])
+
+	async function getDocs(){
+		if(studentId !== null){
+			const res = await getStudentDocuments(studentId)
+			if(res.status === 200){
+				setShowList(res.data)
+			}else{
+				messageApi.open({
+					type: "error",
+					content: "ha ocurrido un error"
+				})
+			}
+		}
+	}
+
+	async function downloadDoc(docId){
+		const res = await getDocument(docId)
+		if(res.status === 200){
+			const fileName = `Documento ${docId}`
+			window.api.saveFile(res.data, fileName)
+			messageApi.open({
+				type: "success",
+				content: "Documento guardado con exito"
+			})
+		}else{
+			messageApi.open({
+				type: 'error',
+				content: "ha ocurrido un error"
+			})
+		}
+	}
+
+	async function submitDoc(){
+		setLoading(true)
+		const formData = new FormData;
+		const docInput = document.getElementById("newDocFileInput").files[0]
+		formData.append("file", docInput)
+		formData.append("docType", selectedDocType)
+		const res = await uploadStudentDocument(formData, studentId)
+		if(res.status === 201){
+			messageApi.open({
+				type: 'success',
+				content: 'Documento guardado con exito'
+			})
+			getDocs()
+		}else{
+			messageApi.open({
+				type: 'error',
+				content: 'ha ocurrido un error'
+			})
+		}
+		setLoading(false)
+	}
 
 	return(
 		<Modal
@@ -1569,15 +1629,18 @@ export const StudentDocsModal = ({open, onCancel, studentId}) => {
 			destroyOnHidden
 			closable={false}
 			footer={[
-				<Button onClick={() => onCancel()}>Cerrar</Button>
+				<Button onClick={() => onCancel()} disabled={loading}>Cerrar</Button>
 			]}
 		>
-			<div style={{margin: "0px 0px 5px 0px", display: 'flex', alignItems: 'center', justifyContent: 'space-evenly'}}>
+			<div style={{margin: "0px 0px 5px 0px", display: 'flex', alignItems: 'center', gap: '10px'}}>
 				<Select 
 					defaultValue={"Documento a subir"}
 					options={lists.studentDocs}
+					onChange={e => setSelectedDocType(e)}
+					disabled={loading}
 				/>
-				<input type='file' name='newDocFileInput'/>
+				<input type='file' id='newDocFileInput' disabled={loading} style={{width: '150px'}}/>
+				<Button onClick={() => submitDoc()} disabled={loading}>Subir</Button>
 			</div>
 			{showList.length === 0 ? (<>
 				<h3>No se han guardado documentos para este estudiante</h3>
@@ -1590,6 +1653,8 @@ export const StudentDocsModal = ({open, onCancel, studentId}) => {
 								shape='circle'
 								icon={<DownloadOutlined />}
 								title='Descargar'
+								disabled={loading}
+								onClick={() => downloadDoc(item.id)}
 							/>
 						</List.Item>
 					))}

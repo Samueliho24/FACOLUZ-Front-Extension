@@ -253,3 +253,15 @@ export async function getStudentCard(studentId){
 export async function getDailyReport(){
 	return await http.download(`api/getDailyReport`, token, null)
 }
+
+export async function uploadStudentDocument(formData, studentId) {
+	return await http.post(`api/studentDocs/${studentId}`, token, formData)
+}
+
+export async function getStudentDocuments(studentId){
+	return await http.get(`api/studentDocs/${studentId}`, token, null)
+}
+
+export async function getDocument(docId){
+	return await http.download(`api/studentDocs/doc/${docId}`, token, null)
+}
