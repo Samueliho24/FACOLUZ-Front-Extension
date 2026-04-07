@@ -1560,13 +1560,15 @@ export const LoadGradesModal = ({open, onCancel, sectionId, periodId}) => {
 export const StudentDocsModal = ({open, onCancel, studentId}) => {
 	
 	const [loading, setLoading] = useState(false)
-	const [showList, setShowList] = useState([1, 2, 3])
+	const [showList, setShowList] = useState([])
 	const [selectedDocType, setSelectedDocType] = useState()
 	const { messageApi } = useContext(appContext)
 
 	useEffect(() => {
-		getDocs()
-	}, [])
+		if(studentId !== ""){
+			getDocs()
+		}
+	}, [studentId])
 
 	async function getDocs(){
 		if(studentId !== null){
@@ -1585,7 +1587,7 @@ export const StudentDocsModal = ({open, onCancel, studentId}) => {
 	async function downloadDoc(docId){
 		const res = await getDocument(docId)
 		if(res.status === 200){
-			const fileName = `Documento ${docId}`
+			const fileName = `Documento ${docId}.pdf`
 			window.api.saveFile(res.data, fileName)
 			messageApi.open({
 				type: "success",
@@ -1639,7 +1641,12 @@ export const StudentDocsModal = ({open, onCancel, studentId}) => {
 					onChange={e => setSelectedDocType(e)}
 					disabled={loading}
 				/>
-				<input type='file' id='newDocFileInput' disabled={loading} style={{width: '150px'}}/>
+				<input
+					type='file'
+					id='newDocFileInput'
+					disabled={loading}
+					style={{width: '150px'}}
+					accept='.pdf'/>
 				<Button onClick={() => submitDoc()} disabled={loading}>Subir</Button>
 			</div>
 			{showList.length === 0 ? (<>
@@ -1648,7 +1655,7 @@ export const StudentDocsModal = ({open, onCancel, studentId}) => {
 				<List bordered size='small'>
 					{showList.map(item => (
 						<List.Item>
-							<p>nombre del documento</p>
+							<p>{lists.searchOnList(lists.studentDocs, item.docType)}</p>
 							<Button
 								shape='circle'
 								icon={<DownloadOutlined />}

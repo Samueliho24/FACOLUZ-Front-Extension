@@ -255,13 +255,13 @@ export async function getDailyReport(){
 }
 
 export async function uploadStudentDocument(formData, studentId) {
-	return await http.post(`api/studentDocs/${studentId}`, token, formData)
+	return await http.post(`api/document/${studentId}`, token, formData)
 }
 
 export async function getStudentDocuments(studentId){
-	return await http.get(`api/studentDocs/${studentId}`, token, null)
+	return await http.get(`api/document/${studentId}`, token, null)
 }
 
 export async function getDocument(docId){
-	return await http.download(`api/studentDocs/doc/${docId}`, token, null)
+	return await http.download(`api/document/doc/${docId}`, token, null)
 }
