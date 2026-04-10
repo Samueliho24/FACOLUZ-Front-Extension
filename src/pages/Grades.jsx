@@ -65,7 +65,6 @@ const Periodos = () => {
             <LoadGradesModal
                 open = {loadModalOpen}
                 onCancel = {() => setLoadModalOpen(false)}
-                sectionId={null}
             />
         </div>
     )

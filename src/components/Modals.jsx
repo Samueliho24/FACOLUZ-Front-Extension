@@ -1,18 +1,19 @@
-import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments } from '../client/client'
+import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod } from '../client/client'
 import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip } from 'antd'
 import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection } from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores} from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
 import InputPhone from "../components/InputPhone"
+import InputGrade from './InputGrade'
 import TextArea from 'antd/es/input/TextArea'
 import { mergeDate } from '../functions/formatDateTime'
 import dayjs from 'dayjs';
-import { DownloadOutlined } from "@ant-design/icons"
+import { ConsoleSqlOutlined, DownloadOutlined } from "@ant-design/icons"
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -1451,17 +1452,32 @@ export const StudentListOfSectionModal = ({open, onCancel, sectionId}) => {
 
 //Notas
 
-export const LoadGradesModal = ({open, onCancel, sectionId, periodId}) => {
+export const LoadGradesModal = ({open, onCancel}) => {
     const [students, setStudents] = useState([])
+	const [grades, setGrades] = useState({})
 	const [periods, setPeriods] = useState([])
 	const [section, setSection]=useState(null)
 	const { messageApi } = useContext(appContext)
 
     const [loading, setLoading] = useState(false)
 
+	const getPeriodsActives = async () => {
+		setLoading(true)
+		const res = await getActivePeriods()
+		console.log(res)
+		if(res.status === 200){
+			setPeriods(res.data)
+		}else{
+			messageApi.open({ type: 'error', content: 'Error al obtener las secciones' })
+		}
+	}
+	
+
 	const fetchStudents = async (section) => {
 		setLoading(true)
+		console.log(section)
 		const res = await getStudentsInSection(section)
+		console.log(res)
 		if(res.status === 200){
 			setStudents(res.data)
 		}else{
@@ -1470,33 +1486,68 @@ export const LoadGradesModal = ({open, onCancel, sectionId, periodId}) => {
 		setLoading(false)
 	}
 
-	const fetchSection = async (period) => {
+	const getSectionsActives = async (period) => {
 		setLoading(true)
+		console.log(period)
 		const res = await getSectionByPeriod(period)
+		console.log(res)
 		if(res.status === 200){
 			setSection(res.data)
 		}else{
-			messageApi.open({ type: 'error', content: 'Error al obtener la sección' })
+			messageApi.open({ type: 'error', content: 'Error al obtener las secciones' })
 		}
-		setLoading(false)
 	}
+
     useEffect(() => {
-		if(sectionId){
-			fetchStudents(sectionId.id)
-		}else{
-			periodId.map(item =>{
-				periods.push({label: 'Periodo ' + monthNames[item.period - 1] +' - ' + item.year, value: item.id})
-			})
-		}
-    }, [sectionId])
+		getPeriodsActives()
+    }, [])
 
     const listData = students.map(student => ({
         title: `${student.name} ${student.lastname}`,
         description: `Cedula: ${student.studentsIdentification}`,
 		date: `${getDate(student.dateEnrollment)}`,
 		status: `${student.status}`,
-        key: student.id
+        key: `${student.id}`
     }))
+
+    const handleGradeChange = (studentId, score) => {
+        setGrades(prev => ({
+            ...prev,
+            [studentId]: score
+        }));
+    };
+
+
+	async function loadGrades() {
+		setLoading(true)
+		
+		const allGraded = students.every(student => 
+			grades[student.id] !== undefined && grades[student.id] !== ""
+		);
+
+		if (!allGraded) {
+			messageApi.open({
+				type: 'warning',
+				content: 'Por favor, asigne una nota (1-20 o SI) a todos los alumnos antes de continuar.'
+			});
+			return;
+		}
+
+		const data = students.map(student => ({
+            studentId: student.id,
+            score: grades[student.id] || "" 
+        }));
+		console.log(data)
+		//const res = await loadGrades(data)
+
+		if (res.status === 200) {
+            messageApi.open({ type: 'success', content: 'Notas cargadas con éxito' });
+            onCancel();
+        } else {
+            messageApi.open({ type: 'error', content: 'Error al cargar las notas' });
+        }
+        setLoading(false);
+	}
 
     return(
         <Modal
@@ -1505,56 +1556,68 @@ export const LoadGradesModal = ({open, onCancel, sectionId, periodId}) => {
             closable={false}
             destroyOnClose
             footer={[
-				<Button onClick={() => downloadPDF(listData)} variant='solid' color='primary' disabled={loading}>Generar lista</Button>,
-                <Button onClick={onCancel} variant='text' color='primary' disabled={loading}>Cerrar</Button>,
+				<Button onClick={loadGrades} variant='solid' color='primary' disabled={loading}>Cargar notas</Button>,
+                <Button onClick={onCancel} variant='text' color='primary'>Cerrar</Button>,
             ]}
-        >	
-			{!sectionId && (
+        >	<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
 				<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-					<Select onChange={(e) => fetchSection(e)} options={periods}/>
+					<Select onChange={(e) => getSectionsActives(e)} 
+					options={
+						periods.map(item => {
+							const month = lists.monthNames[item.period - 1] || item.period;
+							return({label: month + ' - ' + item.year + ' - ' + item.modality, value: item.id})})} 
+						placeholder='Seleccione un periodo'/>
 				</div>
-			)}
-			{students && students.length > 0 ? (
-				<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-                <List
-					bordered
-					className='mainList'
-                    loading={loading}
-                    dataSource={listData}
-                    renderItem={item => (
-                        <List.Item>
-                            <Tooltip title={item.title}>
-                                <List.Item.Meta
-									title={item.title}
-									description={
-										<span style={{ color: '#474747' }}> {/* Aquí cambias el color general */}
-											{item.description} 
-											{'\t - \t Fecha de inscripción: ' + item.date}
-											<span style={{ 
-												color: item.status === 'Pagada' ? '#474747' : 'red',
-												fontWeight: 'bold' 
-											}}>
-												{'\t - \t Estado: ' + item.status}
-											</span>
-											<InputNumber style={{width: '100px'}} min={1} max={20} defaultValue={1} onChange={(value) => console.log(value)}/>
-										</span>
-										//item.description + '\t - \t Fecha de inscripción: ' + item.date + '\t - \t Estado: ' + item.status
 
-									}
-                                />
-                            </Tooltip>
-                        </List.Item>
-                    )}
-                />
-            </div>	
-			):(
-				<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-					<p>Debe seleccionar una sección para ver a sus estudiantes</p>
-				</div>
-			)}
-            
+				{section && (
+					<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+						<Select onChange={(e) => fetchStudents(e)} 
+						options={
+							section.map(item => ({label: 'Seccion ' + item.code, value: item.id}))} 
+							placeholder='Seleccione un sección'/>
+					</div>
+				)}
+				{students && students.length > 0 ? (
+					<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+					<List
+						bordered
+						className='mainList'
+						loading={loading}
+						dataSource={listData}
+						renderItem={item => (
+							<List.Item>
+								<Tooltip title={item.title}>
+									<List.Item.Meta
+										title={item.title}
+										description={
+											<span style={{ color: '#474747', display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+												{item.description} 
+												<InputGrade 
+													value={grades[item.key] || ""} 
+													onChange={(val) => handleGradeChange(item.key, val)} 
+												/>
+											</span>
+											//item.description + '\t - \t Fecha de inscripción: ' + item.date + '\t - \t Estado: ' + item.status
+										}
+									/>
+								</Tooltip>
+							</List.Item>
+						)}
+					/>
+				</div>	
+				):(
+					<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+						<p>Debe seleccionar una sección para ver a sus estudiantes</p>
+					</div>
+				)}
+			</div>
         </Modal>
 	)
+}
+
+export const ModifyGradesModal = ({open, onCancel, info}) => {
+
+	const [loading, setLoading] = useState(false)
 }
 
 export const StudentDocsModal = ({open, onCancel, studentId}) => {

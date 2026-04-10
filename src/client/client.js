@@ -98,6 +98,10 @@ export async function closePeriod(data){
 	return await http.post('api/closePeriod', token, data)
 }
 
+export async function getActivePeriods(){
+	return await http.get('api/getActivePeriods', token, null)
+}
+
 // Secciones
 export async function openSection(data){
 	return await http.post('api/openSection', token, data)
@@ -116,6 +120,10 @@ export async function closeSection(data){
 
 export async function getSectionByModule(moduleId){
 	return await http.get(`api/getSectionByModule/${moduleId}`, token, null)
+}
+
+export async function getSectionByPeriod(periodId){
+	return await http.get(`api/getSectionByPeriod/${periodId}`, token, null)
 }
 
 export async function createNewCourse(data){
@@ -264,4 +272,8 @@ export async function getStudentDocuments(studentId){
 
 export async function getDocument(docId){
 	return await http.download(`api/document/doc/${docId}`, token, null)
+}
+
+export async function setLoadScores(data) {
+	return await http.post('api/setLoadScores', token, data)
 }
