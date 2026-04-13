@@ -3,7 +3,7 @@ import { Button, Divider, Input, List, Tooltip } from "antd";
 import { getPeriods, closePeriod } from "../client/client";
 import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
-import { LoadGradesModal } from '../components/Modals'
+import { LoadGradesModal, ModifyGradesModal } from '../components/Modals'
 import { monthNames } from "../context/lists";
 
 const Periodos = () => {
@@ -65,6 +65,10 @@ const Periodos = () => {
             <LoadGradesModal
                 open = {loadModalOpen}
                 onCancel = {() => setLoadModalOpen(false)}
+            />
+            <ModifyGradesModal
+                open = {modifyModalOpen}
+                onCancel = {() => setModifyModalOpen(false)}
             />
         </div>
     )

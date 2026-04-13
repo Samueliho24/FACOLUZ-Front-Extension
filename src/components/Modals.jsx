@@ -1,10 +1,10 @@
 import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod } from '../client/client'
-import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip } from 'antd'
+import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip, Divider, Descriptions } from 'antd'
 import { useState, useEffect, useContext, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores} from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores, getScoreByStudent,setUpdateScore} from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -1517,6 +1517,13 @@ export const LoadGradesModal = ({open, onCancel}) => {
         }));
     };
 
+	const cleanForm = () => {
+		setGrades({})
+		setStudents([])
+		setSection(null)
+		onCancel()
+	}
+
 
 	async function loadGrades() {
 		setLoading(true)
@@ -1538,8 +1545,8 @@ export const LoadGradesModal = ({open, onCancel}) => {
             score: grades[student.id] || "" 
         }));
 		console.log(data)
-		//const res = await loadGrades(data)
-
+		const res = await setLoadScores(data)
+		console.log(res)
 		if (res.status === 200) {
             messageApi.open({ type: 'success', content: 'Notas cargadas con éxito' });
             onCancel();
@@ -1556,8 +1563,8 @@ export const LoadGradesModal = ({open, onCancel}) => {
             closable={false}
             destroyOnClose
             footer={[
-				<Button onClick={loadGrades} variant='solid' color='primary' disabled={loading}>Cargar notas</Button>,
-                <Button onClick={onCancel} variant='text' color='primary'>Cerrar</Button>,
+				<Button onClick={() => loadGrades()} variant='solid' color='primary' disabled={loading}>Cargar notas</Button>,
+                <Button onClick={() => cleanForm()} variant='text' color='primary'>Cerrar</Button>,
             ]}
         >	<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
 				<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
@@ -1616,8 +1623,136 @@ export const LoadGradesModal = ({open, onCancel}) => {
 }
 
 export const ModifyGradesModal = ({open, onCancel, info}) => {
+	const [student, setStudent] = useState('')
+	const [studentId, setStudentId] = useState('')
+	const [moduleList, setModuleList] = useState([])	
+	const [moduleSelected, setModuleSelected] = useState('')
+	const [newGrade, setNewGrade] = useState('')
+	const [reason, setReason] = useState('')
+	const { messageApi } = useContext(appContext)
 
 	const [loading, setLoading] = useState(false)
+	
+	const getModules = async () => {
+		const res = await getAllModules()
+		if (res.status === 200) {
+			setModuleList(res.data)
+		}
+	}
+
+	useEffect(() => {
+		getModules()
+	}, [])
+
+	async function searchGrade() {
+		setLoading(true)
+		const data = {
+			studentIdentification: studentId,
+			moduleId: moduleSelected
+		}
+		console.log(data)
+		const res = await getScoreByStudent(data)
+		if (res.status === 200) {
+			setStudent(res.data)
+			console.log(res.data)
+		}else if (res.status === 404) {
+			messageApi.open({
+				type: 'error',
+				content: 'Alumno no encontrado'
+			})
+		}else {
+			messageApi.open({
+				type: 'error',
+				content: 'Error al buscar alumno'
+			})
+		}
+		setLoading(false)
+		return res
+	}
+
+	async function modifyGrades() {
+		setLoading(true)
+		const data = {
+			studentId: student[0].id,
+			moduleId: moduleSelected,
+			score: newGrade,
+			reason: reason
+		}
+		console.log(data)
+		const res = await setUpdateScore(data)
+
+		if (res.status === 200) {
+			messageApi.open({
+				type: 'success',
+				content: 'Nota modificada con exito'
+			})
+		}
+		setLoading(false)
+	}
+
+	async function cleanForm() {
+		setLoading(false)
+		setStudentId('')
+		setModuleSelected('')
+		setStudent('')
+		onCancel()
+	}
+
+	return(
+		<Modal
+			title='Modificar Notas'
+			open={open}
+			closable={false}
+			destroyOnClose
+			footer={[
+				<Button onClick={() => modifyGrades()} variant='solid' color='primary' disabled={loading}>Modificar notas</Button>,
+				<Button onClick={() => cleanForm()} variant='text' color='primary'>Cerrar</Button>,
+			]}
+			>	
+				<div style={{display: 'flex', flexDirection: 'row', gap: '10px'}}>
+					<div style={{display: 'flex', flexDirection: 'column', gap: '10px', width: '85%'}}>
+						<Input placeholder='Cedula' onChange={(e) => setStudentId(e.target.value)} value={studentId}/>
+						<Select options={moduleList.map(item => ({label: item.description, value: item.id}))} onChange={(e) => setModuleSelected(e)} placeholder='Seleccione el modulo'/>
+					</div>
+					<div style={{display: 'flex', flexDirection: 'column', gap: '10px', width: '15%', alignItems: 'center', justifyContent: 'center'}}>
+						<Button onClick={() => searchGrade()} variant='text' color='primary'>Buscar</Button>
+					</div>
+				</div>
+				<Divider>Datos Actuales</Divider>
+				{student && student.length > 0 ? (
+					<div>
+						<div style={{ marginTop: 20 }}>
+							<Descriptions bordered size="small" column={2}>
+								<Descriptions.Item label="Estudiante">{`${student[0].name} ${student[0].lastname}`}</Descriptions.Item>
+								<Descriptions.Item label="Nota Actual">{student[0].score}</Descriptions.Item>
+								<Descriptions.Item label="Materia" span={2}>{moduleList.find(item => item.id === moduleSelected).description}</Descriptions.Item>
+							</Descriptions>
+
+							<Divider>Editar Información</Divider>
+
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+								<div>
+								Nueva Nota:
+								<InputGrade 
+									value={newGrade} 
+									onChange={(e) => setNewGrade(e)} 
+								/>
+								</div>
+								<div>
+								Motivo:
+								<Input.TextArea 
+									rows={3} 
+									style={{ marginTop: 5 }} 
+									value={reason} 
+									onChange={e => setReason(e.target.value)} 
+								/>
+								</div>
+							</div>
+						</div>
+					</div>
+				):(<div>Debe buscar al estudiante</div>)}
+		</Modal>
+	)
 }
 
 export const StudentDocsModal = ({open, onCancel, studentId}) => {

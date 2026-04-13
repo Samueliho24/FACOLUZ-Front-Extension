@@ -277,3 +277,11 @@ export async function getDocument(docId){
 export async function setLoadScores(data) {
 	return await http.post('api/setLoadScores', token, data)
 }
+
+export	async function getScoreByStudent(data) {
+	return await http.get(`api/getScoreByStudent/${data.moduleId}/${data.studentIdentification}`, token, null)
+}
+
+export async function setUpdateScore(data) {
+	return await http.post('api/setUpdateScore', token, data)
+}
