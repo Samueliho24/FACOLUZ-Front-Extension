@@ -1675,7 +1675,9 @@ export const ModifyGradesModal = ({open, onCancel, info}) => {
 		const data = {
 			studentId: student[0].id,
 			moduleId: moduleSelected,
-			score: newGrade,
+			gradeId: student[0].gradeId,
+			lastScore: student[0].score,
+			newScore: newGrade,
 			reason: reason
 		}
 		console.log(data)
@@ -1686,6 +1688,7 @@ export const ModifyGradesModal = ({open, onCancel, info}) => {
 				type: 'success',
 				content: 'Nota modificada con exito'
 			})
+			cleanForm()
 		}
 		setLoading(false)
 	}
