@@ -891,7 +891,7 @@ export const ClosePeriodModal = ({open, onCancel, period, refreshPeriods}) => {
 		</Modal>
 	)
 }
-
+/*
 export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => {
     const { messageApi, currentPeriodSection, moduleList, teacherList } = useContext(appContext)
     const [loading, setLoading] = useState(false)
@@ -968,8 +968,149 @@ export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => 
             </div>
         </Modal>
     )
-}
+}*/
+export const OpenSectionModal = ({ open, section, onCancel, refreshSections }) => {
+    const { messageApi, currentPeriodSection, moduleList, teacherList } = useContext(appContext)
+    const [loading, setLoading] = useState(false)
+    const [periodId, setPeriodId] = useState('')
+    const [moduleId, setModuleId] = useState('')
+    const [primaryTeacherId, setPrimaryTeacherId] = useState('')
+    const [secondaryTeacherId, setSecondaryTeacherId] = useState('')
+    const [code, setCode] = useState('')
+    const [quota, setQuota] = useState('')
 
+    const selectedModule = useMemo(() => {
+        return moduleList.find(m => m.id === moduleId) || null
+    }, [moduleId, moduleList])
+
+    const isAverageMode = selectedModule?.evaluationMode === 'Promedio'
+
+    useEffect(() => {
+        if (currentPeriodSection) {
+            setPeriodId(currentPeriodSection.id || currentPeriodSection.periodId || '')
+        }
+        if (!open) {
+            setModuleId('');
+            setPrimaryTeacherId('');
+            setSecondaryTeacherId('');
+            setCode('');
+            setQuota('');
+        }
+    }, [currentPeriodSection, open])
+
+    const handleAddSection = async () => {
+        const teachers = []
+        if (primaryTeacherId) {
+            teachers.push({ id: primaryTeacherId })
+        }
+        if (isAverageMode && secondaryTeacherId && secondaryTeacherId !== primaryTeacherId) {
+            teachers.push({ id: secondaryTeacherId })
+        }
+
+        const data = {
+            periodId,
+            moduleId,
+            teachers,
+            code,
+            quota: Number(quota)
+        }
+
+        setLoading(true)
+        try {
+            const res = await openSection(data)
+            if (res.status === 200) {
+                messageApi.success('Sección creada correctamente')
+                onCancel()
+                refreshSections()
+            } else {
+                messageApi.error('Error al crear la sección')
+            }
+        } catch (err) {
+            messageApi.error('Error al crear la sección')
+        }
+        setLoading(false)
+    }
+
+    const availableSecondaryTeachers = useMemo(() => {
+        return teacherList.filter(t => t.id !== primaryTeacherId)
+    }, [teacherList, primaryTeacherId])
+
+    const isFormValid = useMemo(() => {
+        const baseValid = periodId && moduleId && primaryTeacherId && code && quota
+        if (isAverageMode) {
+            return baseValid && secondaryTeacherId
+        }
+        return baseValid
+    }, [periodId, moduleId, primaryTeacherId, secondaryTeacherId, code, quota, isAverageMode])
+
+    return (
+        <Modal
+            title='Agregar nueva sección'
+            open={open}
+            closable={false}
+            destroyOnClose
+            footer={[
+                <Button key="cancel" onClick={onCancel} variant='text' disabled={loading}>Cancelar</Button>,
+                <Button key="add" onClick={handleAddSection} variant='solid' color='primary' disabled={loading || !isFormValid}>Agregar</Button>
+            ]}
+        >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <Select
+                    placeholder='Módulo'
+                    value={moduleId ? moduleId : undefined}
+                    onChange={(value) => {
+                        setModuleId(value)
+                        setPrimaryTeacherId('')
+                        setSecondaryTeacherId('')
+                    }}
+                    options={moduleList.map(m => ({ 
+                        value: m.id, 
+                        label: `${m.description}` 
+                    }))}
+                />
+
+                <Select
+                    placeholder='Docente principal'
+                    value={primaryTeacherId ? primaryTeacherId : undefined}
+                    onChange={(value) => {
+                        setPrimaryTeacherId(value)
+                        if (secondaryTeacherId === value) {
+                            setSecondaryTeacherId('')
+                        }
+                    }}
+                    options={teacherList.map(t => ({ value: t.id, label: `${t.name} ${t.lastName}` }))}
+                    disabled={!moduleId}
+                />
+
+                {isAverageMode && (
+                    <Select
+                        placeholder='Docente secundario'
+                        value={secondaryTeacherId ? secondaryTeacherId : undefined}
+                        onChange={setSecondaryTeacherId}
+                        options={availableSecondaryTeachers.map(t => ({ 
+                            value: t.id, 
+                            label: `${t.name} ${t.lastName}` 
+                        }))}
+                        disabled={!primaryTeacherId}
+                    />
+                )}
+                <Input 
+                    placeholder='Código de sección' 
+                    value={code} 
+                    onChange={e => setCode(e.target.value.toUpperCase())} 
+                    maxLength={1} 
+                />
+                <InputNumber 
+                    placeholder='Cupo' 
+                    value={quota} 
+                    onChange={setQuota} 
+                    min={1} 
+                    style={{ width: '100%' }} 
+                />
+            </div>
+        </Modal>
+    )
+}
 export const CloseSectionModal = ({open, onCancel, section, refreshSections}) => {
 	const { messageApi } = useContext(appContext)
 	const [loading, setLoading] = useState(false)
@@ -1451,7 +1592,7 @@ export const StudentListOfSectionModal = ({open, onCancel, sectionId}) => {
 }
 
 //Notas
-
+/*
 export const LoadGradesModal = ({open, onCancel}) => {
     const [students, setStudents] = useState([])
 	const [grades, setGrades] = useState({})
@@ -1621,7 +1762,242 @@ export const LoadGradesModal = ({open, onCancel}) => {
         </Modal>
 	)
 }
+*/
 
+export const LoadGradesModal = ({ open, onCancel }) => {
+    const [students, setStudents] = useState([])
+    const [grades, setGrades] = useState({})
+    const [periods, setPeriods] = useState([])
+    const [sections, setSections] = useState([])
+    const [selectedSection, setSelectedSection] = useState(null)
+    const [evaluationMode, setEvaluationMode] = useState('Simple')
+    const { messageApi } = useContext(appContext)
+
+    const [loading, setLoading] = useState(false)
+
+    const getPeriodsActives = async () => {
+        setLoading(true)
+        const res = await getActivePeriods()
+        if (res.status === 200) {
+            setPeriods(res.data)
+        } else {
+            messageApi.open({ type: 'error', content: 'Error al obtener los periodos' })
+        }
+        setLoading(false)
+    }
+
+    const fetchStudents = async (sectionId) => {
+        setLoading(true)
+        const section = sections.find(s => s.id === sectionId)
+        setSelectedSection(section)
+        setEvaluationMode(section?.evaluationMode || 'Simple')
+        
+        const res = await getStudentsInSection(sectionId)
+        if (res.status === 200) {
+            setStudents(res.data)
+        } else {
+            messageApi.open({ type: 'error', content: 'Error al obtener los estudiantes de la sección' })
+        }
+        setLoading(false)
+    }
+
+    const getSectionsActives = async (periodId) => {
+        setLoading(true)
+        const res = await getSectionByPeriod(periodId)
+        if (res.status === 200) {
+            setSections(res.data)
+        } else {
+            messageApi.open({ type: 'error', content: 'Error al obtener las secciones' })
+        }
+        setLoading(false)
+    }
+
+    useEffect(() => {
+        getPeriodsActives()
+    }, [])
+
+    const handleGradeChange = (studentId, evaluationOrder, score) => {
+        setGrades(prev => ({
+            ...prev,
+            [studentId]: {
+                ...prev[studentId],
+                [evaluationOrder]: score
+            }
+        }));
+    };
+
+    const cleanForm = () => {
+        setGrades({})
+        setStudents([])
+        setSections([])
+        setSelectedSection(null)
+        onCancel()
+    }
+
+    async function loadGrades() {
+        setLoading(true)
+
+        const allGraded = students.every(student => {
+            const studentGrades = grades[student.id] || {}
+            if (evaluationMode === 'Promedio') {
+                return studentGrades[1] !== undefined && studentGrades[1] !== "" &&
+                        studentGrades[2] !== undefined && studentGrades[2] !== ""
+            }
+            return studentGrades[1] !== undefined && studentGrades[1] !== ""
+        });
+
+        if (!allGraded) {
+            messageApi.open({
+                type: 'warning',
+                content: 'Por favor, asigne todas las notas requeridas antes de continuar.'
+            });
+            setLoading(false);
+            return;
+        }
+
+        const data = {
+            sectionId: selectedSection.id,
+            evaluationMode,
+            grades: students.map(student => {
+                const studentGrades = grades[student.id] || {}
+                if (evaluationMode === 'Promedio') {
+                    return {
+                        studentId: student.id,
+                        enrollmentGradeId: student.enrollmentGradeId,
+                        scores: [
+                            { evaluationOrder: 1, score: Number(studentGrades[1]) },
+                            { evaluationOrder: 2, score: Number(studentGrades[2]) }
+                        ]
+                    }
+                }
+                return {
+                    studentId: student.id,
+                    enrollmentGradeId: student.enrollmentGradeId,
+                    score: Number(studentGrades[1])
+                }
+            })
+        }
+
+        const res = await setLoadScores(data)
+        if (res.status === 200) {
+            messageApi.open({ type: 'success', content: 'Notas cargadas con éxito' });
+            cleanForm();
+        } else {
+            messageApi.open({ type: 'error', content: 'Error al cargar las notas' });
+        }
+        setLoading(false);
+    }
+
+    const renderGradeInputs = (student) => {
+        const studentGrades = grades[student.id] || {}
+
+        if (evaluationMode === 'Promedio') {
+            return (
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <span style={{ fontSize: '10px', color: '#666' }}>1ra</span>
+                        <InputGrade
+                            value={studentGrades[1] || ""}
+                            onChange={(val) => handleGradeChange(student.id, 1, val)}
+                        />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <span style={{ fontSize: '10px', color: '#666' }}>2da</span>
+                        <InputGrade
+                            value={studentGrades[2] || ""}
+                            onChange={(val) => handleGradeChange(student.id, 2, val)}
+                        />
+                    </div>
+                </div>
+            )
+        }
+
+        return (
+            <InputGrade
+                value={studentGrades[1] || ""}
+                onChange={(val) => handleGradeChange(student.id, 1, val)}
+            />
+        )
+    }
+
+    const listData = students.map(student => ({
+        title: `${student.name} ${student.lastname}`,
+        description: `Cédula: ${student.studentsIdentification}`,
+        date: `${getDate(student.dateEnrollment)}`,
+        status: `${student.status}`,
+        key: `${student.id}`,
+        renderGrades: renderGradeInputs(student)
+    }))
+
+    return (
+        <Modal
+            title={`Carga de Notas`}
+            open={open}
+            closable={false}
+            destroyOnClose
+            footer={[
+                <Button onClick={() => loadGrades()} variant='solid' color='primary' disabled={loading || students.length === 0}>Cargar notas</Button>,
+                <Button onClick={() => cleanForm()} variant='text' color='primary'>Cerrar</Button>,
+            ]}
+        >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <Select
+                        onChange={(e) => getSectionsActives(e)}
+                        options={
+                            periods.map(item => {
+                                const month = lists.monthNames[item.period - 1] || item.period;
+                                return ({ label: month + ' - ' + item.year + ' - ' + item.modality, value: item.id })
+                            })}
+                        placeholder='Seleccione un periodo'
+                    />
+                </div>
+
+                {sections.length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <Select
+                            onChange={(e) => fetchStudents(e)}
+                            options={
+                                sections.map(item => ({ label: 'Sección ' + item.code, value: item.id }))}
+                            placeholder='Seleccione una sección'
+                        />
+                    </div>
+                )}
+
+                {students && students.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <List
+                            bordered
+                            className='mainList'
+                            loading={loading}
+                            dataSource={listData}
+                            renderItem={item => (
+                                <List.Item>
+                                    <Tooltip title={item.title}>
+                                        <List.Item.Meta
+                                            title={item.title}
+                                            description={
+                                                <span style={{ color: '#474747', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    {item.description}
+                                                    {item.renderGrades}
+                                                </span>
+                                            }
+                                        />
+                                    </Tooltip>
+                                </List.Item>
+                            )}
+                        />
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <p>Debe seleccionar una sección para ver a sus estudiantes</p>
+                    </div>
+                )}
+            </div>
+        </Modal>
+    )
+}
+/*
 export const ModifyGradesModal = ({open, onCancel, info}) => {
 	const [student, setStudent] = useState('')
 	const [studentId, setStudentId] = useState('')
@@ -1756,6 +2132,239 @@ export const ModifyGradesModal = ({open, onCancel, info}) => {
 				):(<div style={{ marginTop: 10 , textAlign: 'center', fontSize: '10px'}}>Debe buscar al estudiante</div>)}
 		</Modal>
 	)
+}
+*/
+
+export const ModifyGradesModal = ({ open, onCancel, info }) => {
+    const [studentId, setStudentId] = useState('')
+    const [moduleSelected, setModuleSelected] = useState('')
+    const [moduleList, setModuleList] = useState([])
+    const [student, setStudent] = useState(null)
+    const [gradeData, setGradeData] = useState(null)
+    const [newFinalScore, setNewFinalScore] = useState('')
+    const [newPartialScores, setNewPartialScores] = useState({ 1: '', 2: '' })
+    const [reason, setReason] = useState('')
+    const { messageApi } = useContext(appContext)
+    const [loading, setLoading] = useState(false)
+
+    const getModules = async () => {
+        const res = await getAllModules()
+        if (res.status === 200) {
+            setModuleList(res.data)
+        }
+    }
+
+    useEffect(() => {
+        getModules()
+    }, [])
+
+    async function searchGrade() {
+        setLoading(true)
+        const data = {
+            studentIdentification: studentId,
+            moduleId: moduleSelected
+        }
+        const res = await getScoreByStudent(data)
+        if (res.status === 200 && res.data.length > 0) {
+            const data = res.data[0]
+            setStudent({
+                id: data.id,
+                name: data.name,
+                lastname: data.lastname,
+                studentsIdentification: data.studentsIdentification
+            })
+            setGradeData({
+                gradeId: data.gradeId,
+                finalScore: data.finalScore,
+                status: data.status,
+                evaluationMode: data.evaluationMode,
+                partials: [
+                    { id: data.partialId1, score: data.partialScore1, weight: data.partialWeight1, order: 1 },
+                    { id: data.partialId2, score: data.partialScore2, weight: data.partialWeight2, order: 2 }
+                ].filter(p => p.id !== null)
+            })
+            setNewFinalScore('')
+            setNewPartialScores({ 1: '', 2: '' })
+        } else if (res.status === 404 || !res.data || res.data.length === 0) {
+            messageApi.open({ type: 'error', content: 'Alumno no encontrado o sin notas en este módulo' })
+        } else {
+            messageApi.open({ type: 'error', content: 'Error al buscar alumno' })
+        }
+        setLoading(false)
+    }
+
+    async function modifyGrades() {
+        setLoading(true)
+
+        if (!reason.trim()) {
+            messageApi.open({ type: 'warning', content: 'Debe ingresar un motivo para la modificación' })
+            setLoading(false)
+            return
+        }
+
+        let payload = {
+            gradeId: gradeData.gradeId,
+            evaluationMode: gradeData.evaluationMode,
+            reason: reason
+        }
+
+        if (gradeData.evaluationMode === 'Simple') {
+            if (newFinalScore === '' || newFinalScore === null) {
+                messageApi.open({ type: 'warning', content: 'Debe ingresar la nueva nota' })
+                setLoading(false)
+                return
+            }
+            payload.finalScore = {
+                lastScore: gradeData.finalScore,
+                newScore: Number(newFinalScore)
+            }
+        } else {
+            const changedPartials = []
+            gradeData.partials.forEach(p => {
+                const newVal = newPartialScores[p.order]
+                if (newVal !== '' && newVal !== null && Number(newVal) !== p.score) {
+                    changedPartials.push({
+                        partialId: p.id,
+                        evaluationOrder: p.order,
+                        lastScore: p.score,
+                        newScore: Number(newVal)
+                    })
+                }
+            })
+
+            if (changedPartials.length === 0) {
+                messageApi.open({ type: 'warning', content: 'Debe modificar al menos una nota parcial' })
+                setLoading(false)
+                return
+            }
+            payload.partials = changedPartials
+        }
+
+        const res = await setUpdateScore(payload)
+
+        if (res.status === 200) {
+            messageApi.open({ type: 'success', content: 'Nota modificada con éxito' })
+            cleanForm()
+        } else {
+            messageApi.open({ type: 'error', content: 'Error al modificar la nota' })
+        }
+        setLoading(false)
+    }
+
+    async function cleanForm() {
+        setLoading(false)
+        setStudentId('')
+        setModuleSelected('')
+        setStudent(null)
+        setGradeData(null)
+        setNewFinalScore('')
+        setNewPartialScores({ 1: '', 2: '' })
+        setReason('')
+        onCancel()
+    }
+
+    const handlePartialChange = (order, value) => {
+        setNewPartialScores(prev => ({ ...prev, [order]: value }))
+    }
+
+    return (
+        <Modal
+            title='Modificar Notas'
+            open={open}
+            closable={false}
+            destroyOnClose
+            footer={[
+                <Button onClick={() => modifyGrades()} variant='solid' color='primary' disabled={loading || !student}>Modificar notas</Button>,
+                <Button onClick={() => cleanForm()} variant='text' color='primary'>Cerrar</Button>,
+            ]}
+        >
+            <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '85%' }}>
+                    <Input placeholder='Cédula' onChange={(e) => setStudentId(e.target.value)} value={studentId} />
+                    <Select
+                        options={moduleList.map(item => ({ label: item.description, value: item.id }))}
+                        onChange={(e) => {
+                            setModuleSelected(e)
+                            setStudent(null)
+                            setGradeData(null)
+                        }}
+                        placeholder='Seleccione el módulo'
+                        value={moduleSelected || undefined}
+                    />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '15%', alignItems: 'center', justifyContent: 'center' }}>
+                    <Button onClick={() => searchGrade()} variant='text' color='primary' disabled={!studentId || !moduleSelected}>Buscar</Button>
+                </div>
+            </div>
+
+            {student && gradeData ? (
+                <div>
+                    <Divider>Datos Actuales</Divider>
+                    <div style={{ marginTop: 20 }}>
+                        <Descriptions bordered size="small" column={2}>
+                            <Descriptions.Item label="Estudiante">{`${student.name} ${student.lastname}`}</Descriptions.Item>
+                            <Descriptions.Item label="Modo">{gradeData.evaluationMode}</Descriptions.Item>
+
+                            {gradeData.evaluationMode === 'Simple' ? (
+                                <Descriptions.Item label="Nota Actual" span={2}>{gradeData.finalScore ?? 'Sin nota'}</Descriptions.Item>
+                            ) : (
+                                <>
+                                    {gradeData.partials.map(p => (
+                                        <Descriptions.Item key={p.order} label={`Nota Parcial ${p.order} (${p.weight}%)`}>
+                                            {p.score ?? 'Sin nota'}
+                                        </Descriptions.Item>
+                                    ))}
+                                    <Descriptions.Item label="Nota Final" span={2}>{gradeData.finalScore ?? 'Sin nota'}</Descriptions.Item>
+                                </>
+                            )}
+
+                            <Descriptions.Item label="Materia" span={2}>
+                                {moduleList.find(item => item.id === moduleSelected)?.description}
+                            </Descriptions.Item>
+                        </Descriptions>
+
+                        <Divider>Editar Información</Divider>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            {gradeData.evaluationMode === 'Simple' ? (
+                                <div>
+                                    Nueva Nota:
+                                    <InputGrade
+                                        value={newFinalScore}
+                                        onChange={(e) => setNewFinalScore(e)}
+                                    />
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', gap: '15px' }}>
+                                    {gradeData.partials.map(p => (
+                                        <div key={p.order} style={{ flex: 1 }}>
+                                            Nueva Nota Parcial {p.order}:
+                                            <InputGrade
+                                                value={newPartialScores[p.order] || ""}
+                                                onChange={(val) => handlePartialChange(p.order, val)}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div>
+                                Motivo:
+                                <Input.TextArea
+                                    rows={3}
+                                    style={{ marginTop: 5 }}
+                                    value={reason}
+                                    onChange={e => setReason(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <div style={{ marginTop: 10, textAlign: 'center', fontSize: '10px' }}>Debe buscar al estudiante</div>
+            )}
+        </Modal>
+    )
 }
 
 export const ViewGradesSectionModal = ({ open, onCancel, period }) => {

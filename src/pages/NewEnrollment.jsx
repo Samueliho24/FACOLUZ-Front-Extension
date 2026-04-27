@@ -3,11 +3,11 @@ import { Button, Divider, Input, Select, Row, Col, Space } from "antd";
 import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
 import { AddNewStudent } from '../components/Modals';
-import { moduleList } from '../context/lists';
+import { moduleList, monthNames } from '../context/lists';
 import { getStudentById, getLastEnrollmentByStudentId, registerEnrollment, getSectionByModule, getAllModules} from '../client/client';
 
 const Enrollments = () => {
-    const { messageApi, periodData, contextHolder, moduleList, setModuleList, setCtxModuleList } = useContext(appContext);
+    const { messageApi, periodData, contextHolder, moduleList, setModuleList, setCtxModuleList, mo } = useContext(appContext);
     const { setView } = useContext(routerContext);
     
     const [addModal, setAddModal] = useState(false);
@@ -16,6 +16,8 @@ const Enrollments = () => {
     const [selectedSection, setSelectedSection] = useState(null);
     const [sectionList, setSectionList] = useState([]);
     const [searchValue, setSearchValue] = useState("");
+    
+
 
     const refreshSections = async (moduleId) => {
         if (!moduleId) return; // Validación de seguridad
@@ -124,7 +126,7 @@ const Enrollments = () => {
                             <Row gutter={[24, 0]}>
                                 <Col span={8}><Field label="Módulo" value={student.description} /></Col>
                                 <Col span={8}><Field label="Sección" value={student.code} /></Col>
-                                <Col span={8}><Field label="Periodo" value={`${student.period} - ${student.year}`} /></Col>
+                                <Col span={8}><Field label="Periodo" value={`${monthNames[student.period - 1]} - ${student.year}`} /></Col>
                                 
                                 <Col span={8}><Field label="Modalidad" value={student.modality} /></Col>
                                 <Col span={16}><Field label="Estatus de Inscripción" value={student.enrollmentStatus} /></Col>
@@ -158,7 +160,7 @@ const Enrollments = () => {
                         value={selectedSection}
                         options={sectionList.map(section => ({
                             value: section.id,
-                            label: `Periodo ${section.period} - Sección ${section.code}`
+                            label: `Periodo ${monthNames[section.period - 1]} - Sección ${section.code}`
                         }))}
                         style={{ width: "100%", maxWidth: '600px' }}
                         onChange={val => {setSelectedSection(val); }}
