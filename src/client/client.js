@@ -118,9 +118,9 @@ export async function closeSection(data){
 	return await http.post('api/closeSection', token, data)
 }
 
-export async function getSectionByModule(moduleId){
+/*export async function getSectionByModule(moduleId){
 	return await http.get(`api/getSectionByModule/${moduleId}`, token, null)
-}
+}*/
 
 export async function getSectionByPeriod(periodId){
 	return await http.get(`api/getSectionByPeriod/${periodId}`, token, null)
@@ -288,4 +288,35 @@ export async function setUpdateScore(data) {
 
 export async function getGradeStudentsBySection(periodId, sectionCode){
 	return await http.get(`api/getGradeStudentsBySection/${periodId}/${sectionCode}`, token, null)
+}
+
+
+//Prueba de estos nuevos endpoind
+
+export async function getModulesByCourse(courseId) {
+    return await api.get(`/api/getModulesByCourse/${courseId}`);
+}
+
+export async function getApprovedModulesByStudent(studentId, courseId) {
+    return await api.get(`/api/getApprovedModules/${studentId}/${courseId}`);
+}
+
+export async function getEnrollmentHistory(studentId) {
+    return await api.get(`/api/getEnrollmentHistory/${studentId}`);
+}
+
+export async function createStudentCohort(data) {
+    return await api.post('/api/createCohort', data);
+}
+
+export async function getSectionByModule(moduleId, sectionCode, periodId) {
+	console.log(moduleId, sectionCode, periodId)
+    const params = new URLSearchParams();
+    if (sectionCode) params.append('sectionCode', sectionCode);
+    if (periodId) params.append('periodId', periodId);
+    return await api.get(`/api/getSectionByModule/${moduleId}/${params.toString()}`);
+}
+
+export async function getEnrollmentCountBySection(sectionId) {
+    return await api.get(`/api/getEnrollmentCount/${sectionId}`);
 }
