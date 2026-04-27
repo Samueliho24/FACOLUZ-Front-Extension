@@ -285,3 +285,7 @@ export	async function getScoreByStudent(data) {
 export async function setUpdateScore(data) {
 	return await http.post('api/setUpdateScore', token, data)
 }
+
+export async function getGradeStudentsBySection(periodId, sectionCode){
+	return await http.get(`api/getGradeStudentsBySection/${periodId}/${sectionCode}`, token, null)
+}

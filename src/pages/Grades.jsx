@@ -1,18 +1,20 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Button, Divider, Input, List, Tooltip } from "antd";
-import { getPeriods, closePeriod } from "../client/client";
+import { getPeriods, getAllModules } from "../client/client";
 import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
-import { LoadGradesModal, ModifyGradesModal } from '../components/Modals'
+import { LoadGradesModal, ModifyGradesModal, ViewGradesSectionModal} from '../components/Modals'
 import { monthNames } from "../context/lists";
 
-const Periodos = () => {
+const Grades = () => {
 	const [period, setPeriod] = useState(null)
     
-    const {contextHolder, messageApi, setCurrentPeriodSection} = useContext(appContext)
+    const {contextHolder, messageApi, setModuleList} = useContext(appContext)
     const [loadModalOpen, setLoadModalOpen] = useState(false)
     const [modifyModalOpen, setModifyModalOpen] = useState(false)
+    const [viewModal, setViewModal] = useState(false)
     const [showList, setShowList] = useState([])
+    const [selectedPeriod, setSelectedPeriod] = useState({})
 
     const [closeModalOpen, setCloseModalOpen] = useState(false)
     const [periodToClose, setPeriodToClose] = useState(null)
@@ -29,7 +31,15 @@ const Periodos = () => {
         }
     }
 
+    const getModules = async () => {
+        const res = await getAllModules()
+        if (res.status === 200) {
+            setModuleList(res.data)
+        }
+    }
+
     useEffect(() => {
+        getModules()
         refreshPeriods()
     }, [])
 
@@ -55,7 +65,7 @@ const Periodos = () => {
                                         <h3>{month} - {item.year} - {item.modality} - {item.status}</h3>
                                     </div>
                                     <div className="buttons">
-                                        <Tooltip title='Ver secciones'><Button variant='solid' color='primary' size='large' onClick={() => { setCurrentPeriodSection(item); setView('Section'); }} >Secciones</Button></Tooltip>
+                                        <Tooltip title='Ver secciones'><Button variant='solid' color='primary' size='large' onClick={() => { setSelectedPeriod(item); setViewModal(true); }} >Secciones</Button></Tooltip>
                                     </div>
                                 </List.Item>
                             );
@@ -70,8 +80,13 @@ const Periodos = () => {
                 open = {modifyModalOpen}
                 onCancel = {() => setModifyModalOpen(false)}
             />
+            <ViewGradesSectionModal
+                open = {viewModal}
+                onCancel = {() => setViewModal(false)}
+                period = {selectedPeriod}
+            />
         </div>
     )
 }
 
-export default Periodos;
+export default Grades;

@@ -1,10 +1,10 @@
 import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod } from '../client/client'
-import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip, Divider, Descriptions } from 'antd'
-import { useState, useEffect, useContext, act } from 'react'
+import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip, Divider, Descriptions, Table, Spin, Empty } from 'antd'
+import { useState, useEffect, useContext, useMemo, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores, getScoreByStudent,setUpdateScore} from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores, getScoreByStudent,setUpdateScore, getGradeStudentsBySection} from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -1384,7 +1384,7 @@ export const StudentListOfSectionModal = ({open, onCancel, sectionId}) => {
 
 	const fetchStudents = async () => {
 		setLoading(true)
-		const res = await getStudentsInSection(sectionId.id)
+		const res = await getStudentsInSection(sectionId)
 		if(res.status === 200){
 			setStudents(res.data)
 		}else{
@@ -1721,9 +1721,9 @@ export const ModifyGradesModal = ({open, onCancel, info}) => {
 						<Button onClick={() => searchGrade()} variant='text' color='primary'>Buscar</Button>
 					</div>
 				</div>
-				<Divider>Datos Actuales</Divider>
 				{student && student.length > 0 ? (
 					<div>
+						<Divider>Datos Actuales</Divider>
 						<div style={{ marginTop: 20 }}>
 							<Descriptions bordered size="small" column={2}>
 								<Descriptions.Item label="Estudiante">{`${student[0].name} ${student[0].lastname}`}</Descriptions.Item>
@@ -1753,10 +1753,168 @@ export const ModifyGradesModal = ({open, onCancel, info}) => {
 							</div>
 						</div>
 					</div>
-				):(<div>Debe buscar al estudiante</div>)}
+				):(<div style={{ marginTop: 10 , textAlign: 'center', fontSize: '10px'}}>Debe buscar al estudiante</div>)}
 		</Modal>
 	)
 }
+
+export const ViewGradesSectionModal = ({ open, onCancel, period }) => {
+    const [sections, setSections] = useState([]);
+    const [selectedSectionCode, setSelectedSectionCode] = useState(null);
+    const [rawData, setRawData] = useState([]);
+    const [loading, setLoading] = useState(false);
+    
+    const month = lists.monthNames[period.period - 1];
+
+	const cleanForm = () => {
+		setSections([]);
+		setSelectedSectionCode(null);
+		setRawData([]);
+		onCancel();
+	}
+
+    const fetchSections = async () => {
+        setLoading(true);
+        const res = await getSectionByPeriod(period.id); 
+        if (res.status === 200) {
+            setSections(res.data);
+        }
+        setLoading(false);
+    };
+
+    const fetchGrades = async (sectionCode) => {
+        setLoading(true);
+        const res = await getGradeStudentsBySection(period.id, sectionCode);
+        console.log(res);
+        if (res.status === 200) {
+            setRawData(res.data);
+        }
+        setLoading(false);
+    };
+
+
+    useEffect(() => {
+        if (open) fetchSections();
+    }, [open, period.id]);
+
+    const { columns, dataSource } = useMemo(() => {
+        if (!rawData || rawData.length === 0) return { columns: [], dataSource: [] };
+
+        const moduleSet = new Set();
+        rawData.forEach(student => {
+            console.log(student);
+            student.grades.forEach(g => moduleSet.add(g.module));
+        });
+
+        const baseColumns = [
+            {
+                title: 'Identificación',
+                dataIndex: 'identification',
+                key: 'identification',
+                width: 120,
+                fixed: 'left',
+            },
+            {
+                title: 'Estudiante',
+                dataIndex: 'fullName',
+                key: 'fullName',
+                width: 200,
+                fixed: 'left',
+                sorter: (a, b) => a.fullName.localeCompare(b.fullName),
+            },
+        ];
+
+        const moduleColumns = Array.from(moduleSet).sort().map(modName => ({
+            title: modName,
+            dataIndex: modName,
+            key: modName,
+            align: 'center',
+            render: (value) => {
+                const { score, status } = value || {};
+                const isFail = score !== null && score < 10;
+                const isWithdrawn = status === 'Retirado';
+                
+                return (
+                    <span style={{ 
+                        fontWeight: isFail || isWithdrawn ? 'bold' : 'normal', 
+                        color: isWithdrawn ? '#8c8c8c' : isFail ? '#ff4d4f' : 'inherit',
+                        fontStyle: isWithdrawn ? 'italic' : 'normal'
+                    }}>
+                        {isWithdrawn ? 'Retirado' : (score !== null ? score : '-')}
+                    </span>
+                );
+            }
+        }));
+
+        const tableData = rawData.map((student, idx) => {
+            const row = {
+                key: student.identification || idx,
+                identification: student.identification,
+                fullName: student.fullName,
+            };
+            student.grades.forEach(g => {
+                row[g.module] = { score: g.finalScore, status: g.status };
+            });
+            return row;
+        });
+
+        return { columns: [...baseColumns, ...moduleColumns], dataSource: tableData };
+    }, [rawData]);
+
+    return (
+        <Modal
+            title={`Notas: ${month} ${period.year} - ${period.modality}`}
+            open={open}
+            width={1000}
+			onCancel={cleanForm}
+			closable={false}
+			destroyOnClose
+            footer={[
+                <Button key="print" type='primary' onClick={() => window.print()} disabled={dataSource.length === 0}>
+                    Imprimir Reporte
+                </Button>,
+                <Button key="cancel" onClick={cleanForm}>Cerrar</Button>
+            ]}
+        >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div>
+                    <Divider orientation="left">Seleccionar Sección</Divider>
+                    <Select
+                        style={{ width: '100%' }}
+                        placeholder="Seleccione una sección para ver las notas"
+                        loading={loading && sections.length === 0}
+                        onChange={(value) => {
+                            setSelectedSectionCode(value);
+                            fetchGrades(value);
+                        }}
+                        options={sections.map(sec => ({
+                            label: `Sección ${sec.code}`,
+                            value: sec.code
+                        }))}
+                    />
+                </div>
+
+                {selectedSectionCode ? (
+                    <div className="table-container">
+                        <Spin spinning={loading}>
+                            <Table
+                                columns={columns}
+                                dataSource={dataSource}
+                                scroll={{ x: 'max-content', y: 400 }}
+                                bordered
+                                size="small"
+                                pagination={false}
+                                locale={{ emptyText: <Empty description="No hay estudiantes inscritos en esta sección" /> }}
+                            />
+                        </Spin>
+                    </div>
+                ) : (
+                    <Empty description="Por favor, selecciona una sección para visualizar la sábana de notas." />
+                )}
+            </div>
+        </Modal>
+    );
+};
 
 export const StudentDocsModal = ({open, onCancel, studentId}) => {
 	
