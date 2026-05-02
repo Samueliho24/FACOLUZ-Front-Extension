@@ -294,29 +294,31 @@ export async function getGradeStudentsBySection(periodId, sectionCode){
 //Prueba de estos nuevos endpoind
 
 export async function getModulesByCourse(courseId) {
-    return await api.get(`/api/getModulesByCourse/${courseId}`);
+    return await http.get(`api/getModulesByCourse/${courseId}`, token, null);
 }
 
 export async function getApprovedModulesByStudent(studentId, courseId) {
-    return await api.get(`/api/getApprovedModules/${studentId}/${courseId}`);
+    return await http.get(`api/getApprovedModules/${studentId}/${courseId}`, token, null);
 }
 
 export async function getEnrollmentHistory(studentId) {
-    return await api.get(`/api/getEnrollmentHistory/${studentId}`);
+	console.log(studentId)
+    return await http.get(`api/getEnrollmentHistory/${studentId}`, token, null);
 }
 
 export async function createStudentCohort(data) {
-    return await api.post('/api/createCohort', data);
+    return await http.post('api/createCohort', token, data);
 }
 
 export async function getSectionByModule(moduleId, sectionCode, periodId) {
-	console.log(moduleId, sectionCode, periodId)
     const params = new URLSearchParams();
+	console.log(moduleId, sectionCode, periodId)
     if (sectionCode) params.append('sectionCode', sectionCode);
     if (periodId) params.append('periodId', periodId);
-    return await api.get(`/api/getSectionByModule/${moduleId}/${params.toString()}`);
+	const queryString = params.toString();
+    return await http.get(`api/getSectionByModule/${moduleId}${queryString ? `?${queryString}` : ''}`, token, null);
 }
 
 export async function getEnrollmentCountBySection(sectionId) {
-    return await api.get(`/api/getEnrollmentCount/${sectionId}`);
+    return await http.get(`api/getEnrollmentCount/${sectionId}`, token, null);
 }

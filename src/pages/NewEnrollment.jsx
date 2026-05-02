@@ -88,7 +88,7 @@ const Enrollments = () => {
                     photo: lastData.photo,
                     status: lastData.studentStatus
                 });
-
+                console.log(lastData)
                 setLastEnrollment(lastData);
                 setCohort({
                     id: lastData.cohortId,
@@ -147,7 +147,6 @@ const Enrollments = () => {
     // ============================================
     const determineDefaultModule = (modules, lastData, approvedList) => {
         const sortedModules = [...modules].sort((a, b) => a.order - b.order);
-        
         if (lastData.gradeStatus === 'Reprobado') {
             // REPITIENTE: por defecto el módulo reprobado
             const failedModule = sortedModules.find(m => m.id === lastData.moduleId);
@@ -180,10 +179,6 @@ const Enrollments = () => {
         const res = await getSectionByModule(moduleId, sectionCode, periodId);
         if (res.status === 200) {
             setSectionList(res.data);
-            // Auto-seleccionar primera sección si hay disponibles
-            if (res.data.length > 0) {
-                setSelectedSection(res.data[0].id);
-            }
         }
     };
     // ============================================
@@ -261,15 +256,19 @@ const Enrollments = () => {
     const handleSectionChange = (sectionId) => {
         setSelectedSection(sectionId);
         loadEnrollmentCount(sectionId);
+        console.log(selectedModule, sectionId);
         validateEnrollment(selectedModule, sectionId);
     };
 
     const validateEnrollment = (moduleId, sectionId) => {
+        console.log(moduleId, sectionId)
         if (!moduleId || !sectionId || !student) {
+            console.log('Invalid enrollment data');
             setCanEnroll(false);
             return;
         }
         if (approvedModules.includes(moduleId)) {
+            console.log('Module already approved');
             setCanEnroll(false);
             return;
         }
@@ -279,6 +278,7 @@ const Enrollments = () => {
     // ============================================
     // INSCRIPCIÓN
     // ============================================
+
     const Enrollment = async () => {
         if (!student || !selectedModule || !selectedSection) return;
 
@@ -379,7 +379,7 @@ const Enrollments = () => {
     );
 
     const getModuleLabel = (module) => {
-        return `${module.order ? `${module.order}. ` : ''}${module.description} (${module.evaluationMode})`;
+        return `${module.order ? `${module.order}. ` : ''}${module.description}`;
     };
 
     // Determinar si mostrar selector de sección
@@ -419,10 +419,10 @@ const Enrollments = () => {
                 {student && (
                     <>
                         {/* Indicador de tipo */}
-                        <div style={{ marginBottom: '16px' }}>
-                            {studentType === 'new' && <Tag color="blue">Nuevo Ingreso</Tag>}
-                            {studentType === 'regular' && <Tag color="green">Estudiante Regular</Tag>}
-                            {studentType === 'repeating' && <Tag color="orange">Repitiente</Tag>}
+                        <div style={{ marginBottom: '16px'}}>
+                            {studentType === 'new' && <Tag color="blue" style={{ fontWeight: 'bolder', fontSize: '17px', color: '#111', border:'none', background:'none' }}>NUEVO INGRESO</Tag>}
+                            {studentType === 'regular' && <Tag color="green" style={{ fontWeight: 'bolder', fontSize: '17px', color: '#111', border:'none', background:'none' }}>ESTUDIANTE REGULAR</Tag>}
+                            {studentType === 'repeating' && <Tag color="orange" style={{ fontWeight: 'bolder', fontSize: '17px', color: '#111', border:'none', background:'none' }}>REPITIENTE</Tag>}
                         </div>
 
                         <div className="student-info-grid">
@@ -431,7 +431,7 @@ const Enrollments = () => {
                                 <Col span={8}><Field label="Apellido" value={student.lastname} /></Col>
                                 <Col span={8}><Field label="Cédula" value={student.studentsIdentification} /></Col>
                                 <Col span={8}><Field label="Email" value={student.email} /></Col>
-                                <Col span={8}><Field label="Teléfono" value={student.phone} /></Col>
+                                <Col span={8}><Field label="Teléfono" value={`0${String(student.phone).slice(0,3)}-${String(student.phone).slice(3,10)}`}/></Col>
                                 <Col span={8}><Field label="Estado" value={student.status} /></Col>
                             </Row>
 
@@ -443,15 +443,10 @@ const Enrollments = () => {
                                     <Col span={8}><Field label="Periodo" value={`${monthNames[lastEnrollment.period - 1]} - ${lastEnrollment.year}`} /></Col>
                                     <Col span={8}><Field label="Modalidad" value={lastEnrollment.modality} /></Col>
                                     <Col span={8}><Field label="Nota Final" value={lastEnrollment.score ?? 'Sin nota'} /></Col>
-                                    <Col span={8}><Field label="Estatus" value={
-                                        <Tag color={lastEnrollment.gradeStatus === 'Aprobado' ? 'green' : lastEnrollment.gradeStatus === 'Reprobado' ? 'red' : 'default'}>
-                                            {lastEnrollment.gradeStatus}
-                                        </Tag>
-                                    } /></Col>
+                                    <Col span={8}><Field label="Estatus" value={lastEnrollment.enrollmentStatus}/></Col>
                                 </Row>
                             )}
                         </div>
-
                         <Divider />
 
                         {/* Área de acción */}
@@ -503,7 +498,7 @@ const Enrollments = () => {
                                         onChange={handleSectionChange}
                                         options={sectionList.map(s => ({
                                             value: s.id,
-                                            label: `Sección ${s.code} - ${monthNames[s.period - 1]} ${s.year} (${s.modality})`
+                                            label: `Sección ${s.code}`
                                         }))}
                                         style={{ width: '100%' }}
                                     />
