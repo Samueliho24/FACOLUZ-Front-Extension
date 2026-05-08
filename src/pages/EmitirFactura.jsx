@@ -62,8 +62,9 @@ const EmitirFactura = () => {
 			<div className='listContainer Content' >
 				<div className='row'>
 					<InputNumber
-						placeholder='Cedula del estudiante:'
+						style={{width: '100%'}}
 						value={studentIdentification}
+						prefix="Cedula del estudiante: "
 						onChange={e => setStudentIdentification(e)}
 					/>
 				</div>
@@ -85,9 +86,10 @@ const EmitirFactura = () => {
 
 				<div className='row'>
 					<InputNumber 
+						style={{width: '100%'}}
 						className='rowItem'
 						value={chargedAmount}
-						prefix="A facturar: "
+						prefix="Monto a facturar: "
 						onChange={e => setChargedAmount(e)}
 					/>
 				</div>
