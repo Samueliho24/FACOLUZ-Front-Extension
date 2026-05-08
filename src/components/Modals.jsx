@@ -245,18 +245,20 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 	)
 }
 
-export const DeleteUserModal = ({open, onCancel, id, updateList}) => {
+export const DeleteUserModal = ({open, onCancel, user, updateList}) => {
 
 	const {messageApi} = useContext(appContext)
 	const [loading, setLoading] = useState(false)
 
 	const handleDelete = async () => {
 		setLoading(true)
-		let res = await deleteUser(id)
-		if(res.status == 200){
+		const newData = user;
+		newData.active = false;
+		let res = await updateUser(newData)
+		if(res.status == 201){
 			messageApi.open({
 				type: 'success',
-				content: 'Eliminado con exito'
+				content: 'Acceso eliminado con exito'
 			})
 			setLoading(false)
 			updateList()
@@ -463,6 +465,122 @@ export const ChangeUserTypeModal = ({open, onCancel, info}) => {
 				onChange={(e) => setSelectedType(e)}
 				defaultValue={info.type}
 			/>
+		</Modal>
+	)
+}
+
+export const AddNewUserModal = ({open, onCancel, updateList}) => {
+
+	//Control de la UI
+	const {messageApi} = useContext(appContext)
+	const [loading, setLoading] = useState(false)
+
+	//Control de los campos
+	const [idNumber, setIdNumber] = useState('')
+	const [name, setName] = useState('')
+	const [lastname, setLastname] = useState('')
+	const [password, setPassword] = useState('')
+	const [confirmPassword,setConfirmPassword] =useState('')
+	const [userType, setUserType] = useState('')
+
+
+	async function findUser(id){
+		let res = await getIdUsers(id)
+
+		console.log(res)
+		
+		switch (res.data[0].active) {
+			case 0:
+				messageApi.open({
+					type: 'error',
+					content: 'El usuario con esa cedula existe pero esta inactivo'
+				})
+				setLoading(true)
+				break;
+			case 1:
+				messageApi.open({
+					type: 'error',
+					content: 'El usuario con esa cedula existe.'
+				})
+				setLoading(true)
+				break;
+			case undefined:
+				setLoading(false)
+				break;
+		}
+	}
+	const cleanForm = () => {
+		setIdNumber('')
+		setName('')
+		setLastname('')
+		setPassword('')
+		setConfirmPassword('')
+		setUserType('')
+		onCancel()
+	}
+
+	const submitNewUser = async () => {
+		if(idNumber=='' || name=='' || lastname=='' || password == '' || confirmPassword==''){
+			messageApi.open({
+				type: 'error',
+				content: 'Debe ingresar todos los datos'
+			})
+		}else if(password!=confirmPassword){
+			messageApi.open({
+				type: 'error',
+				content: 'Las contraseñas no son iguales'
+			})
+		}else{
+			setLoading(true)
+			const data = {
+				id: idNumber,
+				name: name,
+				lastname: lastname,
+				passwordSHA256: await encrypt(password),
+				type: userType,
+			}
+
+			const res = await createUser(data)
+			if(res.status == 201){
+				setLoading(false)
+				messageApi.open({
+					type: 'success',
+					content: 'Usuario creado con exito'
+				})
+				updateList()
+				onCancel()
+			}else{
+				setLoading(false)
+				messageApi.open({
+					type: 'error',
+					content: res.response.data
+				})
+			}
+		}
+	}
+
+	return(
+		<Modal
+			title='Agregar nuevo usuario'
+			open={open} 
+			closable={false}
+			destroyOnClose
+			footer={[
+				<Button onClick={cleanForm} variant='link' color='danger'>Cancelar</Button>,
+				<Button disabled={loading || idNumber=='' || name=='' || lastname=='' || password == '' || confirmPassword==''} onClick={submitNewUser} variant='solid' color='primary'>Agregar</Button>
+			]}
+		>
+			<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+					<InputNumber onBlur={(e) => {findUser(Number(e.target.value))}} onChange={(e) => setIdNumber(e)} placeholder='Numero de cedula' style={{width: '100%'}}/>
+				<Space.Compact style={{width: '100%'}}>
+					<Input disabled={loading} onChange={(e) => setName(e.target.value)} placeholder='Nombre' style={{width: '50%'}}/>
+					<Input disabled={loading} onChange={(e) => setLastname(e.target.value)} placeholder='Apellido' style={{width: '50%'}}/>
+				</Space.Compact>
+				
+				<Input.Password disabled={loading} placeholder='Contraseña' onChange={(e) => setPassword(e.target.value)}/>
+				<Input.Password disabled={loading} placeholder='Confirmar contraseña' onChange={(e) => setConfirmPassword(e.target.value)}/>
+				<Select disabled={loading} onChange={(e) => setUserType(e)} placeholder='Tipo de Usuario' options={lists.userTypeList.slice(1, 3)}/>
+			</div>
 		</Modal>
 	)
 }
@@ -891,84 +1009,7 @@ export const ClosePeriodModal = ({open, onCancel, period, refreshPeriods}) => {
 		</Modal>
 	)
 }
-/*
-export const OpenSectionModal = ({open, section, onCancel, refreshSections}) => {
-    const { messageApi, currentPeriodSection, moduleList, teacherList } = useContext(appContext)
-    const [loading, setLoading] = useState(false)
-    const [periodId, setPeriodId] = useState('')
-    const [moduleId, setModuleId] = useState('')
-    const [teacherId, setTeacherId] = useState('')
-    const [code, setCode] = useState('')
-    const [quota, setQuota] = useState('')
 
-	useEffect(() => {
-        if (currentPeriodSection) {
-            setPeriodId(currentPeriodSection.id || currentPeriodSection.periodId || '')
-        }
-        if (!open) {
-            // Limpiar campos al cerrar el modal
-            setModuleId('');
-            setTeacherId('');
-            setCode('');
-            setQuota('');
-        }
-    }, [currentPeriodSection, open])
-
-    const handleAddSection = async () => {
-		const data = {
-			periodId,
-			moduleId,
-			teacherId,
-			code,
-			quota: Number(quota)
-		}
-        setLoading(true)
-        try {
-            const res = await openSection(data)
-            if (res.status === 200) {
-                messageApi.success('Sección creada correctamente')
-                onCancel()
-                refreshSections()
-            } else {
-                messageApi.error('Error al crear la sección')
-            }
-        } catch (err) {
-            messageApi.error('Error al crear la sección')
-        }
-        setLoading(false)
-    }
-
-    return (
-        <Modal
-            title='Agregar nueva sección'
-            open={open}
-            closable={false}
-            destroyOnClose
-            footer={[
-                <Button key="cancel" onClick={onCancel} variant='text' disabled={loading}>Cancelar</Button>,
-                <Button key="add" onClick={handleAddSection} variant='solid' color='primary' disabled={loading || !periodId || !moduleId || !teacherId || !code || !quota}>Agregar</Button>
-            ]}
-        >
-            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-                <Select
-                    placeholder='Módulo'
-                    value={moduleId ? moduleId : undefined}
-                    onChange={setModuleId}
-                    options={moduleList.map(m => ({ value: m.id, label: m.description }))}
-                />
-                <Select
-                    placeholder='Docente'
-                    value={teacherId ? teacherId : undefined}
-                    onChange={setTeacherId}
-                    options={teacherList.map(t => ({ value: t.id, label: `${t.name} ${t.lastName}` }))}
-                />
-                <Input placeholder='Código de sección' value={code} onChange={e => setCode(e.target.value.toUpperCase())} maxLength={1} />
-                
-                <InputNumber placeholder='Cupo' value={quota} onChange={setQuota} min={1} style={{width:'100%'}} />
-            </div>
-        </Modal>
-    )
-}*/
 export const OpenSectionModal = ({ open, section, onCancel, refreshSections }) => {
     const { messageApi, currentPeriodSection, moduleList, teacherList } = useContext(appContext)
     const [loading, setLoading] = useState(false)
@@ -1588,182 +1629,9 @@ export const StudentListOfSectionModal = ({open, onCancel, sectionId}) => {
                 />
             </div>
         </Modal>
-)
-}
+)}
 
 //Notas
-/*
-export const LoadGradesModal = ({open, onCancel}) => {
-    const [students, setStudents] = useState([])
-	const [grades, setGrades] = useState({})
-	const [periods, setPeriods] = useState([])
-	const [section, setSection]=useState(null)
-	const { messageApi } = useContext(appContext)
-
-    const [loading, setLoading] = useState(false)
-
-	const getPeriodsActives = async () => {
-		setLoading(true)
-		const res = await getActivePeriods()
-		console.log(res)
-		if(res.status === 200){
-			setPeriods(res.data)
-		}else{
-			messageApi.open({ type: 'error', content: 'Error al obtener las secciones' })
-		}
-	}
-	
-
-	const fetchStudents = async (section) => {
-		setLoading(true)
-		console.log(section)
-		const res = await getStudentsInSection(section)
-		console.log(res)
-		if(res.status === 200){
-			setStudents(res.data)
-		}else{
-			messageApi.open({ type: 'error', content: 'Error al obtener los estudiantes de la sección' })
-		}
-		setLoading(false)
-	}
-
-	const getSectionsActives = async (period) => {
-		setLoading(true)
-		console.log(period)
-		const res = await getSectionByPeriod(period)
-		console.log(res)
-		if(res.status === 200){
-			setSection(res.data)
-		}else{
-			messageApi.open({ type: 'error', content: 'Error al obtener las secciones' })
-		}
-	}
-
-    useEffect(() => {
-		getPeriodsActives()
-    }, [])
-
-    const listData = students.map(student => ({
-        title: `${student.name} ${student.lastname}`,
-        description: `Cedula: ${student.studentsIdentification}`,
-		date: `${getDate(student.dateEnrollment)}`,
-		status: `${student.status}`,
-        key: `${student.id}`
-    }))
-
-    const handleGradeChange = (studentId, score) => {
-        setGrades(prev => ({
-            ...prev,
-            [studentId]: score
-        }));
-    };
-
-	const cleanForm = () => {
-		setGrades({})
-		setStudents([])
-		setSection(null)
-		onCancel()
-	}
-
-
-	async function loadGrades() {
-		setLoading(true)
-		
-		const allGraded = students.every(student => 
-			grades[student.id] !== undefined && grades[student.id] !== ""
-		);
-
-		if (!allGraded) {
-			messageApi.open({
-				type: 'warning',
-				content: 'Por favor, asigne una nota (1-20 o SI) a todos los alumnos antes de continuar.'
-			});
-			return;
-		}
-
-		const data = students.map(student => ({
-            studentId: student.id,
-            score: grades[student.id] || "" 
-        }));
-		console.log(data)
-		const res = await setLoadScores(data)
-		console.log(res)
-		if (res.status === 200) {
-            messageApi.open({ type: 'success', content: 'Notas cargadas con éxito' });
-            onCancel();
-        } else {
-            messageApi.open({ type: 'error', content: 'Error al cargar las notas' });
-        }
-        setLoading(false);
-	}
-
-    return(
-        <Modal
-            title='Carga de Notas'
-            open={open}
-            closable={false}
-            destroyOnClose
-            footer={[
-				<Button onClick={() => loadGrades()} variant='solid' color='primary' disabled={loading}>Cargar notas</Button>,
-                <Button onClick={() => cleanForm()} variant='text' color='primary'>Cerrar</Button>,
-            ]}
-        >	<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-				<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-					<Select onChange={(e) => getSectionsActives(e)} 
-					options={
-						periods.map(item => {
-							const month = lists.monthNames[item.period - 1] || item.period;
-							return({label: month + ' - ' + item.year + ' - ' + item.modality, value: item.id})})} 
-						placeholder='Seleccione un periodo'/>
-				</div>
-
-				{section && (
-					<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-						<Select onChange={(e) => fetchStudents(e)} 
-						options={
-							section.map(item => ({label: 'Seccion ' + item.code, value: item.id}))} 
-							placeholder='Seleccione un sección'/>
-					</div>
-				)}
-				{students && students.length > 0 ? (
-					<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-					<List
-						bordered
-						className='mainList'
-						loading={loading}
-						dataSource={listData}
-						renderItem={item => (
-							<List.Item>
-								<Tooltip title={item.title}>
-									<List.Item.Meta
-										title={item.title}
-										description={
-											<span style={{ color: '#474747', display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-												{item.description} 
-												<InputGrade 
-													value={grades[item.key] || ""} 
-													onChange={(val) => handleGradeChange(item.key, val)} 
-												/>
-											</span>
-											//item.description + '\t - \t Fecha de inscripción: ' + item.date + '\t - \t Estado: ' + item.status
-										}
-									/>
-								</Tooltip>
-							</List.Item>
-						)}
-					/>
-				</div>	
-				):(
-					<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-						<p>Debe seleccionar una sección para ver a sus estudiantes</p>
-					</div>
-				)}
-			</div>
-        </Modal>
-	)
-}
-*/
-
 export const LoadGradesModal = ({ open, onCancel }) => {
     const [students, setStudents] = useState([])
     const [grades, setGrades] = useState({})
@@ -1997,143 +1865,6 @@ export const LoadGradesModal = ({ open, onCancel }) => {
         </Modal>
     )
 }
-/*
-export const ModifyGradesModal = ({open, onCancel, info}) => {
-	const [student, setStudent] = useState('')
-	const [studentId, setStudentId] = useState('')
-	const [moduleList, setModuleList] = useState([])	
-	const [moduleSelected, setModuleSelected] = useState('')
-	const [newGrade, setNewGrade] = useState('')
-	const [reason, setReason] = useState('')
-	const { messageApi } = useContext(appContext)
-
-	const [loading, setLoading] = useState(false)
-	
-	const getModules = async () => {
-		const res = await getAllModules()
-		if (res.status === 200) {
-			setModuleList(res.data)
-		}
-	}
-
-	useEffect(() => {
-		getModules()
-	}, [])
-
-	async function searchGrade() {
-		setLoading(true)
-		const data = {
-			studentIdentification: studentId,
-			moduleId: moduleSelected
-		}
-		console.log(data)
-		const res = await getScoreByStudent(data)
-		if (res.status === 200) {
-			setStudent(res.data)
-			console.log(res.data)
-		}else if (res.status === 404) {
-			messageApi.open({
-				type: 'error',
-				content: 'Alumno no encontrado'
-			})
-		}else {
-			messageApi.open({
-				type: 'error',
-				content: 'Error al buscar alumno'
-			})
-		}
-		setLoading(false)
-		return res
-	}
-
-	async function modifyGrades() {
-		setLoading(true)
-		const data = {
-			studentId: student[0].id,
-			moduleId: moduleSelected,
-			gradeId: student[0].gradeId,
-			lastScore: student[0].score,
-			newScore: newGrade,
-			reason: reason
-		}
-		console.log(data)
-		const res = await setUpdateScore(data)
-
-		if (res.status === 200) {
-			messageApi.open({
-				type: 'success',
-				content: 'Nota modificada con exito'
-			})
-			cleanForm()
-		}
-		setLoading(false)
-	}
-
-	async function cleanForm() {
-		setLoading(false)
-		setStudentId('')
-		setModuleSelected('')
-		setStudent('')
-		onCancel()
-	}
-
-	return(
-		<Modal
-			title='Modificar Notas'
-			open={open}
-			closable={false}
-			destroyOnClose
-			footer={[
-				<Button onClick={() => modifyGrades()} variant='solid' color='primary' disabled={loading}>Modificar notas</Button>,
-				<Button onClick={() => cleanForm()} variant='text' color='primary'>Cerrar</Button>,
-			]}
-			>	
-				<div style={{display: 'flex', flexDirection: 'row', gap: '10px'}}>
-					<div style={{display: 'flex', flexDirection: 'column', gap: '10px', width: '85%'}}>
-						<Input placeholder='Cedula' onChange={(e) => setStudentId(e.target.value)} value={studentId}/>
-						<Select options={moduleList.map(item => ({label: item.description, value: item.id}))} onChange={(e) => setModuleSelected(e)} placeholder='Seleccione el modulo'/>
-					</div>
-					<div style={{display: 'flex', flexDirection: 'column', gap: '10px', width: '15%', alignItems: 'center', justifyContent: 'center'}}>
-						<Button onClick={() => searchGrade()} variant='text' color='primary'>Buscar</Button>
-					</div>
-				</div>
-				{student && student.length > 0 ? (
-					<div>
-						<Divider>Datos Actuales</Divider>
-						<div style={{ marginTop: 20 }}>
-							<Descriptions bordered size="small" column={2}>
-								<Descriptions.Item label="Estudiante">{`${student[0].name} ${student[0].lastname}`}</Descriptions.Item>
-								<Descriptions.Item label="Nota Actual">{student[0].score}</Descriptions.Item>
-								<Descriptions.Item label="Materia" span={2}>{moduleList.find(item => item.id === moduleSelected).description}</Descriptions.Item>
-							</Descriptions>
-
-							<Divider>Editar Información</Divider>
-
-							<div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-								<div>
-								Nueva Nota:
-								<InputGrade 
-									value={newGrade} 
-									onChange={(e) => setNewGrade(e)} 
-								/>
-								</div>
-								<div>
-								Motivo:
-								<Input.TextArea 
-									rows={3} 
-									style={{ marginTop: 5 }} 
-									value={reason} 
-									onChange={e => setReason(e.target.value)} 
-								/>
-								</div>
-							</div>
-						</div>
-					</div>
-				):(<div style={{ marginTop: 10 , textAlign: 'center', fontSize: '10px'}}>Debe buscar al estudiante</div>)}
-		</Modal>
-	)
-}
-*/
 
 export const ModifyGradesModal = ({ open, onCancel, info }) => {
     const [studentId, setStudentId] = useState('')

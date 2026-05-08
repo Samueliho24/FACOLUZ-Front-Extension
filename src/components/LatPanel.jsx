@@ -35,8 +35,8 @@ const LatPanel = () => {
                 {/*  <Button className='Button' size={'large'} onClick={()=>{setView('Cursos')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Cursos</p></Button>*/}
                 
 
-                
-                {userData.type === 5 &&<Button className='Button' size={'large'} onClick={()=>{setView('Configuracion')}} variant='solid' icon={<SettingFilled />}><p className='invisible'>Configuracion</p></Button> }
+                { userData.type === 0 && <Button className='Button' size='large' onClick={() => {setView('Users')}} variant='solid' icon={<SettingFilled />} className='invisible' ><p>Usuarios</p></Button> }
+                {userData.type <= 1 && <Button className='Button' size={'large'} onClick={()=>{setView('Configuracion')}} variant='solid' icon={<SettingFilled />}><p className='invisible'>Configuracion</p></Button> }
                 <Button className='Button' size={'large'} onClick={()=>{setConfirmLogout(true)}} variant='solid' icon={<LogoutOutlined />}><p className='invisible'>Cerrar sesion</p></Button> 
             </div>
 
