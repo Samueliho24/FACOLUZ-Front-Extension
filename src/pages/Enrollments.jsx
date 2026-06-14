@@ -5,12 +5,10 @@ import { routerContext } from "../context/routerContext";
 import { getAllModules, getSearchedModule } from '../client/client';
 import { MenuOutlined } from '@ant-design/icons';
 
-
-
 const Enrollments = () => {
     const [open, setOpen] = useState(false);
     const {view, setView} = useContext(routerContext)
-    const {contextHolder} = useContext(appContext)
+    const {contextHolder, messageApi} = useContext(appContext)
     const {setCurrentModuleEnrollment} = useContext(appContext)
 
     const [showList, setShowList] = useState([])
@@ -28,7 +26,15 @@ const Enrollments = () => {
         }else{
             res = await getSearchedModule(searchInput)
         }
-        setShowList(res.data)
+
+        if(res.status == 200){
+            setShowList(res.data)
+        }else{
+            messageApi.open({
+                type: "error",
+                content: "ha ocurrido un error"
+            })
+        }
     }
 
     return (
