@@ -1,4 +1,4 @@
-import { getAllInvoices, getDailyReport } from '../client/client'
+import { getAllInvoices, getDailyReport, getInvoicesById } from '../client/client'
 import { useContext, useEffect, useState } from 'react'
 import { searchOnList } from '../context/lists'
 import * as lists from '../context/lists'
@@ -12,7 +12,7 @@ import { InfoForInvoice, MakePayment } from '../components/Modals'
 
 const ConsultarRegistros = () => {
     const {contextHolder, messageApi} = useContext(appContext)
-	const [searchParam, setSearchParam] = useState('')
+	const [searchParam, setSearchParam] = useState("")
 	const [showList, setShowList] = useState([])
 	const [selectedItem, setSelectedItem] = useState('')
 	const [page, setPage] = useState(1)
@@ -24,9 +24,14 @@ const ConsultarRegistros = () => {
     }, [page])
 
     const getContent = async() => {
-        const res = await getAllInvoices(page)
-		console.log(res.data)
-        setShowList(res.data)
+		let res
+		if(searchParam != ""){
+			res = await getInvoicesById(searchParam, page)
+		}else{
+			res = await getAllInvoices(page)
+		}
+			console.log(res.data)
+			setShowList(res.data)
     }
 
 	const callGetDailyReport = async() => {
@@ -68,7 +73,7 @@ const ConsultarRegistros = () => {
 			{contextHolder}
 			<div className='searchBar' >
 				<Input
-					placeholder='Ingrese cedula del paciente'
+					placeholder='Ingrese cedula del estudiante'
 					value={searchParam}
 					onChange={e => setSearchParam(e.target.value)}/>
 					<Button onClick={getContent}>Consultar</Button>

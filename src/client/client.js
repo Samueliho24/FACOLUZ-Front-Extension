@@ -34,8 +34,8 @@ export async function verifyInvoice(data){
 	return await http.post('api/verifyInvoice', token, data)
 }
 
-export async function getInvoicesById(patientId, page){
-	return await http.get(`api/getInvoices/${patientId}/${page}`, token, null)
+export async function getInvoicesById(studentId, page){
+	return await http.get(`api/getInvoices/${studentId}/${page}`, token, null)
 }
 
 export async function getAllInvoices(page){

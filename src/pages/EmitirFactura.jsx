@@ -3,6 +3,7 @@ import { Input, Button, Divider, Select, InputNumber } from 'antd'
 import { issueInvoice, getStudentById, getIdInvoice, getDolarPrice } from '../client/client'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
+import TextArea from 'antd/es/input/TextArea'
 
 const EmitirFactura = () => {
 
@@ -94,7 +95,8 @@ const EmitirFactura = () => {
 					/>
 				</div>
 				<div className='row'>
-					<Input 
+					<TextArea
+						autoSize
 						placeholder='Observaciones' 
 						value={comment} 
 						onChange={e => setComment(e.target.value)}/>
