@@ -21,6 +21,7 @@ const Periodos = () => {
     // Función para refrescar la lista de periodos
     const refreshPeriods = async () => {
         const res = await getPeriods()
+        console.log(res)
         if(res.status == 200){
             setShowList(res.data)
         }
@@ -48,7 +49,7 @@ const Periodos = () => {
                             return (
                                 <List.Item className='listItem' key={item.id}>
                                     <div className="info">
-                                        <h3>{month} - {item.year} - {item.modality} - {item.status}</h3>
+                                        <h3>{month} - {item.year} - {item.modality} - {item.state}</h3>
                                     </div>
                                     <div className="buttons">
                                         <Tooltip title='Ver secciones'><Button variant='solid' color='primary' size='large' onClick={() => { setCurrentPeriodSection(item); setView('Section'); }} >Secciones</Button></Tooltip>

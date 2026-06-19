@@ -910,6 +910,7 @@ export const OpenPeriodModal = ({open, period, onCancel, refreshPeriods}) => {
 			endDate: endDate
 		}
 		const res = await openPeriod(data)
+		console.log(res)
 		setLoading(false)
 		if(res.status == 200){
 			messageApi.open({
@@ -921,7 +922,7 @@ export const OpenPeriodModal = ({open, period, onCancel, refreshPeriods}) => {
 		}else{
 			messageApi.open({
 				type: 'error',
-				content: res.response.data
+				content: "ha ocurrido un error"
 			})
 		}
 	}
