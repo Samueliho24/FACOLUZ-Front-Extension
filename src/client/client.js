@@ -12,10 +12,13 @@ export async function login(data){
 	return res
 }
 
+export async function getBillables(){
+	return await http.get("api/billables", token, null)
+}
+
 export async function getIdInvoice(){
-	console.log(token)
 	return await http.get('api/getIdInvoice', token, null)
-	
+
 }
 
 export async function issueInvoice(data){

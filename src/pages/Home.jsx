@@ -1,18 +1,22 @@
 import React, { useEffect, useContext, useState } from 'react'
-import { getSettings } from '../client/client'
+import { getBillables, getSettings } from '../client/client'
 import { appContext } from '../context/appContext'
 const Home = () => {
-	const {setPrices} = useContext(appContext)
+	const {setPrices, messageApi, ContextHolder} = useContext(appContext)
 
 	useEffect(() => {
-		fetchSettings()
+		fetchPrices()
 	}, [])
 
-	const fetchSettings = async () => {
-		const res = await getSettings()
-		if (res?.data) {
-			const pricesObj = Object.fromEntries(res.data.map(({ label, value }) => [label, value]));
-			setPrices(pricesObj)
+	const fetchPrices = async () => {
+		const res = await getBillables()
+		if(res.status === 200){
+			setPrices(res.data)
+		}else{
+			messageApi.open({
+				type: 'error',
+				content: "ha ocurrido un error"
+			})
 		}
 	}
 

@@ -13,6 +13,7 @@ const ContextProvider = ({children}) => {
 	const [moduleList, setModuleList] = useState([])
 	const [teacherList, setTeacherList] = useState([])
 	const [messageApi, contextHolder] = message.useMessage()
+	const [dolarPrice, setDolarPrice] = useState(0)
 	
 	return(
 		<appContext.Provider value={{
@@ -31,7 +32,9 @@ const ContextProvider = ({children}) => {
 			teacherList,
 			setTeacherList,
 			messageApi,
-			contextHolder
+			contextHolder,
+			dolarPrice,
+			setDolarPrice
 		}} >
 			{children}
 		</appContext.Provider>
