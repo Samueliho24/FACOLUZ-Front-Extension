@@ -1,8 +1,8 @@
 {
-  "name": "Control-de-usuarios-FACOLUZ",
-  "productName": "Control-de-usuarios-FACOLUZ",
+  "name": "Extension-FACOLUZ",
+  "productName": "Extension-FACOLUZ",
   "version": "1.0.0",
-  "description": "Modulo de control de usuarios del sistema de gestion de clinicas FACOLUZ",
+  "description": "Modulo administrativo de extension FACOLUZ",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
