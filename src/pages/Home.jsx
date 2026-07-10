@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useState } from 'react'
-import { getBillables, getSettings } from '../client/client'
+import { getBillables } from '../client/client'
 import { appContext } from '../context/appContext'
 const Home = () => {
 	const {setPrices, messageApi, ContextHolder} = useContext(appContext)
@@ -15,7 +15,7 @@ const Home = () => {
 		}else{
 			messageApi.open({
 				type: 'error',
-				content: "ha ocurrido un error"
+				content: "ha ocurrido un error en los precios de servicios."
 			})
 		}
 	}

@@ -1,23 +1,15 @@
 import React, { useEffect, useContext, useState } from 'react';
 import { Divider, Input, Button, Form} from 'antd';
 import { appContext } from "../context/appContext";
-import { getSettings} from "../client/client";
+import { getBillables, savePrices } from "../client/client";
 
 const Configuracion = () => {
-    const {messageApi,contextHolder, prices,setPrices} = useContext(appContext);
-    const [ciaConsulta, setCiaConsulta] = useState(prices.CIAConsulta);
-    const [ciaHistoria, setCiaHistoria] = useState(prices.CIAHistoria);
-    const [cianConsulta, setCianConsulta] = useState(prices.CIANConsulta);
-    const [cianHistoria, setCianHistoria] = useState(prices.CIANHistoria);
-    const [cirugia, setCirugia] = useState(prices.Cirugia);
-    const [endodoncia, setEndodoncia] = useState(prices.Endodoncia);
-    const [ortodoncia, setOrtodoncia] = useState(prices.Ortodoncia);
-    const [peridoncia, setPeridoncia] = useState(prices.Peridoncia);
-    const [protesisTotal, setProtesisTotal] = useState(prices.ProtesisTotal);
-    const [protesisParcialRemovible, setProtesisParcialRemovible] = useState(prices.ProtesisParcialRemovible);
-    const [protesisParcialFija, setProtesisParcialFija] = useState(prices.ProtesisParcialFija);
-    const [emergenciaCIA, setEmergenciaCIA] = useState(prices.EmergenciaCIA);
-    const [emergenciaCIAN, setEmergenciaCIAN] = useState(prices.EmergenciaCIAN);
+    const {messageApi, contextHolder, prices, setPrices} = useContext(appContext);
+    
+    const [inscripcionPrice, setInscripcionPrice] = useState(prices.find(x => x.name === "Inscripcion").price);
+    const [materiaPrice, setMateriaPrice] = useState(prices.find(x => x.name === "Materia").price);
+    const [actividadEspecialPrice, setActividadEspecialPrice] = useState(prices.find(x => x.name === "Actividad especial").price);
+    const [certificadoPrice, setCertificadoPrice] = useState(prices.find(x => x.name === "Reimpresion de certificado").price);
 
 // Validación: no vacío y sólo números (acepta enteros y decimales)
     const isNumeric = (v) => {
@@ -28,19 +20,10 @@ const Configuracion = () => {
     const validateFields = () => {
     // lista de pares [valor, etiqueta amena]
         const fields = [
-            [ciaConsulta, 'CIA (Consulta)'],
-            [ciaHistoria, 'CIA (Historia)'],
-            [cianConsulta, 'CIAN (Consulta)'],
-            [cianHistoria, 'CIAN (Historia)'],
-            [cirugia, 'Cirugía'],
-            [endodoncia, 'Endodoncia'],
-            [ortodoncia, 'Ortodoncia'],
-            [peridoncia, 'Peridoncia'],
-            [protesisTotal, 'Prótesis Total'],
-            [protesisParcialRemovible, 'Prótesis Parcial Removible'],
-            [protesisParcialFija, 'Prótesis Parcial Fija'],
-            [emergenciaCIA, 'Emergencia CIA'],
-            [emergenciaCIAN, 'Emergencia CIAN'],
+            [inscripcionPrice, 'Inscripcion'],
+            [materiaPrice, 'Materia'],
+            [actividadEspecialPrice, 'Actividad especial'],
+            [certificadoPrice, 'Reimpresion de certificado'],
         ];
 
         let hasError = false;
@@ -67,34 +50,34 @@ const Configuracion = () => {
         return !hasError;
     };
 
-    const saveSettings = async () => {
+    const submit = async () => {
         if (!validateFields()) {
             return;
         }
 
-        const settings = {
-            CIAConsulta: ciaConsulta,
-            CIAHistoria: ciaHistoria,
-            CIANConsulta: cianConsulta,
-            CIANHistoria: cianHistoria,
-            Cirugia: cirugia,
-            Endodoncia: endodoncia,
-            Ortodoncia: ortodoncia,
-            Peridoncia: peridoncia,
-            ProtesisTotal: protesisTotal,
-            ProtesisParcialRemovible: protesisParcialRemovible,
-            ProtesisParcialFija: protesisParcialFija,
-            EmergenciaCIA: emergenciaCIA,
-            EmergenciaCIAN: emergenciaCIAN,
+        const newPrices = {
+            inscripcion: inscripcionPrice,
+            materia: materiaPrice,
+            actividadEspecial: actividadEspecialPrice,
+            certificado: certificadoPrice,
         };
 
-        try {
-            await setSettings(settings);
+        const res = await savePrices(newPrices)
+        if(res.status === 200){
+            const resNew = await getBillables()
+            if(resNew.status === 200){
+                setPrices(resNew.data)
+            }else{
+                messageApi.open({
+                    type: 'error',
+                    content: 'Error al recargar los precios, reincie la app'
+                })
+            }
             messageApi.open({
                 type: 'success',
                 content: 'Configuración guardada con exito'
             });
-        } catch (error) {
+        }else{
             messageApi.open({
                 type: 'error',
                 content: 'Error al guardar la configuración'
@@ -110,59 +93,42 @@ const Configuracion = () => {
             <div className='listContainer Content' >
                 <p>Aqui podras configurar los precios de referencia de los diferentes servicios. El monto debe ser en $.</p>
                 <div className='row'>
-                    <Form.Item label="Precio de CIA (Consulta):" className='rowItem'>
-                    <Input id='CIA(Consulta)' value={ciaConsulta} onChange={(e) => setCiaConsulta(e.target.value)} className='rowItem' placeholder='Monto en $:'/>
+                    <Form.Item label="Inscripcion:" className='rowItem'>
+                        <Input 
+                            id='inscripcionInput' 
+                            value={inscripcionPrice} 
+                            onChange={(e) => setInscripcionPrice(e.target.value)} 
+                            className='rowItem' 
+                            placeholder='Monto en $:'/>
                     </Form.Item>
-                    <Form.Item label="Precio de CIA (Historia):" className='rowItem'>
-                    <Input id='CIA(Historia)' value={ciaHistoria} onChange={(e) => setCiaHistoria(e.target.value)} className='rowItem' placeholder='Monto en $:'/>
-                    </Form.Item>
-                </div>
-                <div className='row'>
-                    <Form.Item label="Precio de CIAN (Consulta):" className='rowItem'>
-                    <Input id='CIAN(Consulta)' value={cianConsulta} onChange={(e) => setCianConsulta(e.target.value)} className='rowItem' placeholder='Monto en $:'/>
-                    </Form.Item>
-                    <Form.Item label="Precio de CIAN (Historia):" className='rowItem'>
-                    <Input id='CIAN(Historia)' value={cianHistoria} onChange={(e) => setCianHistoria(e.target.value)} className='rowItem' placeholder='Monto en $:'/>
-                    </Form.Item>
-                </div>
-                <div className='row'>
-                    <Form.Item label="Precio de Cirugia:" className='rowItem'>
-                    <Input id='Cirugia' value={cirugia} onChange={(e) => setCirugia(e.target.value)} className='rowItem' placeholder='Monto en $:'/>
-                    </Form.Item>
-                    <Form.Item label="Precio de Endodoncia:" className='rowItem'>
-                    <Input id='Endodoncia' value={endodoncia} onChange={(e) => setEndodoncia(e.target.value)} className='rowItem' placeholder='Monto en $:'/>
+                    <Form.Item label="Materia:" className='rowItem'>
+                        <Input 
+                            id='materiaInput'
+                            value={materiaPrice}
+                            onChange={(e) => setMateriaPrice(e.target.value)}
+                            className='rowItem'
+                            placeholder='Monto en $:'/>
                     </Form.Item>
                 </div>
                 <div className='row'>
-                    <Form.Item label="Precio de Ortodoncia:" className='rowItem'>
-                    <Input id='Ortodoncia' value={ortodoncia} onChange={(e) => setOrtodoncia(e.target.value)} className='rowItem' placeholder='Monto en $:'/>
+                    <Form.Item label="Actividad especial:" className='rowItem'>
+                        <Input 
+                            id='actividadEspecialInput'
+                            value={actividadEspecialPrice}
+                            onChange={(e) => setActividadEspecialPrice(e.target.value)}
+                            className='rowItem'
+                            placeholder='Monto en $:'/>
                     </Form.Item>
-                    <Form.Item label="Precio de Peridoncia:" className='rowItem'>
-                    <Input id='Peridoncia' value={peridoncia} onChange={(e) => setPeridoncia(e.target.value)} className='rowItem' placeholder='Monto en $:'/>
-                    </Form.Item>
-                </div>
-                <div className='row'>
-                    <Form.Item label="Precio de Protesis Total:" className='rowItem'>
-                    <Input id='ProtesisTotal' value={protesisTotal} onChange={(e) => setProtesisTotal(e.target.value)} className='rowItem' placeholder='Monto en $:'/>
-                    </Form.Item>
-                    <Form.Item label="Precio de Protesis Parcial Removible:" className='rowItem'>
-                    <Input id='ProtesisParcialRemovible' value={protesisParcialRemovible} onChange={(e) => setProtesisParcialRemovible(e.target.value)} className='rowItem' placeholder='Monto en $:'/>
-                    </Form.Item>
-                </div>
-                <div className='row'>
-                    <Form.Item label="Precio de Protesis Parcial Fija:" className='rowItem'>
-                    <Input id='ProtesisParcialFija' value={protesisParcialFija} onChange={(e) => setProtesisParcialFija(e.target.value)} className='rowItem' placeholder='Monto en $:'/>
-                    </Form.Item>
-                    <Form.Item label="Precio de Emergencia CIA:" className='rowItem'>
-                    <Input id='EmergenciaCIA' value={emergenciaCIA} onChange={(e) => setEmergenciaCIA(e.target.value)} className='rowItem' placeholder='Monto en $:'/>
+                    <Form.Item label="Reimpresion de certificado:" className='rowItem'>
+                        <Input 
+                            id='certificadoInput'
+                            value={certificadoPrice}
+                            onChange={(e) => setCertificadoPrice(e.target.value)}
+                            className='rowItem'
+                            placeholder='Monto en $:'/>
                     </Form.Item>
                 </div>
-                <div className='row'>
-                    <Form.Item label="Precio de Emergencia CIAN:" className='rowItem'>
-                    <Input id='EmergenciaCIAN' value={emergenciaCIAN} onChange={(e) => setEmergenciaCIAN(e.target.value)} className='rowItem' placeholder='Monto en $:'/>
-                    </Form.Item>
-                </div>
-                <Button variant='solid' color='primary' onClick={()=>saveSettings()}>Guardar cambios</Button>
+                <Button variant='solid' color='primary' onClick={()=>submit()}>Guardar cambios</Button>
             </div>
             <div className='EmptyFooter'/>
         </div>

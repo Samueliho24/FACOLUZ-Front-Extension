@@ -16,6 +16,10 @@ export async function getBillables(){
 	return await http.get("api/billables", token, null)
 }
 
+export async function savePrices(data){
+	return await http.put('api/prices', token, data)
+}
+
 export async function getIdInvoice(){
 	return await http.get('api/getIdInvoice', token, null)
 
