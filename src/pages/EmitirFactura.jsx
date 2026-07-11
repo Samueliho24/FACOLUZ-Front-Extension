@@ -7,14 +7,18 @@ import TextArea from 'antd/es/input/TextArea'
 
 const EmitirFactura = () => {
 
-	const {messageApi, contextHolder} = useContext(appContext)
+	const {messageApi, dolarPrice, contextHolder, prices} = useContext(appContext)
 
 	//Collected Data
 	const [studentIdentification, setStudentIdentification] = useState(0)
-	const [selectedBillable, setSelectedBillable] = useState({value: 0, label: "Servicio a cancelar:", price: 0})
+	const [selectedBillable, setSelectedBillable] = useState("Servicio a cancelar:")
 	const [quantity, setQuantity] = useState(1)
 	const [chargedAmount, setChargedAmount] = useState(0)
 	const [comment, setComment] = useState("")
+	
+	useEffect(() => {
+		calculateTotal();
+	}, [selectedBillable, quantity])
 
 	const submitIssueInvoice = async () => {
 		if(studentIdentification === 0 || chargedAmount==0){
@@ -50,10 +54,21 @@ const EmitirFactura = () => {
 	
 	function resetForm(){
 		setStudentIdentification(0)
-		setSelectedBillable({value: 0, label: "Servicio a cancelar:", price: 0})
+		setSelectedBillable("Servicio a cancelar:")
+		// setSelectedBillable({value: 0, label: "Servicio a cancelar:", price: 0})  Si crashea descomentar esta y comentar la de arriba
 		setQuantity(1)
 		setChargedAmount(0)
 		setComment("")
+	}
+
+	function calculateTotal(){
+		var bsPrice = 0
+		if(selectedBillable !== "Servicio a cancelar:" && quantity >= 1){
+			var unitPrice = prices.find(x => x.name === selectedBillable).price;
+			var packPrice = unitPrice * quantity;
+			bsPrice = packPrice * dolarPrice;
+		}
+		setChargedAmount(bsPrice.toFixed(2))
 	}
 
 	return(
@@ -72,9 +87,9 @@ const EmitirFactura = () => {
 
 				<div className='row'>
 					<Select 
-						options={lists.BillableItems}
+						options={prices.map(x => ({label: x.name, value: x.name}))}
 						className='rowItem'
-						defaultValue={{value: 0, label: "Servicio a cancelar", price: 0}}
+						defaultValue={"Servicio a cancelar"}
 						value={selectedBillable}
 						onChange={e => setSelectedBillable(e)}/>
 					<InputNumber 
@@ -90,7 +105,7 @@ const EmitirFactura = () => {
 						style={{width: '100%'}}
 						className='rowItem'
 						value={chargedAmount}
-						prefix="Monto a facturar: "
+						prefix="Monto a facturar: Bs. "
 						onChange={e => setChargedAmount(e)}
 					/>
 				</div>

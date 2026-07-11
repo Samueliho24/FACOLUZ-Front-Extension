@@ -1,12 +1,19 @@
 import React, { useEffect, useContext, useState } from 'react'
-import { getBillables } from '../client/client'
+import { getBillables, getDolarPrice } from '../client/client'
 import { appContext } from '../context/appContext'
 const Home = () => {
-	const {setPrices, messageApi, ContextHolder} = useContext(appContext)
+
+	const {setPrices, setDolarPrice, messageApi, ContextHolder} = useContext(appContext)
 
 	useEffect(() => {
 		fetchPrices()
+		fetchDolar()
 	}, [])
+
+	const fetchDolar = async () => {
+		const res = await getDolarPrice()
+		setDolarPrice(res)
+	}
 
 	const fetchPrices = async () => {
 		const res = await getBillables()
@@ -15,10 +22,27 @@ const Home = () => {
 		}else{
 			messageApi.open({
 				type: 'error',
-				content: "ha ocurrido un error en los precios de servicios."
+				content: "error al obtener precios de servicios"
 			})
 		}
 	}
+
+	// const fetchPrices = async () => {
+	// 	const res = await getBillables()
+	// 	setPrices(res.data)
+	// }
+
+	// const fetchDolar = async () => {
+	// 	const res = await getDolarPrice()
+	// 	if(res.status === 200){
+	// 		setDolarPrice(res.data)
+	// 	}else{
+	// 		messageApi.open({
+	// 			type: 'error',
+	// 			content: "error al obtener la tasa de cambio"
+	// 		})
+	// 	}
+	// }
 
 	return(
 		<div className='HomePage'>
