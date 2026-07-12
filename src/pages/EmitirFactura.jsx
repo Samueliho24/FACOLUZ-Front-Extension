@@ -21,17 +21,20 @@ const EmitirFactura = () => {
 	}, [selectedBillable, quantity])
 
 	const submitIssueInvoice = async () => {
-		if(studentIdentification === 0 || chargedAmount==0){
+		if(studentIdentification === 0 || chargedAmount === 0){
 			messageApi.open({
 				type: 'error',
-				content: 'Debe ingresar todos los datos'
+				content: 'Complete los datos de forma correcta'
 			})
 		}else{
+			let billable = prices.find(x => x.name === selectedBillable)
+			console.log(billable)
 			const data = {
 				studentIdentification: studentIdentification,
-				billableitem: selectedBillable,
+				billableid: billable.id,
 				quantity: quantity,
-				chargedAmount: chargedAmount,
+				chargedAmount: billable.price * quantity,
+				exchangeRate: dolarPrice,
 				comment: comment
 			}
 			const res = await issueInvoice(data)
@@ -62,10 +65,10 @@ const EmitirFactura = () => {
 	}
 
 	function calculateTotal(){
-		var bsPrice = 0
+		let bsPrice = 0
 		if(selectedBillable !== "Servicio a cancelar:" && quantity >= 1){
-			var unitPrice = prices.find(x => x.name === selectedBillable).price;
-			var packPrice = unitPrice * quantity;
+			let unitPrice = prices.find(x => x.name === selectedBillable).price;
+			let packPrice = unitPrice * quantity;
 			bsPrice = packPrice * dolarPrice;
 		}
 		setChargedAmount(bsPrice.toFixed(2))
