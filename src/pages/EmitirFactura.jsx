@@ -109,6 +109,7 @@ const EmitirFactura = () => {
 						className='rowItem'
 						value={chargedAmount}
 						prefix="Monto a facturar: Bs. "
+						suffix={` ($${(chargedAmount / dolarPrice).toFixed(2)})`}
 						onChange={e => setChargedAmount(e)}
 					/>
 				</div>

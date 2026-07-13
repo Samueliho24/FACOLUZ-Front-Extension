@@ -14,7 +14,7 @@ const ConsultarRegistros = () => {
     const {contextHolder, messageApi} = useContext(appContext)
 	const [searchParam, setSearchParam] = useState("")
 	const [showList, setShowList] = useState([])
-	const [selectedItem, setSelectedItem] = useState('')
+	const [selectedItem, setSelectedItem] = useState(null)
 	const [page, setPage] = useState(1)
 	//Control de modal
 	const [invoiceModal, setInvoiceModal] = useState(false)

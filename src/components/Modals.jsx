@@ -1193,6 +1193,7 @@ export const CloseSectionModal = ({open, onCancel, section, refreshSections}) =>
 
 export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 	
+	const { dolarPrice } = useContext(appContext)
 	const [showList, setShowList] = useState([])
 	const [remainingDebt, setRemainingDebt] = useState(0)
 
@@ -1202,13 +1203,18 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 		if(res.status == 200){
 			setShowList(res.data)
 		}
-		setRemainingDebt(0)
 		let paid = 0
-		res.data.forEach((item) => {
-			paid += item.paidAmount
-			let remaining = Invoice.chargedAmount - paid
-			setRemainingDebt(remaining)
-		});
+		if(res.data.length >= 1){
+			res.data.forEach((item) => {
+				paid += item.paidAmount
+				let remaining = Invoice.chargedAmount - paid
+				console.log(remaining)
+				setRemainingDebt(remaining)
+			});
+		}else if(Invoice !== null){
+			setRemainingDebt(Invoice.chargedAmount)
+		}
+
 	}
 
 	useEffect(() => {
@@ -1222,7 +1228,7 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 			destroyOnHidden
 			title="Historial de pagos"
 		>
-			<h4>Restante: ${remainingDebt.toFixed(2)}</h4>
+			<h4>Restante: Bs. ${(remainingDebt * dolarPrice).toFixed(2)} (${remainingDebt.toFixed(2)})</h4>
 			{showList.length > 0 ?(
 				<List bordered>
 					{showList.map((item) => (
