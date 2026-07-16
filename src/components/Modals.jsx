@@ -1249,10 +1249,10 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 
 	const {messageApi} = useContext(appContext)
 
-	const [paymentMethod, setPaymentMethod] = useState()
-	const [changeMethod, setChangeMethod] = useState()
-	const [paymentSuffix, setPaymentSuffix] = useState("")
-	const [changeSuffix, setChangeSuffix] = useState("")
+	const [paymentMethod, setPaymentMethod] = useState(lists.paymentMethods[0])
+	const [changeMethod, setChangeMethod] = useState(lists.paymentMethods[0])
+	const [paymentSuffix, setPaymentSuffix] = useState("Bs")
+	const [changeSuffix, setChangeSuffix] = useState("Bs")
 	const [changeRate, setChangeRate] = useState(0)
 
 	useEffect(() => {
@@ -1264,30 +1264,19 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 		setChangeRate(res)
 	}
 
-	const updatePaymentMethod = (e) => {
-		console.log(Invoice)
-		setPaymentMethod(e)
-		switch(e){
-			case (1 || 2): 
-				setPaymentSuffix("Bs")
-				break
-			case (3 || 4): 
-				setPaymentSuffix("$")
-				break
+	useEffect(() => {
+		if(paymentMethod === 1 || paymentMethod === 2){
+			setPaymentSuffix("Bs")
+		}else if(paymentMethod === 3 || paymentMethod === 4){
+			setPaymentSuffix("$")
 		}
-	}
 
-	const updateChangeMethod = (e) => {
-		setChangeMethod(e)
-		switch(e){
-			case (1 || 2):
-				setChangeSuffix("Bs")
-				break
-			case (3 || 4): 
-				setChangeSuffix("$")
-				break
+		if(changeMethod === 1 || changeMethod === 2){
+			setChangeSuffix("Bs")
+		}else if(changeMethod === 3 || changeMethod === 4){
+			setChangeSuffix("$")
 		}
-	}
+	}, [paymentMethod, changeMethod])
 
 	async function submit(){
 
@@ -1295,16 +1284,18 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 		const changeAmount = document.getElementById("changeAmount").value
 		const comments = document.getElementById("comments").value
 		const reference = document.getElementById("reference").value
+		const returnReference = document.getElementById("returnReference").value
 
 		const data = {
 			InvoiceId: Invoice.id,
-			paymentAmmount: paymentAmount,
-			paymentMethod: paymentMethod,
+			paidAmount: paymentAmount,
+			receivedPaymentMethod: paymentMethod,
 			reference: reference,
-			changeAmount: changeAmount == "" ? 0 : changeAmount,
-			changeMethod: changeMethod ? changeMethod : null,
+			returnedAmount: changeAmount == "" ? 0 : changeAmount,
+			returnedPaymentMethod: changeMethod ? changeMethod : null,
+			returnReference: returnReference,
 			comments: comments,
-			changeRate: changeRate
+			exchangeRate: changeRate
 		}
 
 		console.log(data)
@@ -1336,35 +1327,43 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 		>
 			<div style={{width: "100%"}}>
 				<Space.Compact style={{width: "100%"}}>
+					<Select 
+						style={{width: "50%"}}
+						options={lists.paymentMethods}
+						value={paymentMethod}
+						onChange={e => setPaymentMethod(e)}
+					/>
 					<InputNumber
+						style={{width: "50%"}}
 						placeholder='monto:'
 						suffix={paymentSuffix}
 						id='paymentAmount'
-					/>
-					<Select 
-						defaultValue="Moneda"
-						options={lists.paymentMethods}
-						value={paymentMethod}
-						onChange={e => updatePaymentMethod(e)}
 					/>
 				</Space.Compact>
 				<Input 
 					placeholder='Referencia:'
 					id='reference'
+					disabled={paymentMethod !== 2}
 				/>
 				<Space.Compact  style={{width: "100%"}}>
+					<Select 
+						style={{width: "50%"}}
+						options={lists.paymentMethods}
+						value={changeMethod}
+						onChange={e => setChangeMethod(e)}
+					/>
 					<InputNumber
+						style={{width: "50%"}}
 						placeholder='cambio'
 						suffix={changeSuffix}
 						id='changeAmount'
 					/>
-					<Select 
-						defaultValue="Moneda"
-						options={lists.paymentMethods}
-						value={changeMethod}
-						onChange={e => updateChangeMethod(e)}
-					/>
 				</Space.Compact>
+				<Input 
+					placeholder='Referencia de cambio:'
+					id='returnReference'
+					disabled={changeMethod !== 2}
+				/>
 				<TextArea 
 					placeholder='Observaciones:'
 					id='comments'
