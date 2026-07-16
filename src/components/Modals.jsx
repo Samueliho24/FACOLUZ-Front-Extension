@@ -1233,7 +1233,11 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 				<List bordered>
 					{showList.map((item) => (
 						<List.Item>
-							<p>{mergeDate(item.date)} - Pagado: ${item.paidAmount} - {item.receivedPaymentMethod} - Tasa: {item.changeRate} Bs/$</p>
+							{(item.receivedPaymentMethod === "Transferencia" || item.receivedPaymentMethod === "Efectivo") ? (<p>
+								{`${mergeDate(item.date)} - Pagado: Bs. ${item.paidAmount * item.changeRate} ($${item.paidAmount}) - ${item.receivedPaymentMethod} ${item.reference != null && `- Referencia: ${item.reference}`}`}
+							</p>):(<p>
+								{mergeDate(item.date)} - Pagado: ${item.paidAmount} - {item.receivedPaymentMethod} - Tasa: {item.changeRate} Bs/$
+							</p>)}
 						</List.Item>
 					))}
 				</List>
