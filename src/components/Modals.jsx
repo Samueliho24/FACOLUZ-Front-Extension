@@ -1247,13 +1247,12 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 
 export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 
-	const {messageApi} = useContext(appContext)
+	const {messageApi, exchangeRate} = useContext(appContext)
 
 	const [paymentMethod, setPaymentMethod] = useState(lists.paymentMethods[0])
 	const [changeMethod, setChangeMethod] = useState(lists.paymentMethods[0])
 	const [paymentSuffix, setPaymentSuffix] = useState("Bs")
 	const [changeSuffix, setChangeSuffix] = useState("Bs")
-	const [changeRate, setChangeRate] = useState(0)
 
 	useEffect(() => {
 		getDolar()
@@ -1286,16 +1285,23 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 		const reference = document.getElementById("reference").value
 		const returnReference = document.getElementById("returnReference").value
 
+		let paidAmount
+		if(paymentSuffix === "$"){
+			paidAmount = paymentAmount
+		}else{
+			paidAmount = paymentAmount / exchangeRate
+		}
+
 		const data = {
 			InvoiceId: Invoice.id,
-			paidAmount: paymentAmount,
+			paidAmount: paidAmount,
 			receivedPaymentMethod: paymentMethod,
-			reference: reference,
-			returnedAmount: changeAmount == "" ? 0 : changeAmount,
+			reference: reference !== "" ? reference : null,
+			returnedAmount: changeAmount == "" ? null : changeAmount,
 			returnedPaymentMethod: changeMethod ? changeMethod : null,
-			returnReference: returnReference,
-			comments: comments,
-			exchangeRate: changeRate
+			returnReference: (returnReference !== "" && returnedAmount !== "") ? returnReference : null,
+			comments: comments !== "" ? comments : null,
+			exchangeRate: exchangeRate
 		}
 
 		console.log(data)
