@@ -1208,7 +1208,6 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 			res.data.forEach((item) => {
 				paid += item.paidAmount
 				let remaining = Invoice.chargedAmount - paid
-				console.log(remaining)
 				setRemainingDebt(remaining)
 			});
 		}else if(Invoice !== null){
@@ -1228,16 +1227,27 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 			destroyOnHidden
 			title="Historial de pagos"
 		>
+			{Invoice !== null && (
+				<h4>Total de la factura: Bs. ${(Invoice.chargedAmount * dolarPrice).toFixed(2)} (${Invoice.chargedAmount.toFixed(2)})</h4>
+			)}
 			<h4>Restante: Bs. ${(remainingDebt * dolarPrice).toFixed(2)} (${remainingDebt.toFixed(2)})</h4>
+			{(Invoice != null && Invoice.comments !== null) && (<h5>Comentarios: {Invoice.comments}</h5>)}
+			
 			{showList.length > 0 ?(
 				<List bordered>
 					{showList.map((item) => (
-						<List.Item>
-							{(item.receivedPaymentMethod === "Transferencia" || item.receivedPaymentMethod === "Efectivo") ? (<p>
-								{`${mergeDate(item.date)} - Pagado: Bs. ${item.paidAmount * item.changeRate} ($${item.paidAmount}) - ${item.receivedPaymentMethod} ${item.reference != null && `- Referencia: ${item.reference}`}`}
-							</p>):(<p>
-								{mergeDate(item.date)} - Pagado: ${item.paidAmount} - {item.receivedPaymentMethod} - Tasa: {item.changeRate} Bs/$
-							</p>)}
+						<List.Item style={{display: 'flex', flexDirection: 'column', alignItems: 'start'}}>
+							{(item.receivedPaymentMethod === "Transferencia" || item.receivedPaymentMethod === "Efectivo") ? (<>
+								<p style={{margin: "0px"}}>
+									{`${mergeDate(item.date)} - Pagado: Bs. ${(item.paidAmount * item.exchangeRate).toFixed(2)} ($${item.paidAmount.toFixed(2)}) - ${item.receivedPaymentMethod}`}
+								</p>
+								{item.reference != null &&<p style={{margin: "0px"}}>Referencia: {item.reference}</p>}
+							</>):(
+								<p style={{margin: "0px"}}>
+									{mergeDate(item.date)} - Pagado: ${item.paidAmount} - {item.receivedPaymentMethod} - Tasa: {item.exchangeRate} Bs/$
+								</p>
+							)}
+							{item.comments !== null && <p style={{margin: "0px"}}>Observaciones: {item.comments}</p>}
 						</List.Item>
 					))}
 				</List>
