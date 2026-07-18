@@ -1251,10 +1251,10 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 
 export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 
-	const {messageApi, exchangeRate} = useContext(appContext)
+	const {messageApi, dolarPrice} = useContext(appContext)
 
-	const [paymentMethod, setPaymentMethod] = useState(lists.paymentMethods[0])
-	const [changeMethod, setChangeMethod] = useState(lists.paymentMethods[0])
+	const [paymentMethod, setPaymentMethod] = useState(lists.paymentMethods[0].value)
+	const [changeMethod, setChangeMethod] = useState(lists.paymentMethods[0].value)
 	const [paymentSuffix, setPaymentSuffix] = useState("Bs")
 	const [changeSuffix, setChangeSuffix] = useState("Bs")
 
@@ -1293,7 +1293,7 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 		if(paymentSuffix === "$"){
 			paidAmount = paymentAmount
 		}else{
-			paidAmount = paymentAmount / exchangeRate
+			paidAmount = paymentAmount / dolarPrice
 		}
 
 		const data = {
@@ -1305,7 +1305,7 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 			returnedPaymentMethod: changeMethod ? changeMethod : null,
 			returnReference: (returnReference !== "" && returnedAmount !== "") ? returnReference : null,
 			comments: comments !== "" ? comments : null,
-			exchangeRate: exchangeRate
+			exchangeRate: dolarPrice
 		}
 
 		console.log(data)
@@ -1336,12 +1336,17 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 			onOk={() => submit()}
 		>
 			<div style={{width: "100%"}}>
+				<div style={{width: '100%', display: 'flex', flexDirection: 'row'}}>
+					<p style={{width: '50%', margin: '0'}}>Metodo de pago:</p>
+					<p style={{width: '50%', margin: '0'}}>Monto a abonar:</p>
+				</div>
 				<Space.Compact style={{width: "100%"}}>
 					<Select 
 						style={{width: "50%"}}
 						options={lists.paymentMethods}
 						value={paymentMethod}
 						onChange={e => setPaymentMethod(e)}
+						defaultValue={"Efectivo"}
 					/>
 					<InputNumber
 						style={{width: "50%"}}
@@ -1351,15 +1356,21 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 					/>
 				</Space.Compact>
 				<Input 
+					style={{margin: '10px 0 10px 0'}}
 					placeholder='Referencia:'
 					id='reference'
 					disabled={paymentMethod !== 2}
 				/>
+				<div style={{width: '100%', display: 'flex', flexDirection: 'row'}}>
+					<p style={{width: '50%', margin: '0'}}>Metodo de cambio:</p>
+					<p style={{width: '50%', margin: '0'}}>Monto regresado:</p>
+				</div>
 				<Space.Compact  style={{width: "100%"}}>
 					<Select 
 						style={{width: "50%"}}
 						options={lists.paymentMethods}
 						value={changeMethod}
+						defaultValue={"Efectivo"}
 						onChange={e => setChangeMethod(e)}
 					/>
 					<InputNumber
@@ -1370,6 +1381,7 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 					/>
 				</Space.Compact>
 				<Input 
+					style={{margin: '10px 0 10px 0'}}
 					placeholder='Referencia de cambio:'
 					id='returnReference'
 					disabled={changeMethod !== 2}
