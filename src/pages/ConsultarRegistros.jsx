@@ -4,11 +4,11 @@ import { searchOnList } from '../context/lists'
 import * as lists from '../context/lists'
 import React from 'react'
 import { Input, Button, Tooltip, List, Divider } from 'antd'
-import {CheckCircleOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined, DiffOutlined, StopOutlined } from '@ant-design/icons'
 import { getTime, getDate } from '../functions/formatDates'
 import { appContext } from '../context/appContext'
 import Pagination from "../components/Pagination"
-import { InfoForInvoice, MakePayment } from '../components/Modals'
+import { InfoForInvoice, MakePayment, CancelInvoice } from '../components/Modals'
 
 const ConsultarRegistros = () => {
     const {contextHolder, messageApi} = useContext(appContext)
@@ -19,6 +19,8 @@ const ConsultarRegistros = () => {
 	//Control de modal
 	const [invoiceModal, setInvoiceModal] = useState(false)
 	const [makePaymentModal, setMakePaymentModal] = useState(false)
+	const [cancelInvoiceModal, setCancelInvoiceModal] = useState(false)
+
     useEffect(() => {
         getContent()
     }, [page])
@@ -91,7 +93,7 @@ const ConsultarRegistros = () => {
 									shape='circle'
 									color='primary'
 									size='large'
-									icon ={<CheckCircleOutlined />}
+									icon ={<InfoCircleOutlined />}
 									title='Informacion de factura'
 									onClick={() => {setSelectedItem(item); setInvoiceModal(true)}}
 								/>
@@ -102,9 +104,21 @@ const ConsultarRegistros = () => {
 										shape='circle'
 										color='primary'
 										size='large'
-										icon ={<CheckCircleOutlined />}
+										icon ={<DiffOutlined />}
 										title='Abonar pago'
 										onClick={() => {setSelectedItem(item); setMakePaymentModal(true)}}
+									/>
+								}
+
+								{(item.status !== "Anulada" && item.status !== "Anulacion") && 
+									<Button 
+										variant='solid'
+										shape='circle'
+										color='danger'
+										size='large'
+										icon ={<StopOutlined />}
+										title='Anular factura'
+										onClick={() => {setSelectedItem(item); setCancelInvoiceModal(true)}}
 									/>
 								}
 							</div>
@@ -126,6 +140,13 @@ const ConsultarRegistros = () => {
 				Invoice={selectedItem}
 				open={makePaymentModal}
 				onCancel={() => setMakePaymentModal(false)}
+				updateList={() => updateList()}
+			/>
+
+			<CancelInvoice 
+				Invoice={selectedItem}
+				open={cancelInvoiceModal}
+				onCancel={() => setCancelInvoiceModal(false)}
 				updateList={() => updateList()}
 			/>
         </div>

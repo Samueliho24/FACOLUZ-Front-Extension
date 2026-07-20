@@ -241,6 +241,10 @@ export async function makePayment(data){
 	return await http.post("api/payments", token, data)
 }
 
+export async function cancelInvoice(invoiceId){
+	return await http.delete(`api/invoice`, token, invoiceId)
+}
+
 export async function getPaymentsForInvoice(invoiceId){
 	return await http.get(`api/payments/${invoiceId}`, token, null)
 }

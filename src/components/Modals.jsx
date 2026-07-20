@@ -1,4 +1,4 @@
-import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod } from '../client/client'
+import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod, cancelInvoice } from '../client/client'
 import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip, Divider, Descriptions, Table, Spin, Empty } from 'antd'
 import { useState, useEffect, useContext, useMemo, act } from 'react'
 import { appContext } from '../context/appContext'
@@ -1402,6 +1402,44 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 				/>
 			</div>
 		</Modal>
+	)
+}
+
+export const CancelInvoice = ({open, onCancel, Invoice, updateList}) => {
+
+	const {messageApi} = useContext(appContext)
+
+	const [loading, setLoading] = useState(false)
+
+	async function submit(){
+		setLoading(true)
+		const res = await cancelInvoice(Invoice.id)
+		if(res === 200){
+			updateList()
+			messageApi({
+				type: "success",
+				content: "Facura anulada"
+			})
+			onCancel()
+		}else{
+			messageApi.open({
+				type: 'error',
+				content: "ha ocurrido un error"
+			})
+		}
+		setLoading(false)
+	}
+
+	return(
+		<Modal
+			title="Esta seguro de que desea anular esta factura?"
+			open={open}
+			closable={false}
+			footer={[
+				<Button disabled={loading} onClick={onCancel}>Cancelar</Button>,
+				<Button disabled={loading} onClick={() => submit()}>Anular</Button>
+			]}	
+		/>
 	)
 }
 
