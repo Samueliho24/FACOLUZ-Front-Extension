@@ -1321,12 +1321,16 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 		console.log(data)
 
 		const res = await makePayment(data)
-		if(res.status == 201){
+		if(res.status === 201 || res.status === 200){
 			messageApi.open({
 				type: 'success',
 				content: 'Pago realizado con exito'
 			})
-			updateList()
+			if(res.status === 201){
+				updateList('Pendiente')
+			}else if(res.status === 200){
+				updateList('Pagado')
+			}
 			onCancel()
 		}else{
 			messageApi.open({
@@ -1415,7 +1419,7 @@ export const CancelInvoice = ({open, onCancel, Invoice, updateList}) => {
 		setLoading(true)
 		const res = await cancelInvoice(Invoice.id)
 		if(res === 200){
-			updateList()
+			updateList('Anulado')
 			messageApi({
 				type: "success",
 				content: "Facura anulada"
