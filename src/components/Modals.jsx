@@ -14,6 +14,7 @@ import TextArea from 'antd/es/input/TextArea'
 import { mergeDate } from '../functions/formatDateTime'
 import dayjs from 'dayjs';
 import { ConsoleSqlOutlined, DownloadOutlined } from "@ant-design/icons"
+import { currencyByName, isBs } from "../functions/determinarMoneda"
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -1198,6 +1199,8 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 	const [remainingDebt, setRemainingDebt] = useState(0)
 
 	async function getInfo(){
+		if(Invoice === null)
+			return;
 		const res = await getPaymentsForInvoice(Invoice.id)
 		console.log(res)
 		if(res.status == 200){
@@ -1223,9 +1226,12 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 	return(
 		<Modal
 			open={open}
-			onCancel={() => onCancel()}
+			closable={false}
 			destroyOnHidden
 			title="Historial de pagos"
+			footer={[
+				<Button onClick={() => onCancel()}>Cerrar</Button>
+			]}
 		>
 			{Invoice !== null && (
 				<h4>Total de la factura: Bs. ${(Invoice.chargedAmount * dolarPrice).toFixed(2)} (${Invoice.chargedAmount.toFixed(2)})</h4>
@@ -1237,7 +1243,7 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 				<List bordered>
 					{showList.map((item) => (
 						<List.Item style={{display: 'flex', flexDirection: 'column', alignItems: 'start'}}>
-							{(item.receivedPaymentMethod === "Transferencia" || item.receivedPaymentMethod === "Efectivo") ? (<>
+							{isBs(item.receivedPaymentMethod) ? (<>
 								<p style={{margin: "0px"}}>
 									{`${mergeDate(item.date)} - Pagado: Bs. ${(item.paidAmount * item.exchangeRate).toFixed(2)} ($${item.paidAmount.toFixed(2)}) - ${item.receivedPaymentMethod}`}
 								</p>
@@ -1247,6 +1253,9 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 									{mergeDate(item.date)} - Pagado: ${item.paidAmount} - {item.receivedPaymentMethod} - Tasa: {item.exchangeRate} Bs/$
 								</p>
 							)}
+							{(item.returnedAmount > 0) && (<p style={{margin: "0px"}}>
+								Cambio: {isBs(item.receivedPaymentMethod) ? (item.returnedAmount/item.exchangeRate).toFixed(2) : (item.returnedAmount).toFixed(2)}{currencyByName(item.returnedPaymentMethod)}
+							</p>)}
 							{item.comments !== null && <p style={{margin: "0px"}}>Observaciones: {item.comments}</p>}
 						</List.Item>
 					))}
@@ -1267,15 +1276,6 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 	const [changeMethod, setChangeMethod] = useState(lists.paymentMethods[0].value)
 	const [paymentSuffix, setPaymentSuffix] = useState("Bs")
 	const [changeSuffix, setChangeSuffix] = useState("Bs")
-
-	useEffect(() => {
-		getDolar()
-	}, [])
-
-	async function getDolar(){
-		const res = await getDolarPrice()
-		setChangeRate(res)
-	}
 
 	useEffect(() => {
 		if(paymentMethod === 1 || paymentMethod === 2){
@@ -1308,10 +1308,10 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 
 		const data = {
 			InvoiceId: Invoice.id,
-			paidAmount: paidAmount,
+			paidAmount: paidAmount.toFixed(2),
 			receivedPaymentMethod: paymentMethod,
 			reference: reference !== "" ? reference : null,
-			returnedAmount: changeAmount == "" ? null : changeAmount,
+			returnedAmount: changeAmount == "" ? null : changeAmount.toFixed(2),
 			returnedPaymentMethod: changeMethod ? changeMethod : null,
 			returnReference: (returnReference !== "" && returnedAmount !== "") ? returnReference : null,
 			comments: comments !== "" ? comments : null,
@@ -1411,19 +1411,20 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 
 export const CancelInvoice = ({open, onCancel, Invoice, updateList}) => {
 
-	const {messageApi} = useContext(appContext)
+	const { messageApi } = useContext(appContext)
 
 	const [loading, setLoading] = useState(false)
 
 	async function submit(){
 		setLoading(true)
 		const res = await cancelInvoice(Invoice.id)
-		if(res === 200){
-			updateList('Anulado')
-			messageApi({
+		if(res.status === 200){
+			updateList('Anulada')
+			messageApi.open({
 				type: "success",
 				content: "Facura anulada"
 			})
+			setLoading(false)
 			onCancel()
 		}else{
 			messageApi.open({

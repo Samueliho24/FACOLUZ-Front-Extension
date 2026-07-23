@@ -110,7 +110,7 @@ const ConsultarRegistros = () => {
 									/>
 								}
 
-								{(item.status !== "Anulada" && item.status !== "Anulacion") && 
+								{!(item.status === "Anulada" || item.status === "Anulacion") && 
 									<Button 
 										variant='solid'
 										shape='circle'
@@ -147,7 +147,7 @@ const ConsultarRegistros = () => {
 				Invoice={selectedItem}
 				open={cancelInvoiceModal}
 				onCancel={() => setCancelInvoiceModal(false)}
-				updateList={() => updateList()}
+				updateList={(e) => updateList(e)}
 			/>
         </div>
     )
