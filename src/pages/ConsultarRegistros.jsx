@@ -56,16 +56,13 @@ const ConsultarRegistros = () => {
 	}
 
 	const updateList = (newStatus) => {
-		const list = showList
-		const i = showList.findIndex((i) => i.id == selectedItem.id)
-		console.log({Position: i, item: list[i], id: selectedItem.id})
-		list[i].status = newStatus
-		setShowList(list)
-		// list.
-		// const newList = oldList.filter(i => i.id !== selectedItem)
-		// const newItem = oldList.find(i => i.id === selectedItem)
-		// newItem.status = newStatus
-		// newList
+		getContent()
+
+		// const list = showList
+		// const i = showList.findIndex((i) => i.id == selectedItem.id)
+		// console.log({Position: i, item: list[i], id: selectedItem.id})
+		// list[i].status = newStatus
+		// setShowList(list)
 	}
 
     return(
@@ -110,7 +107,7 @@ const ConsultarRegistros = () => {
 									/>
 								}
 
-								{!(item.status === "Anulada" || item.status === "Anulacion") && 
+								{!(item.status === "Anulada") && 
 									<Button 
 										variant='solid'
 										shape='circle'
@@ -140,7 +137,7 @@ const ConsultarRegistros = () => {
 				Invoice={selectedItem}
 				open={makePaymentModal}
 				onCancel={() => setMakePaymentModal(false)}
-				updateList={() => updateList()}
+				updateList={(e) => updateList(e)}
 			/>
 
 			<CancelInvoice 

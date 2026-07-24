@@ -1308,10 +1308,10 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 
 		const data = {
 			InvoiceId: Invoice.id,
-			paidAmount: paidAmount.toFixed(2),
+			paidAmount: Number(paidAmount).toFixed(2),
 			receivedPaymentMethod: paymentMethod,
 			reference: reference !== "" ? reference : null,
-			returnedAmount: changeAmount == "" ? null : changeAmount.toFixed(2),
+			returnedAmount: changeAmount == "" ? null : Number(changeAmount).toFixed(2),
 			returnedPaymentMethod: changeMethod ? changeMethod : null,
 			returnReference: (returnReference !== "" && returnedAmount !== "") ? returnReference : null,
 			comments: comments !== "" ? comments : null,
