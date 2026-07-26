@@ -679,3 +679,9 @@ body{
 	}
 }
 
+.ant-input, .ant-input-number-input{
+	&::placeholder{
+		color: gray;
+		font-weight: bold;
+	}
+}

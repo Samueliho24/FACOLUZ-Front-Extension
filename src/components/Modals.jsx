@@ -220,7 +220,7 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 			<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
 				<InputNumber onBlur={(e) => {findUser(Number(e.target.value))}} onChange={(e) => setIdNumber(e)} placeholder='Numero de cedula' style={{width: '100%'}}/>
 				<Space.Compact style={{width: '100%'}}>
-					<Input value={name} disabled={loading} onChange={(e) => setStudentName(e.target.value)} placeholder='Nombre' style={{width: '50%'}}/>
+					<Input className='testplaceholder' value={name} disabled={loading} onChange={(e) => setStudentName(e.target.value)} placeholder='Nombre' style={{width: '50%'}}/>
 					<Input value={lastname} disabled={loading} onChange={(e) => setStudentsLastname(e.target.value)} placeholder='Apellido' style={{width: '50%'}}/>
 				</Space.Compact>
 
