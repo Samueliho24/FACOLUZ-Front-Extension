@@ -15,6 +15,7 @@ import { mergeDate } from '../functions/formatDateTime'
 import dayjs from 'dayjs';
 import { ConsoleSqlOutlined, DownloadOutlined } from "@ant-design/icons"
 import { currencyByName, isBs } from "../functions/determinarMoneda"
+import { autoCapitalize } from '../functions/autoCapitalize'
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -157,6 +158,16 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 		onCancel()
 	}
 
+	function setStudentName(rawName){
+		const formatedName = autoCapitalize(rawName)
+		setName(formatedName)
+	}
+
+	function setStudentsLastname(rawLastName){
+		const formatedLastName = autoCapitalize(rawLastName)
+		setLastname(formatedLastName)
+	}
+
 	const submitNewStudent = async () => {
 		if(birthDate=='' || idNumber=='' || name=='' || lastname=='' || email == '' || phone=='' || instructionGrade == "" || address == ""){
 			messageApi.open({
@@ -209,8 +220,8 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 			<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
 				<InputNumber onBlur={(e) => {findUser(Number(e.target.value))}} onChange={(e) => setIdNumber(e)} placeholder='Numero de cedula' style={{width: '100%'}}/>
 				<Space.Compact style={{width: '100%'}}>
-					<Input disabled={loading} onChange={(e) => setName(e.target.value)} placeholder='Nombre' style={{width: '50%'}}/>
-					<Input disabled={loading} onChange={(e) => setLastname(e.target.value)} placeholder='Apellido' style={{width: '50%'}}/>
+					<Input value={name} disabled={loading} onChange={(e) => setStudentName(e.target.value)} placeholder='Nombre' style={{width: '50%'}}/>
+					<Input value={lastname} disabled={loading} onChange={(e) => setStudentsLastname(e.target.value)} placeholder='Apellido' style={{width: '50%'}}/>
 				</Space.Compact>
 
 				Fecha de Nacimiento:
