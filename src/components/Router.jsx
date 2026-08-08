@@ -19,6 +19,7 @@ import Section from "../pages/Section"
 import Teachers from "../pages/Teachers"
 import SectionEnrollment from "../pages/SectionEnrollment"
 import Grades from "../pages/Grades"
+import Users from "../pages/Users"
 
 const Router = () => {
 
@@ -44,6 +45,7 @@ const Router = () => {
             case "Grades": return <Grades/>
             case "Section": return <Section />
             case "SectionEnrollment": return <SectionEnrollment />
+            case "Users": return <Users />
             default: return <ErrorPage />
         }
     }catch(err){

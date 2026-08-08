@@ -107,8 +107,10 @@ export const alimentsList = [
 
 export const userTypeList = [
     {label: 'Administrador de sistemas', value: 0},
-    {label: 'Administrador general', value: 1},
-    {label: 'Personal de admnistracion', value: 2},
+    {label: 'Jefe de departamento', value: 1},
+    {label: 'Adminitracion de caja', value: 2},
+    {label: 'Administracion de academica', value: 3},
+    {label: 'Katy', value: 4},
     {label: 'Autoridades', value: 100},
 ]
 

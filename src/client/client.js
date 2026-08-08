@@ -77,7 +77,7 @@ export async function getStudentsInSection(id) {
 }
 
 export async function getLastEnrollmentByStudentId(studentId){
-	return await http.get(`api/getLastEnrollmentByStudentId/${studentId}`, token, null)
+	return await http.get(`api/getLastEnrollmentByStudentId`, token, studentId)
 }
 
 export async function getStudents(page){
@@ -191,12 +191,22 @@ export async function deactivateTeacher(id){
     return await http.post('api/deactivateTeacher', token, {id})
 }
 
-export async function getAllUsers(page) {
-	return await http.get(`api/getAllUsers/${page}`, token, null)
+export async function createUser(data) {
+	return await http.post(`api/user`, token, data)
 }
+
+export async function updateUser (data){
+	return await http.patch(`api/user`, token, data)
+}
+
+export async function getAllUsers(page) {
+	return await http.get(`api/user/${page}`, token, null)
+}
+
 export async function filterStudents(param){
     return await http.get(`api/filterStudents/${param}`, token, null)
 }
+
 export async function getSearchedSDeactivatedUsers(text, page){
 	return await http.get(`api/getSearchedSDeactivatedUsers/${text}/${page}`, token, null)
 }

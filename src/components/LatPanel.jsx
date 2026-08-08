@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState, useContext } from 'react'
 import {Button, Tooltip} from 'antd'
-import {HomeOutlined, LogoutOutlined, UserOutlined, UsergroupDeleteOutlined, SolutionOutlined, SettingFilled} from '@ant-design/icons'
+import {HomeOutlined, LogoutOutlined, UserOutlined, UsergroupDeleteOutlined,UsergroupAddOutlined, SolutionOutlined, SettingFilled} from '@ant-design/icons'
 import { routerContext } from '../context/routerContext'
 import { appContext } from '../context/appContext'
 import { LogoutModal } from './Modals'
@@ -35,7 +35,7 @@ const LatPanel = () => {
                 {/*  <Button className='Button' size={'large'} onClick={()=>{setView('Cursos')}} variant='solid' icon={<UsergroupDeleteOutlined />}><p className='invisible'>Cursos</p></Button>*/}
                 
 
-                { userData.type === 0 && <Button className='Button invisible' size='large' onClick={() => {setView('Users')}} variant='solid' icon={<SettingFilled />}><p>Usuarios</p></Button> }
+                {userData.type === 0 && <Button className='Button' size='large' onClick={() => {setView('Users')}} variant='solid' icon={<UsergroupAddOutlined />}><p className='invisible'>Usuarios</p></Button> }
                 {userData.type <= 1 && <Button className='Button' size={'large'} onClick={()=>{setView('Configuracion')}} variant='solid' icon={<SettingFilled />}><p className='invisible'>Configuracion</p></Button> }
                 <Button className='Button' size={'large'} onClick={()=>{setConfirmLogout(true)}} variant='solid' icon={<LogoutOutlined />}><p className='invisible'>Cerrar sesion</p></Button> 
             </div>

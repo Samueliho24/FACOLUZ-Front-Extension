@@ -5,7 +5,7 @@ import { AddNewUserModal as AddNewUser, DeleteUserModal as DeleteUser, ChangePas
 import { getAllUsers, createUser, updateUser } from '../client/client'
 import { searchOnList, userTypeList } from '../context/lists'
 import { appContext } from '../context/appContext'
-// import Pagination from '../components/Pagination'
+import Pagination from '../components/Pagination'
 
 const Users = () => {
 	const {contextHolder, messageApi} = useContext(appContext)
@@ -13,6 +13,7 @@ const Users = () => {
 	//Control de la UI
 	const [showList, setShowList] = useState([])
 	const [selectedItem, setSelectedItem] = useState()
+	const [page, setPage] = useState(1)
 
 	//Control de modals
 	const [addNewUserModal, setNewUserModal] = useState(false)
@@ -26,7 +27,7 @@ const Users = () => {
 	}, [])
 
 	async function getContent(){
-		const res = await getAllUsers()
+		const res = await getAllUsers(1)
 		console.log(res)
 		if(res.status == 200){
 			setShowList(res.data)
@@ -65,7 +66,7 @@ const Users = () => {
 							</div>
 						</List.Item>
 					)) }
-					{/* <Pagination page={page} setPage={setPage}/> */}
+					<Pagination page={page} setPage={setPage}/>
 				</List>
 			</div>
 
