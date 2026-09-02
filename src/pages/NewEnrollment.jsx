@@ -88,7 +88,6 @@ const Enrollments = () => {
                     photo: lastData.photo,
                     status: lastData.studentStatus
                 });
-                console.log(lastData)
                 setLastEnrollment(lastData);
                 setCohort({
                     id: lastData.cohortId,
@@ -185,15 +184,15 @@ const Enrollments = () => {
     // CONTADOR DE INSCRITOS POR SECCION
     // ============================================
     const loadEnrollmentCount = async (sectionId) => {
-    if (!sectionId) {
-        setEnrollmentCount(0);
-        return;
-    }
-    const res = await getEnrollmentCountBySection(sectionId);
-    if (res.status === 200) {
-        setEnrollmentCount(res.data.count || 0);
-    }
-};
+        if (!sectionId) {
+            setEnrollmentCount(0);
+            return;
+        }
+        const res = await getEnrollmentCountBySection(sectionId);
+        if (res.status === 200) {
+            setEnrollmentCount(res.data.count || 0);
+        }
+    };
 
     // ============================================
     // MANEJADORES DE CAMBIO
@@ -256,12 +255,10 @@ const Enrollments = () => {
     const handleSectionChange = (sectionId) => {
         setSelectedSection(sectionId);
         loadEnrollmentCount(sectionId);
-        console.log(selectedModule, sectionId);
         validateEnrollment(selectedModule, sectionId);
     };
 
     const validateEnrollment = (moduleId, sectionId) => {
-        console.log(moduleId, sectionId)
         if (!moduleId || !sectionId || !student) {
             console.log('Invalid enrollment data');
             setCanEnroll(false);

@@ -52,7 +52,7 @@ const SectionEnrollment = () => {
                                     </div>
                                     <div className="buttons">
                                         <Tooltip title='Ver alumnos'>
-                                            <Button variant='solid' color='primary' size='large' onClick={() => handlerStudentsList(item)} >Alumnos</Button>
+                                            <Button variant='solid' color='primary' size='large' onClick={() => handlerStudentsList(item.id)} >Alumnos</Button>
                                         </Tooltip>
                                     </div>
                                 </List.Item>
