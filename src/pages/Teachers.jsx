@@ -62,7 +62,7 @@ const Teachers = () => {
                     {showList.map((item) => (
                         <List.Item className='listItem' key={item.id}>
                             <div className="info">
-                                <h4>{item.identification} - {item.name} {item.lastname}</h4>
+                                <h4>{item.identification} - {item.name} {item.lastName}</h4>
                             </div>
                             {item.status === 'Activo' && <Button color="danger" onClick={() => setDeactivateModal({open: true, teacherId: item.id})}>Desactivar</Button>}
                         </List.Item>

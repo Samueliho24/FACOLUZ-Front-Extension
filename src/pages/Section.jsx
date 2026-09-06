@@ -3,7 +3,7 @@ import { Button, Divider, Input, List, Tooltip } from "antd";
 import { getSections, closeSection, getAllModules, getTeachers } from "../client/client";
 import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
-import { OpenSectionModal, CloseSectionModal } from '../components/Modals'
+import { OpenSectionModal, CloseSectionModal, StudentListOfSectionModal } from '../components/Modals'
 import { monthNames } from "../context/lists";
 import { getDate } from "../functions/formatDateTime";
 
@@ -17,6 +17,7 @@ const Sections = () => {
     const [showList, setShowList] = useState([])
     const [closeModalOpen, setCloseModalOpen] = useState(false)
     const [sectionToClose, setSectionToClose] = useState(null)
+    const [studentsModal, setStudentsModal] = useState(false)
     const {view, setView} = useContext(routerContext)
     
     // Función para refrescar la lista de secciones
@@ -74,7 +75,14 @@ const Sections = () => {
                                         <h3>{item.description} - Seccion {item.code} - {item.status}</h3>
                                     </div>
                                     <div className="buttons">
-                                        <Tooltip title='Ver alumnos'><Button variant='solid' color='primary' size='large' onClick={() => { setCurrentSection(item); setView('SectionDetail'); }} >Alumnos</Button></Tooltip>
+                                        <Tooltip title='Ver alumnos'>
+                                            <Button
+                                                variant='solid'
+                                                color='primary' 
+                                                size='large' 
+                                                onClick={() => { setSection(item.id); setStudentsModal(true); }}
+                                            >Alumnos</Button>
+                                        </Tooltip>
                                         {!(currentPeriodSection && currentPeriodSection.status === 'Finalizado') && item.status !== 'Finalizado' && (
                                             <Tooltip title='Cerrar sección'>
                                                 <Button variant='solid' color='primary' size='large' onClick={() => { setSectionToClose(item); setCloseModalOpen(true); }}>Cerrar</Button>
@@ -100,7 +108,11 @@ const Sections = () => {
                 refreshSections={refreshSections}
             />
 
-            
+            <StudentListOfSectionModal 
+                open={studentsModal}
+                onCancel={() => setStudentsModal(false)}
+                sectionId={section}
+            />
         </div>
     )
 }
