@@ -301,7 +301,6 @@ body{
 }
 .EmitirFactura{
 	scrollbar-width: none;
-	@include pageBasis;
 
 	.listContainer{
 		// background-color: var(--moduleColor);
@@ -314,9 +313,10 @@ body{
 		border-radius: var(--moduleRadius);
 		width: 95%;
 		overflow-y: scroll;
+		scrollbar-width: none;
 
 		.row{
-			width: 50%;
+			width: 90%;
 			display: flex;
 			flex-direction: row;
 			align-items: center;
@@ -425,6 +425,16 @@ body{
 }
 .ConsultarRegistros{
 	@include pageBasis;
+
+	.bar-buttons{
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		gap: 20px;
+		margin-top: 20px;
+	}
+
 	.searchBar{
 		// background-color: var(--moduleColor);
 		border-radius: var(--moduleRadius);
@@ -434,12 +444,7 @@ body{
 		gap: 15px;
 		width: 95%;
 	}
-	.generateReport{
-		display: block;
-		align-items: right;
-		margin: 10px;
-		width: 100px
-	}	
+
 	.listContainer{
 		// background-color: var(--moduleColor);
 		padding: var(--modulepPadding);

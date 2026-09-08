@@ -8,7 +8,7 @@ import { InfoCircleOutlined, DiffOutlined, StopOutlined } from '@ant-design/icon
 import { getTime, getDate } from '../functions/formatDates'
 import { appContext } from '../context/appContext'
 import Pagination from "../components/Pagination"
-import { InfoForInvoice, MakePayment, CancelInvoice } from '../components/Modals'
+import { InfoForInvoice, MakePayment, CancelInvoice, NewInvoiceModal as NewInvoice } from '../components/Modals'
 
 const ConsultarRegistros = () => {
     const {contextHolder, messageApi} = useContext(appContext)
@@ -20,6 +20,7 @@ const ConsultarRegistros = () => {
 	const [invoiceModal, setInvoiceModal] = useState(false)
 	const [makePaymentModal, setMakePaymentModal] = useState(false)
 	const [cancelInvoiceModal, setCancelInvoiceModal] = useState(false)
+	const [newInvoiceModal, setNewInvoiceModal] = useState(false)
 
     useEffect(() => {
         getContent()
@@ -68,7 +69,10 @@ const ConsultarRegistros = () => {
     return(
         <div className="ConsultarRegistros Page">
             <Divider className='PageTitle'><h1>Historial de Facturacion</h1></Divider>
-            <Button className='generateReport' type='primary' onClick={callGetDailyReport}>Generar Reporte</Button>
+			<div className='bar-buttons'>
+				<Button className='generateReport' type='primary' onClick={callGetDailyReport}>Generar Reporte</Button>
+				<Button className='generateReport' type='primary' onClick={() => setNewInvoiceModal(true)}>Nueva factura</Button>
+			</div>
 			{contextHolder}
 			<div className='searchBar' >
 				<Input
@@ -145,6 +149,11 @@ const ConsultarRegistros = () => {
 				open={cancelInvoiceModal}
 				onCancel={() => setCancelInvoiceModal(false)}
 				updateList={(e) => updateList(e)}
+			/>
+
+			<NewInvoice 
+				open={newInvoiceModal}
+				onCancel={() => setNewInvoiceModal(false)}
 			/>
         </div>
     )

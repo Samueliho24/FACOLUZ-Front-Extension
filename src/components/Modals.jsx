@@ -1,4 +1,4 @@
-import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod, cancelInvoice } from '../client/client'
+import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod, cancelInvoice, issueInvoice } from '../client/client'
 import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip, Divider, Descriptions, Table, Spin, Empty } from 'antd'
 import { useState, useEffect, useContext, useMemo, act } from 'react'
 import { appContext } from '../context/appContext'
@@ -2458,6 +2458,137 @@ export const StudentDocsModal = ({open, onCancel, studentId}) => {
 					))}
 				</List>
 			</>)}
+		</Modal>
+	)
+}
+
+export const NewInvoiceModal = ({open, onCancel, updateList}) => {
+
+	const {messageApi, dolarPrice, contextHolder, prices} = useContext(appContext)
+
+	//Collected Data
+	const [studentIdentification, setStudentIdentification] = useState(0)
+	const [selectedBillable, setSelectedBillable] = useState("Servicio a cancelar:")
+	const [quantity, setQuantity] = useState(1)
+	const [chargedAmount, setChargedAmount] = useState(0)
+	const [comment, setComment] = useState("")
+	
+	useEffect(() => {
+		calculateTotal();
+	}, [selectedBillable, quantity])
+
+	const submitIssueInvoice = async () => {
+		if(studentIdentification === 0 || chargedAmount === 0){
+			messageApi.open({
+				type: 'error',
+				content: 'Complete los datos de forma correcta'
+			})
+		}else{
+			let billable = prices.find(x => x.name === selectedBillable)
+			console.log(billable)
+			const data = {
+				studentIdentification: studentIdentification,
+				billableid: billable.id,
+				quantity: quantity,
+				chargedAmount: billable.price * quantity,
+				exchangeRate: dolarPrice,
+				comment: comment
+			}
+			const res = await issueInvoice(data)
+
+			if(res.status == 200){
+				messageApi.open({
+					type: 'success',
+					content: 'Factura creada con exito'
+				})
+				resetForm()
+				updateList()
+				onCancel()
+			}else{
+				messageApi.open({
+					type: 'error',
+					content: res.response.data
+				})
+			}
+		}
+	}
+	
+	function resetForm(){
+		setStudentIdentification(0)
+		setSelectedBillable("Servicio a cancelar:")
+		// setSelectedBillable({value: 0, label: "Servicio a cancelar:", price: 0})  Si crashea descomentar esta y comentar la de arriba
+		setQuantity(1)
+		setChargedAmount(0)
+		setComment("")
+	}
+
+	function calculateTotal(){
+		let bsPrice = 0
+		if(selectedBillable !== "Servicio a cancelar:" && quantity >= 1){
+			let unitPrice = prices.find(x => x.name === selectedBillable).price;
+			let packPrice = unitPrice * quantity;
+			bsPrice = packPrice * dolarPrice;
+		}
+		setChargedAmount(bsPrice.toFixed(2))
+	}
+
+	return(
+		<Modal 
+			className='EmitirFactura'
+			title="Emitir Factura"
+			open={open}
+			closable={false}
+			footer={[
+				<Button color='blue' onClick={submitIssueInvoice} type='primary'>Emitir Factura</Button>,
+				<Button color='red' onClick={onCancel}>Cerrar</Button>
+			]}
+		>
+			{contextHolder}
+			<div className='listContainer Content' >
+				<div className='row'>
+					<InputNumber
+						style={{width: '100%'}}
+						value={studentIdentification}
+						prefix="Cedula del estudiante: "
+						onChange={e => setStudentIdentification(e)}
+					/>
+				</div>
+
+				<div className='row'>
+					<Select 
+						options={prices.map(x => ({label: x.name, value: x.name}))}
+						className='rowItem'
+						defaultValue={"Servicio a cancelar"}
+						value={selectedBillable}
+						onChange={e => setSelectedBillable(e)}/>
+					<InputNumber 
+						placeholder='Cantidad:'
+						className='rowItem'
+						value={quantity}
+						onChange={e => setQuantity(e)}
+						prefix="Cantidad: "/>
+				</div>
+
+				<div className='row'>
+					<InputNumber 
+						style={{width: '100%'}}
+						className='rowItem'
+						value={chargedAmount}
+						prefix="Monto a facturar: Bs. "
+						suffix={` ($${(chargedAmount / dolarPrice).toFixed(2)})`}
+						onChange={e => setChargedAmount(e)}
+					/>
+				</div>
+				<div className='row'>
+					<TextArea
+						autoSize
+						placeholder='Observaciones' 
+						value={comment} 
+						onChange={e => setComment(e.target.value)}/>
+				</div>
+				
+				{/* <Button onClick={submitIssueInvoice}>Emitir factura</Button> */}
+			</div>	
 		</Modal>
 	)
 }
