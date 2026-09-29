@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import { ConsoleSqlOutlined, DownloadOutlined } from "@ant-design/icons"
 import { currencyByName, isBs } from "../functions/determinarMoneda"
 import { autoCapitalize } from '../functions/autoCapitalize'
+import { validateForm, dayjsToISODate, problemFromServer } from '../functions/validateForm'
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -169,18 +170,34 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 	}
 
 	const submitNewStudent = async () => {
-		if(birthDate=='' || idNumber=='' || name=='' || lastname=='' || email == '' || phone=='' || instructionGrade == "" || address == ""){
+		// El chequeo de "todos los datos" de abajo solo miraba que el campo no
+		// estuviera vacio: una cedula de 2 digitos, un correo sin arroba o un
+		// telefono de 3 digitos pasaban y el servidor los rechazaba al final.
+		// Aqui se usan las mismas reglas que en el backend.
+		console.log(idNumber, name, lastname, birthDate, email, phone, address, instructionGrade)
+		const problema = validateForm({
+			identification: (v) => v.identification('identification', idNumber, 'La cedula'),
+			name: (v) => v.text('name', name, 'El nombre', { max: 20 }),
+			lastname: (v) => v.text('lastname', lastname, 'El apellido', { max: 20 }),
+			email: (v) => v.email('email', email),
+			phone: (v) => (v) => v.text('phone', phone, 'El teléfono', { min: 6, max: 11 }),
+			address: (v) => v.text('address', address, 'La direccion', { max: 100 }),
+			instructionGrade: (v) => v.enum('instructionGrade', instructionGrade, 'El nivel de instruccion', [1, 2, 3, 4]),
+			birthDate: (v) => v.date('birthDate', dayjsToISODate(birthDate), 'La fecha de nacimiento', { noFutura: true }),
+		})
+
+		if (problema) {
 			messageApi.open({
 				type: 'error',
-				content: 'Debe ingresar todos los datos'
+				content: problema
 			})
-		}else{
+		} else {
 			setLoading(true)
 			const data = {
 				identification: idNumber,
 				name: name,
 				lastName: lastname,
-				birthDate: `${birthDate.$y}/${birthDate.$M}/${birthDate.$D + 1}`,
+				birthDate: dayjsToISODate(birthDate),
 				email: email,
 				phone: phone,
 				address: address,
@@ -200,7 +217,7 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 				setLoading(false)
 				messageApi.open({
 					type: 'error',
-					content: res.response.data
+					content: problemFromServer(res, 'No se pudo registrar el estudiante')
 				})
 			}
 		}
@@ -1550,8 +1567,16 @@ export const AddNewTeacher = ({open, onCancel, updateList}) => {
     }
 
     const submitNewTeacher = async () => {
-        if(!identification || !name || !lastname || !email || phone==''){
-            messageApi.open({ type: 'error', content: 'Debe ingresar todos los datos' })
+        const problema = validateForm({
+            identification: (v) => v.identification('identification', identification, 'La cedula'),
+            name: (v) => v.text('name', name, 'El nombre', { max: 20 }),
+            lastname: (v) => v.text('lastname', lastname, 'El apellido', { max: 20 }),
+            email: (v) => v.email('email', email),
+            phone: (v) => v.text('phone', phone, 'El telefono', 6, 11),
+        })
+
+        if (problema) {
+            messageApi.open({ type: 'error', content: problema })
             return
         }
         setLoading(true)
@@ -1568,7 +1593,9 @@ export const AddNewTeacher = ({open, onCancel, updateList}) => {
             cleanForm()
             updateList()
         }else{
-            messageApi.open({ type: 'error', content: 'Error al registrar profesor' })
+            // Se muestra el mensaje del servidor, no un texto generico: la
+            // cedula o el correo ya repetidos llegan aqui como 400.
+            messageApi.open({ type: 'error', content: problemFromServer(res, 'Error al registrar profesor') })
             setLoading(false)
         }
     }
