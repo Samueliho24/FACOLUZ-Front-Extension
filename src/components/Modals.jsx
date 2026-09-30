@@ -1,10 +1,10 @@
 import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod, cancelInvoice, issueInvoice } from '../client/client'
-import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip, Divider, Descriptions, Table, Spin, Empty } from 'antd'
+import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip, Divider, Descriptions, Table, Spin, Empty, Alert } from 'antd'
 import { useState, useEffect, useContext, useMemo, act } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores, getScoreByStudent,setUpdateScore, getGradeStudentsBySection} from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, makePayment, getInvoiceDetail, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores, getScoreByStudent,setUpdateScore, getGradeStudentsBySection} from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -14,7 +14,7 @@ import TextArea from 'antd/es/input/TextArea'
 import { mergeDate } from '../functions/formatDateTime'
 import dayjs from 'dayjs';
 import { ConsoleSqlOutlined, DownloadOutlined } from "@ant-design/icons"
-import { currencyByName, isBs } from "../functions/determinarMoneda"
+import { isBs, isBsMethod, isExoneration } from "../functions/determinarMoneda"
 import { autoCapitalize } from '../functions/autoCapitalize'
 import { validateForm, dayjsToISODate, problemFromServer } from '../functions/validateForm'
 
@@ -43,52 +43,23 @@ export const LogoutModal = ({open, onCancel}) => {
 	)
 }
 
-export const VerifyInvoiceModal = ({open, onCancel, invoice, updateList}) => {
-	const {messageApi} = useContext(appContext)
-	const [loading, setLoading] = useState(false)
-
-	const handleVerify = async (data) => {
-		setLoading(true)
-		let res = await verifyInvoice({idParam: invoice.id, status: data})
-		if(res.status == 200){
-			messageApi.open({
-				type: 'success',
-				content: 'Estado de la factura actualizado'
-			})
-			setLoading(false)
-			updateList(data)
-			onCancel()
-		}else{
-			messageApi.open({
-				type: 'error',
-				content: 'ah ocurrido un error'
-			})
-			setLoading(false)
-		}
-	}
-	return(
-		<Modal
-			title='Verificar factura'
-			open={open}
-			closable={false}
-			footer={[
-				<Button disabled={loading} variant='solid' color='primary'  onClick={() => handleVerify('Recibida')} >Recibido</Button>,
-				<Button disabled={loading} variant='solid' color='primary' onClick={() => handleVerify('Rechazada')} >Rechazada</Button>,
-				<Button onClick={onCancel} variant='text' >Cancelar</Button>
-			]}
-		>
-			<div style={{display: 'flex', flexDirection: 'column', gap: '5px'}}>
-				<p><strong>Paciente:</strong> {invoice.patientName} - {invoice.patientId}</p>
-				<p><strong>Servicio facturado:</strong> {invoice.billableitem}</p>
-				<p><strong>Monto:</strong> {invoice.amount} </p>
-				<p><strong>Moneda:</strong> {invoice.currency} </p>
-				<p><strong>Fecha de emision:</strong> {getDate(invoice.date)} - {getTime(invoice.date)} </p>
-				{invoice.reference && <p><strong>Referencia de pago:</strong> {invoice.reference} </p>}
-				<p><strong>Estado:</strong> {invoice.status} </p>
-			</div>
-		</Modal>
-	)
-}
+// `VerifyInvoiceModal` se elimino en T9. Leamos por que estaba muerto antes de
+// borrarlo, porque es el patron que se repite ahi y conviene no volver a
+// escribirlo:
+//
+//   - Leia `invoice.patientName`, `patientId`, `billableitem`, `amount` y
+//     `currency`. Ninguno existe en la consulta real de `invoices`: la tabla
+//     tiene `StudentIdentification`, `chargedAmount`, `exchangeRate` y
+//     `comments`. Se copio de un sistema de odontologia.
+//   - Llamaba a `POST /api/verifyInvoice`, que esta comentado en el back.
+//   - La vista que lo usaba no le pasaba el `updateList` que el modal invoca al
+//     confirmar, asi que Confirmar habria lanzado `TypeError`.
+//   - El boton del LatPanel que abria esa vista ya estaba comentado: no habia
+//     forma de llegar.
+//
+// No es un bug que se pueda arreglar sin decidir de nuevo el flujo: el
+// concepto de "factura por verificar" (recibida / rechazada) no existe en el
+// modelo actual, donde la factura nace `Pendiente` y se mueve por `status`.
 
 export const GenerateReportModal = ({open, onCancel}) => {
 	
@@ -1222,34 +1193,43 @@ export const CloseSectionModal = ({open, onCancel, section, refreshSections}) =>
 
 export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 	
-	const { dolarPrice } = useContext(appContext)
-	const [showList, setShowList] = useState([])
-	const [remainingDebt, setRemainingDebt] = useState(0)
-
-	async function getInfo(){
-		if(Invoice === null)
-			return;
-		const res = await getPaymentsForInvoice(Invoice.id)
-		console.log(res)
-		if(res.status == 200){
-			setShowList(res.data)
-		}
-		let paid = 0
-		if(res.data.length >= 1){
-			res.data.forEach((item) => {
-				paid += item.paidAmount
-				let remaining = Invoice.chargedAmount - paid
-				setRemainingDebt(remaining)
-			});
-		}else if(Invoice !== null){
-			setRemainingDebt(Invoice.chargedAmount)
-		}
-
-	}
+	const {messageApi, dolarPrice} = useContext(appContext)
+	const [detalle, setDetalle] = useState(null)
+	const [cargando, setCargando] = useState(false)
 
 	useEffect(() => {
-		getInfo()
+		if (Invoice === null || Invoice === undefined) {
+			setDetalle(null)
+			return
+		}
+		let vigente = true
+		setCargando(true)
+		// Un solo pedido: el detalle trae la factura, los pagos Y el saldo. Antes
+		// eran dos y el saldo se armaba en el cliente sumando `paidAmount`, lo que
+		// ignoraba las devoluciones (`returnedAmount`) y contaba la exoneracion
+		// como dinero. La caja veia un restante que el servidor no compartia.
+		getInvoiceDetail(Invoice.id).then(res => {
+			if (!vigente) return
+			setCargando(false)
+			if (res.status === 200) {
+				setDetalle(res.data)
+			}else{
+				setDetalle(null)
+				messageApi.open({
+					type: 'error',
+					content: problemFromServer(res, 'No se pudo cargar el historial de la factura'),
+					duration: 5
+				})
+			}
+		})
+		return () => { vigente = false }
 	}, [Invoice])
+
+	// Con tasa 0 la conversion a Bs rompe: se muestra solo el USD.
+	const tasa = Number(dolarPrice) > 0 ? Number(dolarPrice) : null
+	const saldo = Number(detalle?.balance ?? 0)
+	const total = Number(detalle?.chargedAmount ?? 0)
+	const showList = detalle?.payments ?? []
 
 	return(
 		<Modal
@@ -1261,35 +1241,80 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 				<Button onClick={() => onCancel()}>Cerrar</Button>
 			]}
 		>
-			{Invoice !== null && (
-				<h4>Total de la factura: Bs. ${(Invoice.chargedAmount * dolarPrice).toFixed(2)} (${Invoice.chargedAmount.toFixed(2)})</h4>
+			{cargando && <Spin size="small" />}
+
+			{detalle !== null && (
+				<>
+					<h4>
+						{tasa !== null
+							? `Total de la factura: Bs. ${(total * tasa).toFixed(2)} ($${total.toFixed(2)})`
+							: `Total de la factura: $${total.toFixed(2)}`
+						}
+					</h4>
+					<h4>
+						{tasa !== null
+							? `Restante: Bs. ${(saldo * tasa).toFixed(2)} ($${saldo.toFixed(2)})`
+							: `Restante: $${saldo.toFixed(2)}`
+						}
+					</h4>
+					{detalle.status !== 'Pendiente' && (
+						<Alert
+							type={detalle.status === 'Anulada' ? 'error' : 'success'}
+							showIcon
+							style={{margin: '8px 0'}}
+							message={`Estado de la factura: ${detalle.status}`}
+						/>
+					)}
+					{detalle.comments !== null && detalle.comments !== undefined && (
+						<h5>Comentarios: {detalle.comments}</h5>
+					)}
+				</>
 			)}
-			<h4>Restante: Bs. ${(remainingDebt * dolarPrice).toFixed(2)} (${remainingDebt.toFixed(2)})</h4>
-			{(Invoice != null && Invoice.comments !== null) && (<h5>Comentarios: {Invoice.comments}</h5>)}
-			
+
 			{showList.length > 0 ?(
 				<List bordered>
 					{showList.map((item) => (
-						<List.Item style={{display: 'flex', flexDirection: 'column', alignItems: 'start'}}>
-							{isBs(item.receivedPaymentMethod) ? (<>
-								<p style={{margin: "0px"}}>
-									{`${mergeDate(item.date)} - Pagado: Bs. ${(item.paidAmount * item.exchangeRate).toFixed(2)} ($${item.paidAmount.toFixed(2)}) - ${item.receivedPaymentMethod}`}
+						<List.Item key={item.id} style={{display: 'flex', flexDirection: 'column', alignItems: 'start'}}>
+							{isExoneration(item.receivedPaymentMethod) ? (<>
+								{/* Una exoneracion no es dinero: se muestra como tal, no como un
+								    pago de $0.00 que confunde el arqueo de caja. */}
+								<p style={{margin: "0px", fontWeight: 'bold'}}>
+									{`${mergeDate(item.date)} - EXONERADA`}
 								</p>
-								{item.reference != null &&<p style={{margin: "0px"}}>Referencia: {item.reference}</p>}
+								{item.comments != null && (
+									<p style={{margin: "0px", color: '#cf1322'}}>
+										{`Observacion: ${item.comments}`}
+									</p>
+								)}
 							</>):(
-								<p style={{margin: "0px"}}>
-									{mergeDate(item.date)} - Pagado: ${item.paidAmount} - {item.receivedPaymentMethod} - Tasa: {item.exchangeRate} Bs/$
-								</p>
+								<>
+									<p style={{margin: "0px"}}>
+										{`${mergeDate(item.date)} - Pagado: $${Number(item.paidAmount).toFixed(2)} - ${item.receivedPaymentMethod}`}
+									</p>
+									{isBs(item.receivedPaymentMethod) && Number(item.exchangeRate) > 0 && (
+										<p style={{margin: "0px"}}>
+											{`Tasa del pago: ${Number(item.exchangeRate).toFixed(2)} Bs/$ (Bs. ${(Number(item.paidAmount) * Number(item.exchangeRate)).toFixed(2)})`}
+										</p>
+									)}
+									{item.reference != null && <p style={{margin: "0px"}}>Referencia: {item.reference}</p>}
+								</>
 							)}
-							{(item.returnedAmount > 0) && (<p style={{margin: "0px"}}>
-								Cambio: {isBs(item.receivedPaymentMethod) ? (item.returnedAmount/item.exchangeRate).toFixed(2) : (item.returnedAmount).toFixed(2)}{currencyByName(item.returnedPaymentMethod)}
+							{/* El cambio se muestra con la moneda del metodo de DEVOLUCION, no con
+							    el del pago: se puede pagar en Bs y devolver en USD, y antes
+							    dividia el cambio por la tasa cuando no tocaba. */}
+							{item.returnedAmount > 0 && (<p style={{margin: "0px"}}>
+								Cambio: {isBsMethod(item.returnedPaymentMethod)
+									? `Bs. ${Number(item.returnedAmount * item.exchangeRate).toFixed(2)}`
+									: `$${Number(item.returnedAmount).toFixed(2)}`}
 							</p>)}
-							{item.comments !== null && <p style={{margin: "0px"}}>Observaciones: {item.comments}</p>}
+							{!isExoneration(item.receivedPaymentMethod) && item.comments != null && (
+								<p style={{margin: "0px"}}>Observaciones: {item.comments}</p>
+							)}
 						</List.Item>
 					))}
 				</List>
 			):(
-				<h3>No hay pagos para mostrar</h3>
+				!cargando && <h3>No hay pagos para mostrar</h3>
 			)}
 			
 		</Modal>
@@ -1300,72 +1325,150 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 
 	const {messageApi, dolarPrice} = useContext(appContext)
 
-	const [paymentMethod, setPaymentMethod] = useState(lists.paymentMethods[0].value)
-	const [changeMethod, setChangeMethod] = useState(lists.paymentMethods[0].value)
-	const [paymentSuffix, setPaymentSuffix] = useState("Bs")
-	const [changeSuffix, setChangeSuffix] = useState("Bs")
+	// Estado de React, no `getElementById`. El modal anterior leia el DOM al
+	// enviar, y por un descuido (`returnedAmount` sin definir) reventaba con
+	// ReferenceError en CADA pago: no se podia cobrar nada.
+	const [paymentMethod, setPaymentMethod] = useState(1)
+	const [changeMethod, setChangeMethod] = useState(1)
+	const [amount, setAmount] = useState(null)
+	const [change, setChange] = useState(null)
+	const [reference, setReference] = useState('')
+	const [returnReference, setReturnReference] = useState('')
+	const [comments, setComments] = useState('')
+	const [submitting, setSubmitting] = useState(false)
+
+	// El saldo lo pide al servidor. Antes se sumaba `paidAmount` a mano aqui, lo
+	// que ignoraba las devoluciones y contaba la exoneracion como dinero: la caja
+	// veia un saldo y el backend rechazaba el pago.
+	const [detalle, setDetalle] = useState(null)
+	const [cargandoDetalle, setCargandoDetalle] = useState(false)
+
+	const isExoneracion = isExoneration(paymentMethod)
+	const paymentSuffix = isBsMethod(paymentMethod) ? 'Bs' : '$'
+	const changeSuffix = isBsMethod(changeMethod) ? 'Bs' : '$'
 
 	useEffect(() => {
-		if(paymentMethod === 1 || paymentMethod === 2){
-			setPaymentSuffix("Bs")
-		}else if(paymentMethod === 3 || paymentMethod === 4){
-			setPaymentSuffix("$")
-		}
+		if (!open) return
+		// Se reinicia al abrir: si se cierra y se vuelve a abrir para otra
+		// factura, el monto anterior queda pegado.
+		setPaymentMethod(1)
+		setChangeMethod(1)
+		setAmount(null)
+		setChange(null)
+		setReference('')
+		setReturnReference('')
+		setComments('')
+		setSubmitting(false)
+		setDetalle(null)
+	}, [open, Invoice])
 
-		if(changeMethod === 1 || changeMethod === 2){
-			setChangeSuffix("Bs")
-		}else if(changeMethod === 3 || changeMethod === 4){
-			setChangeSuffix("$")
-		}
-	}, [paymentMethod, changeMethod])
+	useEffect(() => {
+		if (!open || !Invoice) return
+		let vigente = true
+		setCargandoDetalle(true)
+		getInvoiceDetail(Invoice.id).then(res => {
+			if (!vigente) return
+			if (res.status === 200) setDetalle(res.data)
+			setCargandoDetalle(false)
+		})
+		return () => { vigente = false }
+	}, [open, Invoice])
+
+	/**
+	 * Convierte a USD, que es la moneda de la factura y la de `payments`.
+	 *
+	 * Todo monto viaja a la API en USD. Antes el monto se converitia segun el
+	 * SUFIJO del campo, y el cambio (devolucion) se mandaba sin convertir: el
+	 * backend comparaba Bs contra un saldo en USD y lo rechazaba casi siempre.
+	 *
+	 * Si la tasa es 0 no se divide: `Infinity` o `NaN` contra un `float NOT NULL`
+	 * es un 500. Por eso `rate <= 0` bloquea el cobro con un mensaje.
+	 */
+	const toUsd = (value, enBolivares) => {
+		const n = Number(value)
+		if (!Number.isFinite(n) || n <= 0) return 0
+		return Math.round((enBolivares ? n / dolarPrice : n) * 100) / 100
+	}
+
+	const saldo = Number(detalle?.balance ?? 0)
+	const sinTasa = Number(dolarPrice) <= 0
+	const saldoCobrable = isExoneracion ? 0 : saldo
 
 	async function submit(){
-
-		const paymentAmount = document.getElementById("paymentAmount").value
-		const changeAmount = document.getElementById("changeAmount").value
-		const comments = document.getElementById("comments").value
-		const reference = document.getElementById("reference").value
-		const returnReference = document.getElementById("returnReference").value
-
-		let paidAmount
-		if(paymentSuffix === "$"){
-			paidAmount = paymentAmount
-		}else{
-			paidAmount = paymentAmount / dolarPrice
+		if (submitting) return
+		if (sinTasa && !isExoneracion) {
+			messageApi.open({
+				type: 'error',
+				content: 'No hay tasa de cambio disponible. No se puede cobrar en bolivares.'
+			})
+			return
 		}
+		if (isExoneracion && comments.trim().length < 10) {
+			messageApi.open({
+				type: 'error',
+				content: 'La exoneracion requiere una observacion con el motivo y quien la autorizo'
+			})
+			return
+		}
+		if (!isExoneracion && !(toUsd(amount, isBsMethod(paymentMethod)) > 0)) {
+			messageApi.open({ type: 'error', content: 'El monto a abonar debe ser mayor a 0' })
+			return
+		}
+
+		setSubmitting(true)
+
+		const paidAmount = isExoneracion ? 0 : toUsd(amount, isBsMethod(paymentMethod))
+		// El cambio tambien va en USD: es un reintegro, no un ingreso.
+		const returnedAmount = isExoneracion ? 0 : toUsd(change, isBsMethod(changeMethod))
 
 		const data = {
 			InvoiceId: Invoice.id,
-			paidAmount: Number(paidAmount).toFixed(2),
+			paidAmount: paidAmount,
 			receivedPaymentMethod: paymentMethod,
-			reference: reference !== "" ? reference : null,
-			returnedAmount: changeAmount == "" ? null : Number(changeAmount).toFixed(2),
-			returnedPaymentMethod: changeMethod ? changeMethod : null,
-			returnReference: (returnReference !== "" && returnedAmount !== "") ? returnReference : null,
-			comments: comments !== "" ? comments : null,
-			exchangeRate: dolarPrice
+			returnedAmount: returnedAmount,
+			// El metodo de devolucion solo viaja si hay devolucion: la columna es
+			// nullable y mandarlo siempre mete ruido en el historial.
+			returnedPaymentMethod: returnedAmount > 0 ? changeMethod : null,
+			reference: (paymentMethod === 2 && reference.trim() !== '') ? reference.trim() : null,
+			returnReference: (returnedAmount > 0 && changeMethod === 2 && returnReference.trim() !== '')
+				? returnReference.trim()
+				: null,
+			comments: comments.trim() !== '' ? comments.trim() : null,
+			exchangeRate: Number(dolarPrice)
 		}
 
-		console.log(data)
-
 		const res = await makePayment(data)
-		if(res.status === 201 || res.status === 200){
-			messageApi.open({
-				type: 'success',
-				content: 'Pago realizado con exito'
-			})
-			if(res.status === 201){
-				updateList('Pendiente')
-			}else if(res.status === 200){
-				updateList('Pagado')
+		setSubmitting(false)
+
+		if (res.status === 200) {
+			// El backend responde 200 con el resultado. Antes se diferenciaba por
+			// 201 (pago parcial) vs 200 (pago total), una distincion que el
+			// servidor ya no hace y que se decidia con el codigo HTTP.
+			const r = res.data || {}
+			if (r.exonerated) {
+				messageApi.open({
+					type: 'success',
+					content: 'Factura exonerada. No se registro ingreso de dinero.'
+				})
+			}else if (r.fullyPaid) {
+				messageApi.open({ type: 'success', content: 'Pago realizado. Factura saldada.' })
+			}else{
+				messageApi.open({
+					type: 'success',
+					content: `Pago registrado. Quedan $${Number(r.balance ?? 0).toFixed(2)} por cobrar.`
+				})
 			}
+			updateList(r.fullyPaid || r.exonerated ? 'Pagado' : 'Pendiente')
 			onCancel()
 		}else{
+			// El modal NO se cierra: si no, el cajero pierde lo que habia escrito y
+			// tiene que empezar de nuevo. Ademas se muestra el mensaje real del
+			// servidor ("el monto no puede superar el saldo"), no un texto generico.
 			messageApi.open({
 				type: 'error',
-				content: 'ha ocurrido un error al registar el pago'
+				content: problemFromServer(res, 'Ocurrio un error al registrar el pago'),
+				duration: 6
 			})
-			onCancel()
 		}
 	}
 
@@ -1376,62 +1479,112 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 			destroyOnHidden
 			title="Realizar pago"
 			onOk={() => submit()}
+			confirmLoading={submitting}
+			okText={isExoneracion ? 'Exonerar' : 'Registrar pago'}
 		>
 			<div style={{width: "100%"}}>
+				{detalle !== null && (
+					<>
+						<p style={{margin: '0 0 2px 0'}}>
+							{`${detalle.billableName} - ${detalle.name} ${detalle.lastname}`}
+						</p>
+						<p style={{margin: '0 0 2px 0'}}>
+							{`Total: $${Number(detalle.chargedAmount).toFixed(2)} | Cobrado: $${Number(detalle.totalPaid).toFixed(2)}`}
+						</p>
+						{!isExoneracion && (
+							<p style={{margin: '0 0 10px 0'}}>
+								{`Saldo pendiente: $${saldo.toFixed(2)}`}
+							</p>
+						)}
+					</>
+				)}
+				{cargandoDetalle && <Spin size="small" style={{marginBottom: '10px'}} />}
+
 				<div style={{width: '100%', display: 'flex', flexDirection: 'row'}}>
 					<p style={{width: '50%', margin: '0'}}>Metodo de pago:</p>
 					<p style={{width: '50%', margin: '0'}}>Monto a abonar:</p>
 				</div>
 				<Space.Compact style={{width: "100%"}}>
-					<Select 
+					<Select
 						style={{width: "50%"}}
 						options={lists.paymentMethods}
 						value={paymentMethod}
 						onChange={e => setPaymentMethod(e)}
-						defaultValue={"Efectivo"}
 					/>
 					<InputNumber
 						style={{width: "50%"}}
 						placeholder='monto:'
 						suffix={paymentSuffix}
-						id='paymentAmount'
+						value={amount}
+						onChange={e => setAmount(e)}
+						disabled={isExoneracion}
+						min={0}
+						precision={2}
 					/>
 				</Space.Compact>
-				<Input 
-					style={{margin: '10px 0 10px 0'}}
-					placeholder='Referencia:'
-					id='reference'
-					disabled={paymentMethod !== 2}
-				/>
-				<div style={{width: '100%', display: 'flex', flexDirection: 'row'}}>
-					<p style={{width: '50%', margin: '0'}}>Metodo de cambio:</p>
-					<p style={{width: '50%', margin: '0'}}>Monto regresado:</p>
-				</div>
-				<Space.Compact  style={{width: "100%"}}>
-					<Select 
-						style={{width: "50%"}}
-						options={lists.paymentMethods}
-						value={changeMethod}
-						defaultValue={"Efectivo"}
-						onChange={e => setChangeMethod(e)}
-					/>
-					<InputNumber
-						style={{width: "50%"}}
-						placeholder='cambio'
-						suffix={changeSuffix}
-						id='changeAmount'
-					/>
-				</Space.Compact>
-				<Input 
-					style={{margin: '10px 0 10px 0'}}
-					placeholder='Referencia de cambio:'
-					id='returnReference'
-					disabled={changeMethod !== 2}
-				/>
-				<TextArea 
-					placeholder='Observaciones:'
-					id='comments'
-				/>
+
+				{isExoneracion && (
+					<>
+						<Alert
+							type='info'
+							showIcon
+							style={{margin: '10px 0'}}
+							message='La exoneracion no es un pago'
+							description='No entra dinero: la factura se cierra sin Movimiento de caja. La observacion es obligatoria y tiene que decir por que se exonera y quien lo autorizo.'
+						/>
+						<TextArea
+							placeholder='Observacion (obligatoria). Ej: Exonerado por decreto 1234, autorizado por Dr. Perez'
+							value={comments}
+							onChange={e => setComments(e.target.value)}
+							rows={3}
+						/>
+					</>
+				)}
+
+				{!isExoneracion && (
+					<>
+						<Input
+							style={{margin: '10px 0 10px 0'}}
+							placeholder='Referencia:'
+							value={reference}
+							onChange={e => setReference(e.target.value)}
+							disabled={paymentMethod !== 2}
+						/>
+						<div style={{width: '100%', display: 'flex', flexDirection: 'row'}}>
+							<p style={{width: '50%', margin: '0'}}>Metodo de cambio:</p>
+							<p style={{width: '50%', margin: '0'}}>Monto regresado:</p>
+						</div>
+						<Space.Compact  style={{width: "100%"}}>
+							<Select
+								style={{width: "50%"}}
+								options={lists.paymentMethods.filter(m => m.value !== 4)}
+								value={changeMethod}
+								onChange={e => setChangeMethod(e)}
+							/>
+							<InputNumber
+								style={{width: "50%"}}
+								placeholder='cambio'
+								suffix={changeSuffix}
+								value={change}
+								onChange={e => setChange(e)}
+								min={0}
+								precision={2}
+							/>
+						</Space.Compact>
+						<Input
+							style={{margin: '10px 0 10px 0'}}
+							placeholder='Referencia de cambio:'
+							value={returnReference}
+							onChange={e => setReturnReference(e.target.value)}
+							disabled={changeMethod !== 2}
+						/>
+						<TextArea
+							placeholder='Observaciones:'
+							value={comments}
+							onChange={e => setComments(e.target.value)}
+						/>
+					</>
+				)}
 			</div>
 		</Modal>
 	)
@@ -1442,37 +1595,107 @@ export const CancelInvoice = ({open, onCancel, Invoice, updateList}) => {
 	const { messageApi } = useContext(appContext)
 
 	const [loading, setLoading] = useState(false)
+	const [reason, setReason] = useState('')
+	// Cuanto hay que devolver. Se pide al servidor antes de confirmar: anular
+	// devuelve dinero, y el cajero tiene que saber cuanto efectivo entregar
+	// ANTES de apretar el boton, no despues.
+	const [detalle, setDetalle] = useState(null)
+	const [cargandoDetalle, setCargandoDetalle] = useState(false)
+
+	useEffect(() => {
+		if (!open) return
+		setReason('')
+		setDetalle(null)
+	}, [open, Invoice])
+
+	useEffect(() => {
+		if (!open || !Invoice) return
+		let vigente = true
+		setCargandoDetalle(true)
+		getInvoiceDetail(Invoice.id).then(res => {
+			if (!vigente) return
+			setCargandoDetalle(false)
+			if (res.status === 200) setDetalle(res.data)
+		})
+		return () => { vigente = false }
+	}, [open, Invoice])
+
+	// El servidor exige 10 caracteres (T7). Se avisa antes de gastar un viaje.
+	const reasonValido = reason.trim().length >= 10
 
 	async function submit(){
+		if (loading) return
+		if (!reasonValido){
+			messageApi.open({
+				type: 'error',
+				content: 'Escriba el motivo de la anulacion (minimo 10 caracteres)'
+			})
+			return
+		}
 		setLoading(true)
-		const res = await cancelInvoice(Invoice.id)
+		const res = await cancelInvoice(Invoice.id, reason.trim())
 		if(res.status === 200){
+			const r = res.data || {}
 			updateList('Anulada')
 			messageApi.open({
 				type: "success",
-				content: "Facura anulada"
+				content: r.refunded > 0
+					? `Factura anulada. Devuelva $${Number(r.refunded).toFixed(2)} al estudiante`
+					: "Factura anulada. No habia nada cobrado que devolver"
 			})
-			setLoading(false)
 			onCancel()
 		}else{
+			// El modal sigue abierto: anular es irreversible y un error de red no
+			// puede hacerte apretar "Anular" otra vez a ciegas.
 			messageApi.open({
 				type: 'error',
-				content: "ha ocurrido un error"
+				content: problemFromServer(res, "ha ocurrido un error al anular la factura"),
+				duration: 6
 			})
 		}
 		setLoading(false)
 	}
 
+	const aDevolver = Number(detalle?.balance ?? 0)
+
 	return(
 		<Modal
-			title="Esta seguro de que desea anular esta factura?"
+			title="Anular factura"
 			open={open}
 			closable={false}
+			destroyOnHidden
 			footer={[
 				<Button disabled={loading} onClick={onCancel}>Cancelar</Button>,
-				<Button disabled={loading} onClick={() => submit()}>Anular</Button>
-			]}	
-		/>
+				<Button danger disabled={loading || !reasonValido} loading={loading} onClick={() => submit()}>Anular</Button>
+			]}
+		>
+			<Alert
+				type='warning'
+				showIcon
+				style={{marginBottom: '12px'}}
+				message='La anulacion no se puede deshacer'
+				description={
+					detalle !== null && aDevolver > 0
+						? `Esta factura tiene $${aDevolver.toFixed(2)} cobrados. Al anularla se registra una devolucion por ese monto y hay que entregarlo al estudiante.`
+						: 'Esta factura no tiene cobros registrados, asi que no se devuelve nada.'
+				}
+			/>
+
+			{cargandoDetalle && <Spin size="small" style={{marginBottom: '10px'}} />}
+
+			<TextArea
+				placeholder='Motivo de la anulacion (obligatorio). Ej: se emitió por error, el alumno ya estaba inscrito'
+				value={reason}
+				onChange={e => setReason(e.target.value)}
+				rows={3}
+				status={reason.trim().length > 0 && !reasonValido ? 'error' : undefined}
+			/>
+			{reason.trim().length > 0 && !reasonValido && (
+				<p style={{color: '#cf1322', margin: '4px 0 0 0'}}>
+					Faltan {10 - reason.trim().length} caracteres
+				</p>
+			)}
+		</Modal>
 	)
 }
 

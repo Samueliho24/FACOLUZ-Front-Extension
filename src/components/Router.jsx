@@ -5,7 +5,6 @@ import ConsultarRegistros from '../pages/ConsultarRegistros'
 import Home from '../pages/Home'
 import Login from '../pages/Login'
 import EmitirFactura from '../pages/EmitirFactura'
-import VerificarFactura from '../pages/VerificarFactura'
 import Configuracion from '../pages/Configuracion'
 import Estudiantes from '../pages/Students'
 import Modulos from "../pages/Modulos"
@@ -30,7 +29,11 @@ const Router = () => {
             case "Login": return <Login />
             case "Home": return <Home />
             case "EmitirFactura": return <EmitirFactura />
-            case "VerificarFactura": return <VerificarFactura/>
+            // "VerificarFactura" se elimino en T9. Leia `patientId`,
+            // `patientName` y `billableitem`, que no existen en `invoices`; su
+            // modal llama a un endpoint comentado en el back; y el boton del
+            // LatPanel que la abria ya estaba comentado. No habia forma de
+            // llegar a la vista, y si se llegaba, no podia funcionar.
             case "ConsultarRegistros": return <ConsultarRegistros />
             case "Configuracion": return <Configuracion />
             case "ModuleEnrollment": return <ModuleEnrollment />

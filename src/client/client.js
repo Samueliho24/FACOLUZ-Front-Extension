@@ -29,17 +29,13 @@ export async function issueInvoice(data){
 	return await http.post('api/issueInvoice', token, data)
 }
 
-export async function getInvoicesVerification(page){
-	return await http.get(`api/getinvoicesVerification/${page}`, token, null)
-}
-
-export async function getinvoicesVerificationById(patientId, page){
-	return await http.get(`api/getinvoicesVerificationById/${patientId}/${page}`, token, null)
-}
-
-export async function verifyInvoice(data){
-	return await http.post('api/verifyInvoice', token, data)
-}
+// `getInvoicesVerification`, `getinvoicesVerificationById` y `verifyInvoice`
+// se quitaron en T9. Eran los wrappers de la vista "Verificar factura", que
+// leia columnas inexistentes y no tinha forma de abrirse. Los endpoints del
+// back siguen en pie: `GET /api/getinvoicesVerification/:page` y
+// `GET /api/getInvoicesVerificationById/:patientId/:page` devuelven 500 porque
+// consultan una tabla `payer` y columnas que no existen en `invoices`, y
+// `POST /api/verifyInvoice` esta comentado. Ninguno tiene consumidor.
 
 export async function getInvoicesById(studentId, page){
 	return await http.get(`api/getInvoices/${studentId}/${page}`, token, null)
@@ -251,12 +247,28 @@ export async function makePayment(data){
 	return await http.post("api/payments", token, data)
 }
 
-export async function cancelInvoice(invoiceId){
-	return await http.delete(`api/invoice`, token, invoiceId)
+/**
+ * Anula una factura y devuelve lo cobrado.
+ *
+ * `reason` va en el cuerpo del DELETE: una anulacion devuelve dinero y no se
+ * deshace, asi que sin motivo no hay forma de explicar despues por que se le
+ * entrego efectivo a un estudiante. El backend lo exige (min 10 caracteres).
+ */
+export async function cancelInvoice(invoiceId, reason){
+	return await http.delete(`api/invoice`, token, invoiceId, {reason: reason})
 }
 
 export async function getPaymentsForInvoice(invoiceId){
 	return await http.get(`api/payments/${invoiceId}`, token, null)
+}
+
+/**
+ * Detalle de una factura con el saldo que calcula el servidor.
+ * El modal de cobro lo usa en vez de sumar los pagos a mano: el saldo del cliente
+ * ignoreaba las devoluciones y contaba la exoneracion como dinero.
+ */
+export async function getInvoiceDetail(invoiceId){
+	return await http.get(`api/invoice/${invoiceId}`, token, null)
 }
 
 export async function updatePhoto(formData, studentId){

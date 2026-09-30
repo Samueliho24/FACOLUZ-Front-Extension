@@ -60,9 +60,20 @@ export class httpMethods {
 		}
 	}
 
-	async delete(apiAddress, token, value){
+	/**
+	 * DELETE con cuerpo opcional.
+	 *
+	 * `data` es opcional a proposito: los otros dos llamadores (borrar usuario,
+	 * anular factura) pasan tres argumentos y siguen funcionando. La anulacion
+	 * necesita el motivo, y un DELETE no admite parametros de ruta, asi que va en
+	 * el cuerpo.
+	 */
+	async delete(apiAddress, token, value, data){
 		try{
-			let res = await axios.delete(`${url}/${apiAddress}/${value}`, {headers: {'Authorization': `Bearer ${token}`}})
+			let res = await axios.delete(`${url}/${apiAddress}/${value}`, {
+				headers: {'Authorization': `Bearer ${token}`},
+				data: data
+			})
 			return res
 		}catch(err){
 			return(err)
