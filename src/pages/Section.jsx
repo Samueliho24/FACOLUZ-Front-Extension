@@ -6,6 +6,7 @@ import { routerContext } from "../context/routerContext";
 import { OpenSectionModal, CloseSectionModal, StudentListOfSectionModal } from '../components/Modals'
 import { monthNames } from "../context/lists";
 import { getDate } from "../functions/formatDateTime";
+import { Link } from "react-router";
 
 const Sections = () => {
     const [section, setSection] = useState(null)
@@ -58,6 +59,7 @@ const Sections = () => {
             {contextHolder}
             
             <div className="searchBar">
+                <Button onClick={() => setView("Periodos")}>{`< Volver`}</Button>
                 <Input placeholder="Buscar sección"/>
                 <Button>Buscar</Button>
                 {!(currentPeriodSection && currentPeriodSection.status === 'Finalizado') && (

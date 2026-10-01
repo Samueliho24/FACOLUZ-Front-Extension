@@ -9,6 +9,7 @@ import { StudentListOfSectionModal } from '../components/Modals'
 
 const SectionEnrollment = () => {
     const {contextHolder, messageApi, currentModuleEnrollment} = useContext(appContext)
+    const {view, setView} = useContext(routerContext)
     const [showList, setShowList] = useState([])
     const [currentSection, setCurrentSection] = useState(null)
     const [modalOpen, setModalOpen] = useState(false)
@@ -37,6 +38,7 @@ const SectionEnrollment = () => {
             <h3><strong>Modulo:</strong> {currentModuleEnrollment.description}</h3>
             
             <div className="searchBar">
+                <Button onClick={() => setView("Enrollments")}>{`< Volver`}</Button>
                 <Input placeholder="Buscar sección"/>
                 <Button>Buscar</Button>
             </div>
