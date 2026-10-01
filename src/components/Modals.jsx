@@ -1,6 +1,6 @@
-import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod, cancelInvoice, issueInvoice } from '../client/client'
+import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod, cancelInvoice, issueInvoice, createUser } from '../client/client'
 import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip, Divider, Descriptions, Table, Spin, Empty } from 'antd'
-import { useState, useEffect, useContext, useMemo, act } from 'react'
+import { useState, useEffect, useContext, useMemo } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
@@ -15,7 +15,7 @@ import { mergeDate } from '../functions/formatDateTime'
 import dayjs from 'dayjs';
 import { ConsoleSqlOutlined, DownloadOutlined } from "@ant-design/icons"
 import { currencyByName, isBs } from "../functions/determinarMoneda"
-import { autoCapitalize } from '../functions/autoCapitalize'
+import { validateName } from '../functions/validateName'
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -159,12 +159,12 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 	}
 
 	function setStudentName(rawName){
-		const formatedName = autoCapitalize(rawName)
+		const formatedName = validateName(rawName)
 		setName(formatedName)
 	}
 
 	function setStudentsLastname(rawLastName){
-		const formatedLastName = autoCapitalize(rawLastName)
+		const formatedLastName = validateName(rawLastName)
 		setLastname(formatedLastName)
 	}
 
@@ -208,7 +208,7 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 
 	return(
 		<Modal
-			title='Agregar nuevo usuario'
+			title='Agregar nuevo estudiante'
 			open={open} 
 			closable={false}
 			destroyOnClose
@@ -218,7 +218,7 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 			]}
 		>
 			<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-				<InputNumber onBlur={(e) => {findUser(Number(e.target.value))}} onChange={(e) => setIdNumber(e)} placeholder='Numero de cedula' style={{width: '100%'}}/>
+				<Input type='number' onBlur={(e) => {findUser(Number(e.target.value))}} onChange={(e) => setIdNumber(e)} placeholder='Numero de cedula' style={{width: '100%'}}/>
 				<Space.Compact style={{width: '100%'}}>
 					<Input className='testplaceholder' value={name} disabled={loading} onChange={(e) => setStudentName(e.target.value)} placeholder='Nombre' style={{width: '50%'}}/>
 					<Input value={lastname} disabled={loading} onChange={(e) => setStudentsLastname(e.target.value)} placeholder='Apellido' style={{width: '50%'}}/>
@@ -231,7 +231,6 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 
 				Telefono:
 				<InputPhone
-					value={phone}
 					setter={(p) => setPhone(p)}
 				/>
 
@@ -239,7 +238,8 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 					placeholder='Correo electronico'
 					value={email}
 					onChange={e => setEmail(e.target.value)}
-					type='email'	
+					type='email'
+
 				/>
 
 				<Input.TextArea
@@ -495,6 +495,15 @@ export const AddNewUserModal = ({open, onCancel, updateList}) => {
 	const [confirmPassword,setConfirmPassword] =useState('')
 	const [userType, setUserType] = useState('')
 
+	function setUserName(raw){
+		const res = validateName(raw)
+		setName(res)
+	}
+
+	function setUserLastname(raw){
+		const res = validateName(raw)
+		setLastname(res)
+	}
 
 	async function findUser(id){
 		let res = await getIdUsers(id)
@@ -583,10 +592,10 @@ export const AddNewUserModal = ({open, onCancel, updateList}) => {
 			]}
 		>
 			<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-					<InputNumber onBlur={(e) => {findUser(Number(e.target.value))}} onChange={(e) => setIdNumber(e)} placeholder='Numero de cedula' style={{width: '100%'}}/>
+					<Input type='number' onBlur={(e) => {findUser(Number(e.target.value))}} onChange={(e) => setIdNumber(e.target.value)} placeholder='Numero de cedula' style={{width: '100%'}}/>
 				<Space.Compact style={{width: '100%'}}>
-					<Input disabled={loading} onChange={(e) => setName(e.target.value)} placeholder='Nombre' style={{width: '50%'}}/>
-					<Input disabled={loading} onChange={(e) => setLastname(e.target.value)} placeholder='Apellido' style={{width: '50%'}}/>
+					<Input disabled={loading} onChange={(e) => setUserName(e.target.value)} value={name} placeholder='Nombre' style={{width: '50%'}}/>
+					<Input disabled={loading} onChange={(e) => setUserLastname(e.target.value)} value={lastname} placeholder='Apellido' style={{width: '50%'}}/>
 				</Space.Compact>
 				
 				<Input.Password disabled={loading} placeholder='Contraseña' onChange={(e) => setPassword(e.target.value)}/>
@@ -1373,7 +1382,8 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 						onChange={e => setPaymentMethod(e)}
 						defaultValue={"Efectivo"}
 					/>
-					<InputNumber
+					<Input
+						type='number'
 						style={{width: "50%"}}
 						placeholder='monto:'
 						suffix={paymentSuffix}
@@ -1381,6 +1391,7 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 					/>
 				</Space.Compact>
 				<Input 
+					type='number'
 					style={{margin: '10px 0 10px 0'}}
 					placeholder='Referencia:'
 					id='reference'
@@ -1398,7 +1409,8 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 						defaultValue={"Efectivo"}
 						onChange={e => setChangeMethod(e)}
 					/>
-					<InputNumber
+					<Input
+						type='number'
 						style={{width: "50%"}}
 						placeholder='cambio'
 						suffix={changeSuffix}
@@ -1406,6 +1418,7 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 					/>
 				</Space.Compact>
 				<Input 
+					type='number'
 					style={{margin: '10px 0 10px 0'}}
 					placeholder='Referencia de cambio:'
 					id='returnReference'
@@ -1549,6 +1562,16 @@ export const AddNewTeacher = ({open, onCancel, updateList}) => {
         onCancel()
     }
 
+	function setTeacherName(raw){
+		var res = validateName(raw)
+		setName(res)
+	}
+
+	function setTeacherLastname(raw){
+		var res = validateName(raw)
+		setLastname(res)
+	}
+
     const submitNewTeacher = async () => {
         if(!identification || !name || !lastname || !email || phone==''){
             messageApi.open({ type: 'error', content: 'Debe ingresar todos los datos' })
@@ -1594,12 +1617,12 @@ export const AddNewTeacher = ({open, onCancel, updateList}) => {
                 <Input
                     placeholder='Nombre'
                     value={name}
-                    onChange={e => setName(e.target.value)}
+                    onChange={e => setTeacherName(e.target.value)}
                 />
                 <Input
                     placeholder='Apellido'
                     value={lastname}
-                    onChange={e => setLastname(e.target.value)}
+                    onChange={e => setTeacherLastname(e.target.value)}
                 />
                 <Input
                     placeholder='Correo electronico'
@@ -1608,7 +1631,6 @@ export const AddNewTeacher = ({open, onCancel, updateList}) => {
                     type='email'
                 />
                 <InputPhone
-                    value={phone}
                     setter={e => setPhone(e)}
                 />
             </div>
@@ -2471,6 +2493,7 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 	const [selectedBillable, setSelectedBillable] = useState("Servicio a cancelar:")
 	const [quantity, setQuantity] = useState(1)
 	const [chargedAmount, setChargedAmount] = useState(0)
+	const [chargedDolar, setChargedDolar] = useState(0)
 	const [comment, setComment] = useState("")
 	
 	useEffect(() => {
@@ -2532,6 +2555,11 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 		setChargedAmount(bsPrice.toFixed(2))
 	}
 
+	// useEffect(() => {
+	// 	const res = (Number(chargedAmount) / dolarPrice).toFixed(2)
+	// 	setChargedDolar(res)
+	// }, [chargedAmount])
+
 	return(
 		<Modal 
 			className='EmitirFactura'
@@ -2546,9 +2574,10 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 			{contextHolder}
 			<div className='listContainer Content' >
 				<div className='row'>
-					<InputNumber
+					<Input
+						type='number'
 						style={{width: '100%'}}
-						value={studentIdentification}
+						// value={studentIdentification}
 						prefix="Cedula del estudiante: "
 						onChange={e => setStudentIdentification(e)}
 					/>
@@ -2561,22 +2590,24 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 						defaultValue={"Servicio a cancelar"}
 						value={selectedBillable}
 						onChange={e => setSelectedBillable(e)}/>
-					<InputNumber 
+					<Input
+						type='number' 
 						placeholder='Cantidad:'
 						className='rowItem'
 						value={quantity}
-						onChange={e => setQuantity(e)}
+						onChange={e => setQuantity(e.target.value)}
 						prefix="Cantidad: "/>
 				</div>
 
 				<div className='row'>
-					<InputNumber 
+					<Input
+						type='number'
 						style={{width: '100%'}}
 						className='rowItem'
 						value={chargedAmount}
 						prefix="Monto a facturar: Bs. "
-						suffix={` ($${(chargedAmount / dolarPrice).toFixed(2)})`}
-						onChange={e => setChargedAmount(e)}
+						suffix={` ($${(Number(chargedAmount) / dolarPrice).toFixed(2)})`}
+						onChange={e => setChargedAmount(Number(e.target.value))}
 					/>
 				</div>
 				<div className='row'>
