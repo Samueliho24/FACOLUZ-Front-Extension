@@ -152,6 +152,7 @@ const ConsultarRegistros = () => {
 			/>
 
 			<NewInvoice 
+				updateList={(e) => updateList(e)}
 				open={newInvoiceModal}
 				onCancel={() => setNewInvoiceModal(false)}
 			/>

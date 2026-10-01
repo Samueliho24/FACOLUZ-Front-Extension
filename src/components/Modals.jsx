@@ -1281,12 +1281,12 @@ export const InfoForInvoice = ({open, onCancel, Invoice}) => {
 						<List.Item style={{display: 'flex', flexDirection: 'column', alignItems: 'start'}}>
 							{isBs(item.receivedPaymentMethod) ? (<>
 								<p style={{margin: "0px"}}>
-									{`${mergeDate(item.date)} - Pagado: Bs. ${(item.paidAmount * item.exchangeRate).toFixed(2)} ($${item.paidAmount.toFixed(2)}) - ${item.receivedPaymentMethod}`}
+									{`${getDate(item.date)} - Pagado: Bs. ${(item.paidAmount * item.exchangeRate).toFixed(2)} ($${item.paidAmount.toFixed(2)}) - ${item.receivedPaymentMethod}`}
 								</p>
 								{item.reference != null &&<p style={{margin: "0px"}}>Referencia: {item.reference}</p>}
 							</>):(
 								<p style={{margin: "0px"}}>
-									{mergeDate(item.date)} - Pagado: ${item.paidAmount} - {item.receivedPaymentMethod} - Tasa: {item.exchangeRate} Bs/$
+									{getDate(item.date)} - Pagado: ${item.paidAmount} - {item.receivedPaymentMethod} - Tasa: {item.exchangeRate} Bs/$
 								</p>
 							)}
 							{(item.returnedAmount > 0) && (<p style={{margin: "0px"}}>
@@ -2593,9 +2593,9 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 					<Input
 						type='number'
 						style={{width: '100%'}}
-						// value={studentIdentification}
+						value={studentIdentification}
 						prefix="Cedula del estudiante: "
-						onChange={e => setStudentIdentification(e)}
+						onChange={e => setStudentIdentification(e.target.value)}
 					/>
 				</div>
 
@@ -2633,8 +2633,6 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 						value={comment} 
 						onChange={e => setComment(e.target.value)}/>
 				</div>
-				
-				{/* <Button onClick={submitIssueInvoice}>Emitir factura</Button> */}
 			</div>	
 		</Modal>
 	)

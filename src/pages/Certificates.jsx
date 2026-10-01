@@ -4,7 +4,7 @@ import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
 import { getCertificateList, filterStudents, saveCertificate } from '../client/client';
 import { PrinterOutlined } from '@ant-design/icons';
-import { mergeDate } from '../functions/formatDateTime';
+import { getDate } from '../functions/formatDateTime';
 
 const Enrollments = () => {
     const [open, setOpen] = useState(false);
@@ -63,7 +63,7 @@ const Enrollments = () => {
 					{ showList.map(item => (
 						<List.Item className='listItem' key={item.id}>
 							<div className='info'>
-								<h3>{item.name} {item.lastname} -- {item.course_name} -- Fecha: {mergeDate(Date(item.mergeDate))}</h3>
+								<h3>{item.name} {item.lastname} -- {item.course_name} -- Fecha: {getDate(new Date(item.date))}</h3>
 							</div>
 							<div className='buttons'>
 								<Tooltip onClick={() => {callSaveCertificate(item)}} title='Imprimir certificado'><Button shape='circle' variant='solid' color='primary' size='large' icon={<PrinterOutlined />} /></Tooltip>
