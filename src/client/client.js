@@ -215,8 +215,8 @@ export async function getDeactivatedUsers(page) {
 	return await http.get(`api/getDeactivatedUsers/${page}`, token, null)
 }
 
-export async function getIdUsers(id) {
-	return await http.get('api/getIdUsers', token, id)
+export async function getUserById(id){
+	return await http.get("api/user", token, id)
 }
 
 export async function createStudent(data) {

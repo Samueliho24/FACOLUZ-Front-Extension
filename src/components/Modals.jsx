@@ -1,10 +1,10 @@
-import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod, cancelInvoice, issueInvoice, createUser } from '../client/client'
+import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod, cancelInvoice, issueInvoice, createUser, getUserById } from '../client/client'
 import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip, Divider, Descriptions, Table, Spin, Empty } from 'antd'
 import { useState, useEffect, useContext, useMemo } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, getIdUsers, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores, getScoreByStudent,setUpdateScore, getGradeStudentsBySection} from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores, getScoreByStudent,setUpdateScore, getGradeStudentsBySection} from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -506,29 +506,45 @@ export const AddNewUserModal = ({open, onCancel, updateList}) => {
 	}
 
 	async function findUser(id){
-		let res = await getIdUsers(id)
+		let res = await getUserById(id)
 
-		console.log(res)
-		
-		switch (res.data[0].active) {
-			case 0:
-				messageApi.open({
+		if(res.data.length >= 1){
+			if(res.data[0].active == 0){
+					messageApi.open({
 					type: 'error',
 					content: 'El usuario con esa cedula existe pero esta inactivo'
 				})
 				setLoading(true)
-				break;
-			case 1:
+			}else{
 				messageApi.open({
 					type: 'error',
 					content: 'El usuario con esa cedula existe.'
 				})
 				setLoading(true)
-				break;
-			case undefined:
-				setLoading(false)
-				break;
+			}
+		}else{
+			setLoading(false)
 		}
+
+		// switch (res.data[0].active) {
+		// 	case 0:
+		// 		messageApi.open({
+		// 			type: 'error',
+		// 			content: 'El usuario con esa cedula existe pero esta inactivo'
+		// 		})
+		// 		setLoading(true)
+		// 		break;
+		// 	case 1:
+		// 		messageApi.open({
+		// 			type: 'error',
+		// 			content: 'El usuario con esa cedula existe.'
+		// 		})
+		// 		setLoading(true)
+		// 		break;
+		// 	case undefined:
+		// 		setLoading(false)
+		// 		break;
+		// }
 	}
 	const cleanForm = () => {
 		setIdNumber('')
