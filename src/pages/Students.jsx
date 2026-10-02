@@ -87,26 +87,33 @@ const Students = () => {
 
                             <div className="buttons">
                                 <Button
-                                    onClick={() => {print(item)}}>
-                                    Imprimir carnet
-                                </Button>
-
-                                <Button
-                                    onClick={() => {setSelectedStudent(item.id); setPhotoModal(true)}}>
-                                    Actualizar foto
-                                </Button>
-
-                                <Button
                                     onClick={() => {setSelectedStudent(item.id); setDocsModal(true)}}>
                                     Documentacion
                                 </Button>
                                 
-                                {item.status === 'Activo' && 
+                                {item.status === 'Activo' && <>
+                                    <Button
+                                    onClick={() => {print(item)}}>
+                                    Imprimir carnet
+                                    </Button>
+
+                                    <Button
+                                        onClick={() => {setSelectedStudent(item.id); setPhotoModal(true)}}>
+                                        Actualizar foto
+                                    </Button>
+
                                     <Button
                                         color="danger" 
                                         onClick={() => setDeactivateModal({open: true, studentId: item.id})}
                                     >Desactivar</Button>
-                                }
+                                </>}
+
+                                {item.status === 'Inactivo' && <>
+                                    <Button
+                                        color="danger" 
+                                        onClick={() => setDeactivateModal({open: true, studentId: item.id})}
+                                    >Activar</Button>
+                                </>}
                             </div>
                         </List.Item>
                     ))}

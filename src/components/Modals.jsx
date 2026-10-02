@@ -2512,6 +2512,7 @@ export const StudentDocsModal = ({open, onCancel, studentId}) => {
 			{showList.length === 0 ? (<>
 				<h3>No se han guardado documentos para este estudiante</h3>
 			</>):(<>
+				<h3>Documentos del estudiante</h3>
 				<List bordered size='small'>
 					{showList.map(item => (
 						<List.Item>
