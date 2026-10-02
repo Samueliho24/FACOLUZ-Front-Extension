@@ -889,6 +889,13 @@ export const UpdatePhoto = ({open, onCancel, studentId}) => {
 	async function upload(){
 		setLoading(true)
 		const picInput = document.getElementById("picInput").files[0]
+		if(picInput.size > 5000000){
+			messageApi.open({
+				type: "error",
+				content: "Este archivo es demasiado grande"
+			})
+			return;
+		}
 		const formData = new FormData
 		formData.append("file", picInput)
 		const res = await updatePhoto(formData, studentId)
@@ -920,7 +927,8 @@ export const UpdatePhoto = ({open, onCancel, studentId}) => {
 				</Button>
 			]}
 		>
-			<input type='file' id="picInput"/>
+			<p>La imagen debe tener un peso maximo de 5Mb</p>
+			<input type='file' id="picInput" accept="image/png, image/jpeg, image/jpg"/>
 		</Modal>
 	)
 }
