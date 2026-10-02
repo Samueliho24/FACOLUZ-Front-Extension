@@ -122,30 +122,29 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 	const [instructionGrade, setInstructionGrade] = useState("")
 
 	async function findUser(id){
-		let res = await getIdUsers(id)
+		let res = await getUserById(id)
 
 		console.log(res)
 		
-		switch (res.data[0].active) {
-			case 0:
+		if(res.data.length >= 1){
+			if(res.data[0].active == 0){
 				messageApi.open({
 					type: 'error',
 					content: 'El usuario con esa cedula existe pero esta inactivo'
 				})
 				setLoading(true)
-				break;
-			case 1:
+			}else{
 				messageApi.open({
 					type: 'error',
 					content: 'El usuario con esa cedula existe.'
 				})
 				setLoading(true)
-				break;
-			case undefined:
-				setLoading(false)
-				break;
+			}
+		}else{
+			setLoading(false)
 		}
 	}
+
 	const cleanForm = () => {
 		setIdNumber('')
 		setName('')
@@ -194,6 +193,7 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 					type: 'success',
 					content: 'Estudiante registrado con exito'
 				})
+				cleanForm()
 				updateList()
 				onCancel()
 			}else{
@@ -211,14 +211,14 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 			title='Agregar nuevo estudiante'
 			open={open} 
 			closable={false}
-			destroyOnClose
+			destroyOnHidden
 			footer={[
 				<Button onClick={cleanForm} variant='link' color='danger'>Cancelar</Button>,
 				<Button disabled={loading ||birthDate=='' || idNumber=='' || name=='' || lastname=='' || email == '' || phone == '' || address == "" || instructionGrade == ""} onClick={submitNewStudent} variant='solid' color='primary'>Agregar</Button>
 			]}
 		>
 			<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-				<Input type='number' onBlur={(e) => {findUser(Number(e.target.value))}} onChange={(e) => setIdNumber(e)} placeholder='Numero de cedula' style={{width: '100%'}}/>
+				<Input type='number' onBlur={(e) => {findUser(Number(e.target.value))}} onChange={(e) => setIdNumber(e.target.value)} placeholder='Numero de cedula' style={{width: '100%'}}/>
 				<Space.Compact style={{width: '100%'}}>
 					<Input className='testplaceholder' value={name} disabled={loading} onChange={(e) => setStudentName(e.target.value)} placeholder='Nombre' style={{width: '50%'}}/>
 					<Input value={lastname} disabled={loading} onChange={(e) => setStudentsLastname(e.target.value)} placeholder='Apellido' style={{width: '50%'}}/>
