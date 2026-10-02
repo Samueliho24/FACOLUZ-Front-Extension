@@ -2398,7 +2398,7 @@ export const StudentDocsModal = ({open, onCancel, studentId}) => {
 	
 	const [loading, setLoading] = useState(false)
 	const [showList, setShowList] = useState([])
-	const [selectedDocType, setSelectedDocType] = useState()
+	const [selectedDocType, setSelectedDocType] = useState("")
 	const { messageApi } = useContext(appContext)
 
 	useEffect(() => {
@@ -2442,6 +2442,28 @@ export const StudentDocsModal = ({open, onCancel, studentId}) => {
 		setLoading(true)
 		const formData = new FormData;
 		const docInput = document.getElementById("newDocFileInput").files[0]
+		if(docInput == undefined){
+			messageApi.open({
+				type: "error",
+				content: "Seleccione un archivo"
+			})
+			setLoading(false)
+			return;
+		}else if(docInput.size > 5000000){
+			messageApi.open({
+				type: "error",
+				content: "Este archivo es demasiado grande"
+			})
+			setLoading(false)
+			return;
+		}else if(selectedDocType == ""){
+			messageApi.open({
+				type: "error",
+				content: "Seleccione el tipo de documento a subir"
+			})
+			setLoading(false)
+			return;
+		}
 		formData.append("file", docInput)
 		formData.append("docType", selectedDocType)
 		const res = await uploadStudentDocument(formData, studentId)
@@ -2471,7 +2493,8 @@ export const StudentDocsModal = ({open, onCancel, studentId}) => {
 				<Button onClick={() => onCancel()} disabled={loading}>Cerrar</Button>
 			]}
 		>
-			<div style={{margin: "0px 0px 5px 0px", display: 'flex', alignItems: 'center', gap: '10px'}}>
+			<p>Seleccione un archivo PDF con un peso maximo de 5Mb</p>
+			<div style={{margin: "0px 0px 5px 0px", display: 'flex', gap: '10px', 'flexDirection': 'column'}}>
 				<Select 
 					defaultValue={"Documento a subir"}
 					options={lists.studentDocs}
