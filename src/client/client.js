@@ -200,7 +200,7 @@ export async function updateUser (data){
 }
 
 export async function getAllUsers(page) {
-	return await http.get(`api/user/${page}`, token, null)
+	return await http.get(`api/user/list/${page}`, token, null)
 }
 
 export async function filterStudents(param){
