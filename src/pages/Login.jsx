@@ -8,7 +8,6 @@ import React from 'react'
 import { routerContext } from '../context/routerContext'
 import logofaco from '../assets/Logo_FacoLuz.png'
 import logoluz from '../assets/Logo_LUZ.png'
-import validateNumber from "../functions/validateNumber"
 import FacoNumber from '../components/FacoNumber'
 
 const Login = () => {

@@ -396,6 +396,7 @@ const Enrollments = () => {
 
             {/* Barra de búsqueda */}
             <div className="searchBar" style={{ marginBottom: '24px', display: 'flex', gap: '8px' }}>
+                <Button onClick={() => setView("Enrollments")}>{`< Volver`}</Button>
                 <FacoNumber
                     placeholder="Buscar estudiante por cédula"
                     value={searchValue}
