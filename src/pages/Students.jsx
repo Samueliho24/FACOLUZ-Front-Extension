@@ -3,6 +3,7 @@ import { appContext } from "../context/appContext"
 import { Input, Button, List, Divider, message } from "antd"
 import { AddNewStudent, DeactivateStudentModal, UpdatePhoto, StudentDocsModal as Docs } from "../components/Modals"
 import { getStudents, filterStudents, deactivateStudent, getStudentCard } from "../client/client"
+import FacoNumber from "../components/FacoNumber"
 
 const Students = () => {
 
@@ -69,10 +70,10 @@ const Students = () => {
             <Divider className='PageTitle'><h1>Estudiantes</h1></Divider>
 			{contextHolder}
             <div className="searchBar">
-                <Input
+                <FacoNumber
                     placeholder="Buscar estudiante"
                     value={searchText}
-                    onChange={e => setSearchText(e.target.value)} />
+                    onChange={e => setSearchText(e)} />
                 <Button onClick={searchStudents}>Buscar</Button>
                 <Button onClick={() => setAddModal(true)}>Agregar</Button>
             </div>

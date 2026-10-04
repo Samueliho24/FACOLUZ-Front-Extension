@@ -5,6 +5,7 @@ import { routerContext } from "../context/routerContext";
 import { getCertificateList, filterStudents, saveCertificate } from '../client/client';
 import { PrinterOutlined } from '@ant-design/icons';
 import { getDate } from '../functions/formatDateTime';
+import FacoNumber from '../components/FacoNumber';
 
 const Enrollments = () => {
     const [open, setOpen] = useState(false);
@@ -13,13 +14,13 @@ const Enrollments = () => {
 
     const [showList, setShowList] = useState([])
     const [page, setPage] = useState(1)
+    const [searchInput, setSearchInput] = useState()
 
     useEffect(() => {
         getContent()
     }, [])
 
     async function getContent(){
-        const searchInput = document.getElementById("searchInput").value
         let res
         if(searchInput == ""){
             res = await getCertificateList()
@@ -53,7 +54,7 @@ const Enrollments = () => {
             {contextHolder}
 
             <div className="searchBar">
-                <Input placeholder="Ingrese cedula del estudiante" id="searchInput" />
+                <FacoNumber placeholder="Ingrese cedula del estudiante" value={searchInput} onChange={e => setSearchInput(e)} />
                 <Button onClick={() => getContent()}>Buscar</Button>
                 <Button>Emitir certificado</Button>
             </div>

@@ -9,6 +9,7 @@ import { getTime, getDate } from '../functions/formatDates'
 import { appContext } from '../context/appContext'
 import Pagination from "../components/Pagination"
 import { InfoForInvoice, MakePayment, CancelInvoice, NewInvoiceModal as NewInvoice } from '../components/Modals'
+import FacoNumber from '../components/FacoNumber'
 
 const ConsultarRegistros = () => {
     const {contextHolder, messageApi} = useContext(appContext)
@@ -75,10 +76,10 @@ const ConsultarRegistros = () => {
 			</div>
 			{contextHolder}
 			<div className='searchBar' >
-				<Input
+				<FacoNumber
 					placeholder='Ingrese cedula del estudiante'
 					value={searchParam}
-					onChange={e => setSearchParam(e.target.value)}/>
+					onChange={e => setSearchParam(e)}/>
 					<Button onClick={getContent}>Consultar</Button>
 			</div>
 			<div className='listContainer Content' >

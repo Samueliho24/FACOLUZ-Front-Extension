@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import { ConsoleSqlOutlined, DownloadOutlined } from "@ant-design/icons"
 import { currencyByName, isBs } from "../functions/determinarMoneda"
 import { validateName } from '../functions/validateName'
+import FacoNumber from './FacoNumber'
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -218,7 +219,7 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 			]}
 		>
 			<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-				<Input type='number' onBlur={(e) => {findUser(Number(e.target.value))}} onChange={(e) => setIdNumber(e.target.value)} placeholder='Numero de cedula' style={{width: '100%'}}/>
+				<FacoNumber value={idNumber} onBlur={(e) => {findUser(Number(e))}} onChange={(e) => setIdNumber(e)} placeholder='Numero de cedula' style={{width: '100%'}}/>
 				<Space.Compact style={{width: '100%'}}>
 					<Input className='testplaceholder' value={name} disabled={loading} onChange={(e) => setStudentName(e.target.value)} placeholder='Nombre' style={{width: '50%'}}/>
 					<Input value={lastname} disabled={loading} onChange={(e) => setStudentsLastname(e.target.value)} placeholder='Apellido' style={{width: '50%'}}/>
@@ -601,14 +602,14 @@ export const AddNewUserModal = ({open, onCancel, updateList}) => {
 			title='Agregar nuevo usuario'
 			open={open} 
 			closable={false}
-			destroyOnClose
+			destroyOnHidden
 			footer={[
 				<Button onClick={cleanForm} variant='link' color='danger'>Cancelar</Button>,
 				<Button disabled={loading || idNumber=='' || name=='' || lastname=='' || password == '' || confirmPassword==''} onClick={submitNewUser} variant='solid' color='primary'>Agregar</Button>
 			]}
 		>
 			<div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-					<Input type='number' onBlur={(e) => {findUser(Number(e.target.value))}} onChange={(e) => setIdNumber(e.target.value)} placeholder='Numero de cedula' style={{width: '100%'}}/>
+					<FacoNumber onBlur={(e) => {findUser(Number(e))}} onChange={(e) => setIdNumber(e)} placeholder='Numero de cedula' style={{width: '100%'}}/>
 				<Space.Compact style={{width: '100%'}}>
 					<Input disabled={loading} onChange={(e) => setUserName(e.target.value)} value={name} placeholder='Nombre' style={{width: '50%'}}/>
 					<Input disabled={loading} onChange={(e) => setUserLastname(e.target.value)} value={lastname} placeholder='Apellido' style={{width: '50%'}}/>
@@ -1632,11 +1633,10 @@ export const AddNewTeacher = ({open, onCancel, updateList}) => {
             ]}
         >
             <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-                <Input
+                <FacoNumber
                     placeholder='Numero de cedula'
                     value={identification}
-                    onChange={e => setIdentification(e.target.value)}
-                    type='number'
+                    onChange={e => setIdentification(e)}
                 />
                 <Input
                     placeholder='Nombre'
@@ -2149,7 +2149,7 @@ export const ModifyGradesModal = ({ open, onCancel, info }) => {
         >
             <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '85%' }}>
-                    <Input placeholder='Cédula' onChange={(e) => setStudentId(e.target.value)} value={studentId} />
+                    <FacoNumber placeholder='Cédula' onChange={(e) => setStudentId(e)} value={studentId} />
                     <Select
                         options={moduleList.map(item => ({ label: item.description, value: item.id }))}
                         onChange={(e) => {
@@ -2622,12 +2622,11 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 			{contextHolder}
 			<div className='listContainer Content' >
 				<div className='row'>
-					<Input
-						type='number'
+					<FacoNumber
 						style={{width: '100%'}}
 						value={studentIdentification}
 						prefix="Cedula del estudiante: "
-						onChange={e => setStudentIdentification(e.target.value)}
+						onChange={e => setStudentIdentification(e)}
 					/>
 				</div>
 
@@ -2638,12 +2637,11 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 						defaultValue={"Servicio a cancelar"}
 						value={selectedBillable}
 						onChange={e => setSelectedBillable(e)}/>
-					<Input
-						type='number' 
+					<FacoNumber
 						placeholder='Cantidad:'
 						className='rowItem'
 						value={quantity}
-						onChange={e => setQuantity(e.target.value)}
+						onChange={e => setQuantity(e)}
 						prefix="Cantidad: "/>
 				</div>
 

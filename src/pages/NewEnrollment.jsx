@@ -17,6 +17,7 @@ import {
     getActivePeriods,
     getEnrollmentCountBySection
 } from '../client/client';
+import FacoNumber from '../components/FacoNumber';
 
 const Enrollments = () => {
     const { messageApi, contextHolder } = useContext(appContext);
@@ -395,10 +396,10 @@ const Enrollments = () => {
 
             {/* Barra de búsqueda */}
             <div className="searchBar" style={{ marginBottom: '24px', display: 'flex', gap: '8px' }}>
-                <Input
+                <FacoNumber
                     placeholder="Buscar estudiante por cédula"
                     value={searchValue}
-                    onChange={(e) => setSearchValue(e.target.value)}
+                    onChange={(e) => setSearchValue(e)}
                     onPressEnter={searchStudent}
                 />
                 <Button type="primary" onClick={searchStudent} loading={loading}>Buscar</Button>
