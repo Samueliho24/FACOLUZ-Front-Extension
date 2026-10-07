@@ -97,8 +97,8 @@ export async function getCurrentPeriod(){
 	return await http.get('api/getCurrentPeriod', token, null)
 }
 
-export async function changeEndDatePeriod(data){
-	return await http.patch('api/changeEndDatePeriod', token, data)
+export async function updatePeriod(data){
+	return await http.patch('api/period', token, data)
 }
 
 export async function closePeriod(data){

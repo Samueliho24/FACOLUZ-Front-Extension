@@ -49,7 +49,7 @@ const Periodos = () => {
                             return (
                                 <List.Item className='listItem' key={item.id}>
                                     <div className="info">
-                                        <h3>{month} - {item.year} - {item.modality} - {item.state}</h3>
+                                        <h3>{month} - {item.year} - {item.modality} - {item.status}</h3>
                                     </div>
                                     <div className="buttons">
                                         <Tooltip title='Ver secciones'><Button variant='solid' color='primary' size='large' onClick={() => { setCurrentPeriodSection(item); setView('Section'); }} >Secciones</Button></Tooltip>

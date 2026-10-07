@@ -4,7 +4,7 @@ import { useState, useEffect, useContext, useMemo } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, changeEndDatePeriod, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores, getScoreByStudent,setUpdateScore, getGradeStudentsBySection} from '../client/client'
+import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, updatePeriod, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores, getScoreByStudent,setUpdateScore, getGradeStudentsBySection} from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime } from '../functions/formatDateTime'
@@ -12,6 +12,7 @@ import InputPhone from "../components/InputPhone"
 import InputGrade from './InputGrade'
 import TextArea from 'antd/es/input/TextArea'
 import { mergeDate } from '../functions/formatDateTime'
+import { getDate as getDateDate } from '../functions/formatDates'
 import dayjs from 'dayjs';
 import { ConsoleSqlOutlined, DownloadOutlined } from "@ant-design/icons"
 import { currencyByName, isBs } from "../functions/determinarMoneda"
@@ -947,6 +948,16 @@ export const OpenPeriodModal = ({open, period, onCancel, refreshPeriods}) => {
 	// Recibe el callback para actualizar la lista
 	
 	const submitChangeType = async () => {
+
+		const validation = validateDates(startDate, endDate);
+		if(validation){
+			messageApi.open({
+				type: "error",
+				content: "La decha de finalizacion no puede ser anterior a la fecha de inicio"
+			})
+			return
+		}
+
 		setLoading(true)
 		const data = {
 			year: year,
@@ -973,10 +984,20 @@ export const OpenPeriodModal = ({open, period, onCancel, refreshPeriods}) => {
 		}
 	}
 
-	
+	function validateDates(start, end){
+		let startDate = new Date(start)
+		let endDate = new Date(end)
+
+		if(endDate <= startDate){
+			return true
+		}else{
+			return false
+		}
+	}
+
 	return(
 		<Modal
-			destroyOnClose
+			destroyOnHidden
 			title='Gestion de periodo academico'
 			closable={false}
 			open={open}
@@ -985,7 +1006,7 @@ export const OpenPeriodModal = ({open, period, onCancel, refreshPeriods}) => {
 				<Button
 					type='primary'
 					onClick={submitChangeType}
-					disabled={loading}
+					disabled={loading || year == ''|| periodId == '' || modality == '' || startDate == '' || endDate == ''}
 				>Aceptar</Button>
 			]}
 		>
