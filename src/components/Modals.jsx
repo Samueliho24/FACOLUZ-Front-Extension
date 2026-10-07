@@ -7,17 +7,17 @@ import { encrypt } from '../functions/hash'
 import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, updatePeriod, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores, getScoreByStudent,setUpdateScore, getGradeStudentsBySection} from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
-import { getDate, getTime } from '../functions/formatDateTime'
+import { getDate, getTime, mergeDate } from '../functions/formatDateTime'
 import InputPhone from "../components/InputPhone"
 import InputGrade from './InputGrade'
 import TextArea from 'antd/es/input/TextArea'
-import { mergeDate } from '../functions/formatDateTime'
 import { getDate as getDateDate } from '../functions/formatDates'
 import dayjs from 'dayjs';
-import { ConsoleSqlOutlined, DownloadOutlined } from "@ant-design/icons"
+import { DownloadOutlined } from "@ant-design/icons"
 import { currencyByName, isBs } from "../functions/determinarMoneda"
 import { validateName } from '../functions/validateName'
 import FacoNumber from './FacoNumber'
+import validateEmail from "../functions/validateEmail"
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -175,6 +175,12 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 				type: 'error',
 				content: 'Debe ingresar todos los datos'
 			})
+		}else if(!validateEmail(email)){
+			messageApi.open({
+				type: "error",
+				content: "Correo electronico invalido"
+			})
+			return;
 		}else{
 			setLoading(true)
 			const data = {
@@ -202,7 +208,7 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 				setLoading(false)
 				messageApi.open({
 					type: 'error',
-					content: res.response.data
+					content: "ha ocurrido un error"
 				})
 			}
 		}
@@ -1622,7 +1628,13 @@ export const AddNewTeacher = ({open, onCancel, updateList}) => {
         if(!identification || !name || !lastname || !email || phone==''){
             messageApi.open({ type: 'error', content: 'Debe ingresar todos los datos' })
             return
-        }
+        }else if(!validateEmail(email)){
+			messageApi.open({
+				type: 'error',
+				content: "Correo electronico no valido."
+			})
+			return;
+		}
         setLoading(true)
         const data = {
             identification: Number(identification),
