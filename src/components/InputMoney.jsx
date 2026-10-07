@@ -1,22 +1,26 @@
 import { Input } from "antd";
 import React from "react"
 
-const FacoNumber = ({value, onChange, placeholder, disabled, style, prefix, onBlur, onPressEnter}) => {
-    
+const InputMoney = ({value, onChange, placeholder, disabled, style, prefix, onBlur, onPressEnter}) => {
+
     function validate(e){
         if(e == ""){
-            return false
+            return false;
         }
-        const regexp = new RegExp(/^[0-9]*$/);
-        if(regexp.test(e)){
-            return false
+
+        //Esta expresion buscar una cantidad indefinida de caracteres seguida de un punto opcional y seguido de entre 0 y 2 caracteres
+        const regex = new RegExp(/^[0-9]*\.?[0-9]{0,2}$/);
+        let test = regex.test(e);
+        
+        if(test){
+            return false;
         }else{
-            return true
+            return true;
         }
     }
 
     function correct(e){
-        let res;
+        let res = e
 
         if(e[0] == "-"){
             res = e.slice(1,e.length);
@@ -32,10 +36,12 @@ const FacoNumber = ({value, onChange, placeholder, disabled, style, prefix, onBl
         while(validate(res)){
             res = correct(res)
         }
-        res = Number(res);
+        if(res[res.length - 1]!="."){
+            res = Number(res);
+        }
         onChange(res);
     }
-    
+
     return(
         <Input
             value = {value}
@@ -50,4 +56,4 @@ const FacoNumber = ({value, onChange, placeholder, disabled, style, prefix, onBl
     )
 }
 
-export default FacoNumber;
+export default InputMoney;
