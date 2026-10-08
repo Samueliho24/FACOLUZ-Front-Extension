@@ -19,6 +19,7 @@ import { validateName } from '../functions/validateName'
 import FacoNumber from './FacoNumber'
 import validateEmail from "../functions/validateEmail"
 import InputMoney from "./InputMoney"
+import utc from "dayjs/plugin/utc"
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -1531,43 +1532,53 @@ export const EditPeriodModal = ({open, onCancel, period, refreshPeriods}) => {
     const { messageApi } = useContext(appContext);
     const [loading, setLoading] = useState(false);
     const [endDate, setEndDate] = useState(period?.endDate || '');
+	const [startDate, setStartDate] = useState(period?.startDate || '');
     const [changed, setChanged] = useState(false);
 
     useEffect(() => {
         setEndDate(period?.endDate || '');
+        setStartDate(period?.startDate || '');
         setChanged(false);
     }, [period, open]);
 
     if (!period) return null;
 
     // Detecta si la nueva fecha es diferente a la anterior y válida
-    const handleDateChange = (e) => {
-        const newDate = e ? e.format('YYYY-MM-DD') : '';
-        setEndDate(newDate);
-        setChanged(newDate && newDate !== period.endDate);
+    const handleDateChange = (start, end) => {
+		if(start == null){
+			const newDate = end ? end.format('YYYY-MM-DD') : '';
+			setEndDate(newDate);
+		}else{
+			const newDate = start ? start.format('YYYY-MM-DD') : '';
+			setStartDate(newDate);
+		}
+		setChanged(true);
     };
 
-    const handleChangeEndDate = async () => {
+    const handleSubmit = async () => {
         setLoading(true);
         try {
             const data = {
                 year: period.year,
                 period: period.period,
+				newStartDate: startDate,
                 newEndDate: endDate
             };
-            const res = await changeEndDatePeriod(data);
+            const res = await updatePeriod(data);
             if (res.status === 200) {
-                messageApi.success('Fecha de fin actualizada');
+                messageApi.success('periodo Actualizado');
                 onCancel();
                 refreshPeriods();
             } else {
-                messageApi.error('Error al actualizar la fecha de fin');
+                messageApi.error('Error al actualizar el periodo');
             }
         } catch (err) {
-            messageApi.error('Error al actualizar la fecha de fin');
+            messageApi.error('Error al actualizar el periodo');
         }
         setLoading(false);
     };
+
+	dayjs.extend(utc)
 
     return (
         <Modal
@@ -1577,7 +1588,7 @@ export const EditPeriodModal = ({open, onCancel, period, refreshPeriods}) => {
             destroyOnClose
             footer={[
                 <Button key="cancel" onClick={onCancel} variant='text' disabled={loading}>Cancelar</Button>,
-                <Button key="edit" onClick={handleChangeEndDate} variant='solid' color='primary' disabled={loading || !changed}>Aceptar</Button>
+                <Button key="edit" onClick={handleSubmit} variant='solid' color='primary' disabled={loading || !changed}>Aceptar</Button>
             ]}
         >
             <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
@@ -1585,11 +1596,20 @@ export const EditPeriodModal = ({open, onCancel, period, refreshPeriods}) => {
                 <p><strong>Año:</strong> {period.year}</p>
                 <p><strong>Fecha de inicio:</strong> {getDate(period.startDate)}</p>
                 <div>
+                    <strong>Fecha de inicio:</strong>
+                    <DatePicker
+                        format="DD-MM-YYYY"
+                        value={startDate ? dayjs.utc(startDate) : null}
+                        onChange={e => handleDateChange(e, null)}
+                        style={{width:'100%'}}
+                    />
+                </div>
+				<div>
                     <strong>Fecha de fin:</strong>
                     <DatePicker
                         format="DD-MM-YYYY"
-                        value={endDate ? dayjs(endDate) : null}
-                        onChange={handleDateChange}
+                        value={endDate ? dayjs.utc(endDate) : null}
+                        onChange={e => handleDateChange(null, e)}
                         style={{width:'100%'}}
                     />
                 </div>
