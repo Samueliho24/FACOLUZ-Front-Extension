@@ -1,7 +1,7 @@
 import { Input } from "antd";
 import React from "react"
 
-const InputMoney = ({value, onChange, placeholder, disabled, style, prefix, onBlur, onPressEnter}) => {
+const InputMoney = ({value, onChange, placeholder, disabled, style, prefix, onBlur, onPressEnter, suffix}) => {
 
     function validate(e){
         if(e == ""){
@@ -52,6 +52,7 @@ const InputMoney = ({value, onChange, placeholder, disabled, style, prefix, onBl
             prefix = {prefix ?? null}
             onBlur={onBlur ? (e => onBlur(e.target.value)) : null}
             onPressEnter={onPressEnter ?? null}
+            suffix = {suffix ?? null}
         />
     )
 }

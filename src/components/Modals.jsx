@@ -18,6 +18,7 @@ import { currencyByName, isBs } from "../functions/determinarMoneda"
 import { validateName } from '../functions/validateName'
 import FacoNumber from './FacoNumber'
 import validateEmail from "../functions/validateEmail"
+import InputMoney from "./InputMoney"
 
 export const LogoutModal = ({open, onCancel}) => {
 
@@ -1349,6 +1350,12 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 	const [paymentSuffix, setPaymentSuffix] = useState("Bs")
 	const [changeSuffix, setChangeSuffix] = useState("Bs")
 
+	//InputMoney y FacoNumber son componentes controlados
+	const [paymentAmount, setPaymenAmount] = useState("");
+	const [changeAmount, setChangeAmount] = useState("");
+	const [reference, setReference] = useState("");
+	const [returnReference, setReturnReference] = useState("");
+
 	useEffect(() => {
 		if(paymentMethod === 1 || paymentMethod === 2){
 			setPaymentSuffix("Bs")
@@ -1365,11 +1372,7 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 
 	async function submit(){
 
-		const paymentAmount = document.getElementById("paymentAmount").value
-		const changeAmount = document.getElementById("changeAmount").value
 		const comments = document.getElementById("comments").value
-		const reference = document.getElementById("reference").value
-		const returnReference = document.getElementById("returnReference").value
 
 		let paidAmount
 		if(paymentSuffix === "$"){
@@ -1434,19 +1437,19 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 						onChange={e => setPaymentMethod(e)}
 						defaultValue={"Efectivo"}
 					/>
-					<Input
-						type='number'
+					<InputMoney
+						value={paymentAmount}
+						onChange={e => setPaymenAmount(e)}
 						style={{width: "50%"}}
 						placeholder='monto:'
-						suffix={paymentSuffix}
-						id='paymentAmount'
+						prefix={paymentSuffix}
 					/>
 				</Space.Compact>
-				<Input 
-					type='number'
+				<FacoNumber
+					value={reference}
+					onChange={e => setReference(e)} 
 					style={{margin: '10px 0 10px 0'}}
 					placeholder='Referencia:'
-					id='reference'
 					disabled={paymentMethod !== 2}
 				/>
 				<div style={{width: '100%', display: 'flex', flexDirection: 'row'}}>
@@ -1461,19 +1464,19 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 						defaultValue={"Efectivo"}
 						onChange={e => setChangeMethod(e)}
 					/>
-					<Input
-						type='number'
+					<InputMoney
+						value={changeAmount}
+						onChange={e => setChangeAmount(e)}
 						style={{width: "50%"}}
 						placeholder='cambio'
-						suffix={changeSuffix}
-						id='changeAmount'
+						prefix={changeSuffix}
 					/>
 				</Space.Compact>
-				<Input 
-					type='number'
+				<FacoNumber
+					value={returnReference}
+					onChange={e => setReturnReference(e)}
 					style={{margin: '10px 0 10px 0'}}
 					placeholder='Referencia de cambio:'
-					id='returnReference'
 					disabled={changeMethod !== 2}
 				/>
 				<TextArea 
@@ -2647,9 +2650,10 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 			title="Emitir Factura"
 			open={open}
 			closable={false}
+			destroyOnHidden
 			footer={[
 				<Button color='blue' onClick={submitIssueInvoice} type='primary'>Emitir Factura</Button>,
-				<Button color='red' onClick={onCancel}>Cerrar</Button>
+				<Button color='red' onClick={() => {onCancel(); resetForm()}}>Cerrar</Button>
 			]}
 		>
 			{contextHolder}
@@ -2679,14 +2683,13 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 				</div>
 
 				<div className='row'>
-					<Input
-						type='number'
+					<InputMoney
 						style={{width: '100%'}}
 						className='rowItem'
 						value={chargedAmount}
 						prefix="Monto a facturar: Bs. "
 						suffix={` ($${(Number(chargedAmount) / dolarPrice).toFixed(2)})`}
-						onChange={e => setChargedAmount(Number(e.target.value))}
+						onChange={e => setChargedAmount(e)}
 					/>
 				</div>
 				<div className='row'>
