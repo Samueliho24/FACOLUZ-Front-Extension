@@ -184,15 +184,18 @@ const Enrollments = () => {
     // ============================================
     // CONTADOR DE INSCRITOS POR SECCION
     // ============================================
-    const loadEnrollmentCount = async (sectionId) => {
+    async function loadEnrollmentCount(sectionId){
+        let response = 0;
         if (!sectionId) {
             setEnrollmentCount(0);
             return;
         }
         const res = await getEnrollmentCountBySection(sectionId);
         if (res.status === 200) {
-            setEnrollmentCount(res.data.count || 0);
+            response = res.data.count
         }
+        setEnrollmentCount(response);
+        return response
     };
 
     // ============================================
@@ -253,10 +256,17 @@ const Enrollments = () => {
         }
     };
 
-    const handleSectionChange = (sectionId) => {
+    const handleSectionChange = async (sectionId) => {
         setSelectedSection(sectionId);
-        loadEnrollmentCount(sectionId);
+        let count = await loadEnrollmentCount(sectionId);
         validateEnrollment(selectedModule, sectionId);
+        console.log(sectionList.find(s => s.id === sectionId).quota)
+        console.log(enrollmentCount)
+        if(sectionList.find(s => s.id === sectionId).quota <= count){
+            setCanEnroll(false)
+        }else{
+            setCanEnroll(true)
+        }
     };
 
     const validateEnrollment = (moduleId, sectionId) => {
@@ -336,7 +346,7 @@ const Enrollments = () => {
             messageApi.success("Inscripción realizada con éxito");
             setView('Enrollments');
         } else {
-            messageApi.error(res.response?.data || "Error al inscribir");
+            messageApi.error("Error al inscribir");
         }
     };
 
