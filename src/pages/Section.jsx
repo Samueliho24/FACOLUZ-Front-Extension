@@ -19,7 +19,7 @@ const Sections = () => {
     const [closeModalOpen, setCloseModalOpen] = useState(false)
     const [sectionToClose, setSectionToClose] = useState(null)
     const [studentsModal, setStudentsModal] = useState(false)
-    const {view, setView} = useContext(routerContext)
+    const {setView} = useContext(routerContext)
     
     // Función para refrescar la lista de secciones
     const refreshSections = async () => {
@@ -85,7 +85,7 @@ const Sections = () => {
                                                 onClick={() => { setSection(item.id); setStudentsModal(true); }}
                                             >Alumnos</Button>
                                         </Tooltip>
-                                        {!(currentPeriodSection && currentPeriodSection.status === 'Finalizado') && item.status !== 'Finalizado' && (
+                                        {item.status !== 'Cerrada' && (
                                             <Tooltip title='Cerrar sección'>
                                                 <Button variant='solid' color='primary' size='large' onClick={() => { setSectionToClose(item); setCloseModalOpen(true); }}>Cerrar</Button>
                                             </Tooltip>

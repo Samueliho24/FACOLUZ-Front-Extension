@@ -29,8 +29,6 @@ const Router = () => {
         switch(view){
             case "Login": return <Login />
             case "Home": return <Home />
-            case "EmitirFactura": return <EmitirFactura />
-            case "VerificarFactura": return <VerificarFactura/>
             case "ConsultarRegistros": return <ConsultarRegistros />
             case "Configuracion": return <Configuracion />
             case "ModuleEnrollment": return <ModuleEnrollment />
