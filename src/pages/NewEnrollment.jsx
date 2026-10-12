@@ -79,6 +79,11 @@ const Enrollments = () => {
             if (res.status === 200 && res.data && res.data.length > 0) {
                 // ESTUDIANTE CON HISTORIAL
                 const lastData = res.data[0];
+                if(res.data[0].status == "Inactivo"){
+                    messageApi.error("Este estudiante se encuentra desactivado.");
+                    setLoading(false);
+                    return;
+                }
                 setStudent({
                     id: lastData.studentId,
                     name: lastData.name,
@@ -127,6 +132,11 @@ const Enrollments = () => {
                 // ESTUDIANTE NUEVO (sin inscripciones previas)
                 const res2 = await getStudentById(searchValue);
                 if (res2.status === 200) {
+                    if(res2.data[0].status == "Inactivo"){
+                        messageApi.error("Este estudiante se encuentra desactivado.");
+                        setLoading(false);
+                        return;
+                    }
                     const dataFinal = Array.isArray(res2.data) ? res2.data[0] : res2.data;
                     setStudent(dataFinal);
                     setStudentType('new');
