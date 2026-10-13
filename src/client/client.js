@@ -247,6 +247,10 @@ export async function getCertificateList(){
 	return await http.get("api/certificateList", token, null)
 }
 
+export async function getCertificatesByStudent(studentId){
+	return await http.get("api/certificateList", token, studentId)
+}
+
 export async function makePayment(data){
 	return await http.post("api/payments", token, data)
 }

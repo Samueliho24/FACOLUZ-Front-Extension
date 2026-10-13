@@ -2,7 +2,7 @@ import React, { useContext,useEffect,useState } from 'react';
 import { Button, Divider, Input, List, Tooltip } from "antd";
 import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
-import { getCertificateList, filterStudents, saveCertificate } from '../client/client';
+import { getCertificateList, getCertificatesByStudent, saveCertificate } from '../client/client';
 import { PrinterOutlined } from '@ant-design/icons';
 import { getDate } from '../functions/formatDateTime';
 import FacoNumber from '../components/FacoNumber';
@@ -14,7 +14,7 @@ const Enrollments = () => {
 
     const [showList, setShowList] = useState([])
     const [page, setPage] = useState(1)
-    const [searchInput, setSearchInput] = useState()
+    const [searchInput, setSearchInput] = useState(null)
 
     useEffect(() => {
         getContent()
@@ -22,13 +22,20 @@ const Enrollments = () => {
 
     async function getContent(){
         let res
-        if(searchInput == ""){
+        if((searchInput == null) || (searchInput == 0)){
             res = await getCertificateList()
-            console.log(res)
         }else{
-            res = await filterStudents(searchInput)
+            res = await getCertificatesByStudent(searchInput)
         }
-        setShowList(res.data)
+        if(res.status === 200){
+            if(res.data.length == 0){
+                messageApi.error("no se han encontrado certificados asociados a esta identificacion")
+            }else{
+                setShowList(res.data)
+            }
+        }else{
+            messageApi.error("ha ocurrido un error.")
+        }
     }
 
     const callSaveCertificate = async(certificate) => {
