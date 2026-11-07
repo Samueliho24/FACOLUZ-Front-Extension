@@ -251,7 +251,8 @@ export async function getCertificateList(){
 
 // Obtener certificados de un estudiante
 export async function getCertificatesByStudent(studentId){
-	return await http.get(`certificate/student/${studentId}}`, token, null)
+	console.log(studentId)
+	return await http.get(`certificate/student/${studentId}`, token, null)
 }
 
 // Realizar pago nuevo
