@@ -1,4 +1,4 @@
-import { getAllInvoices, getDailyReport, getInvoicesById } from '../client/client'
+import { getAllInvoices, getDailyReport, searchInvoicesByStudentId } from '../client/client'
 import { useContext, useEffect, useState } from 'react'
 import { searchOnList } from '../context/lists'
 import * as lists from '../context/lists'
@@ -30,7 +30,7 @@ const ConsultarRegistros = () => {
     const getContent = async() => {
 		let res
 		if(searchParam != ""){
-			res = await getInvoicesById(searchParam, page)
+			res = await searchInvoicesByStudentId(searchParam, page)
 		}else{
 			res = await getAllInvoices(page)
 		}
@@ -87,7 +87,7 @@ const ConsultarRegistros = () => {
 					{ showList && showList.map(item => (
 						<List.Item className='listItem'>
 							<div className='info'>
-								<h4>{`${getDate(item.date)} -- ${getTime(item.date)} -- ${item.name} ${item.lastname}(${item.studentsIdentification}) -- ${item.status}`}</h4>
+								<h4>{`${getDate(item.date)} -- ${getTime(item.date)} -- ${item.name} ${item.lastname}(${item.studentIdentification}) -- ${item.status}`}</h4>
 							</div>
 							<div className='buttons'>
 								<Button 

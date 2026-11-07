@@ -98,7 +98,7 @@ const Modules = () => {
                 onCancel={() => { setDesactivateModalOpen(false); setSelectedModule(null) }}
                 module={selectedModule}
                 action={async (id) => {
-                    const res = await deactivateModule({ moduleId: id })
+                    const res = await deactivateModule(id)
                     if(res.status == 200){
                         setDesactivateModalOpen(false)
                         setSelectedModule(null)

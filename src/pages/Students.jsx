@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react"
 import { appContext } from "../context/appContext" 
 import { Input, Button, List, Divider, message } from "antd"
 import { AddNewStudent, DeactivateStudentModal, UpdatePhoto, StudentDocsModal as Docs } from "../components/Modals"
-import { getStudents, filterStudents, deactivateStudent, getStudentCard } from "../client/client"
+import { getStudents, filterStudents, deactivateStudent, printStudentCard } from "../client/client"
 import FacoNumber from "../components/FacoNumber"
 
 const Students = () => {
@@ -45,7 +45,7 @@ const Students = () => {
     }
 
     async function print(e){
-        const res = await getStudentCard(e.id)
+        const res = await printStudentCard(e.id)
         if(res.status === 200){
             const fileName = `Carnet de ${e.name} ${e.lastname} (${e.studentsIdentification}).pdf`
             window.api.saveFile(res.data, fileName)

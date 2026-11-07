@@ -1,10 +1,9 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Button, Divider, Input, List, Tooltip } from "antd";
-import { getSections, getSectionByModule, getStudentsInSection } from "../client/client";
+import { getSectionByModule } from "../client/client";
 import { appContext } from "../context/appContext";
 import { routerContext } from "../context/routerContext";
 import { monthNames } from "../context/lists";
-import { getDate } from "../functions/formatDateTime";
 import { StudentListOfSectionModal } from '../components/Modals'
 
 const SectionEnrollment = () => {

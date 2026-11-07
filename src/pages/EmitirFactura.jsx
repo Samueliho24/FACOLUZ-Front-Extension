@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { Input, Button, Divider, Select, InputNumber } from 'antd'
-import { issueInvoice, getStudentById, getIdInvoice, getDolarPrice } from '../client/client'
+import { issueInvoice, getStudentById, getDolarPrice } from '../client/client'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import TextArea from 'antd/es/input/TextArea'

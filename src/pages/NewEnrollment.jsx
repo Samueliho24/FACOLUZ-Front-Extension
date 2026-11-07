@@ -5,7 +5,7 @@ import { routerContext } from "../context/routerContext";
 import { AddNewStudent } from '../components/Modals';
 import { monthNames } from '../context/lists';
 import {
-    getStudentById,
+    filterStudents,
     getLastEnrollmentByStudentId,
     registerEnrollment,
     getSectionByModule,
@@ -130,7 +130,7 @@ const Enrollments = () => {
 
             } else {
                 // ESTUDIANTE NUEVO (sin inscripciones previas)
-                const res2 = await getStudentById(searchValue);
+                const res2 = await filterStudents(searchValue);
                 if (res2.status === 200) {
                     if(res2.data[0].status == "Inactivo"){
                         messageApi.error("Este estudiante se encuentra desactivado.");

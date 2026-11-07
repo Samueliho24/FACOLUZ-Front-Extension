@@ -4,8 +4,6 @@ import ErrorPage from '../pages/ErrorPage'
 import ConsultarRegistros from '../pages/ConsultarRegistros'
 import Home from '../pages/Home'
 import Login from '../pages/Login'
-import EmitirFactura from '../pages/EmitirFactura'
-import VerificarFactura from '../pages/VerificarFactura'
 import Configuracion from '../pages/Configuracion'
 import Estudiantes from '../pages/Students'
 import Modulos from "../pages/Modulos"

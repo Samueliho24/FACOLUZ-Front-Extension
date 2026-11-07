@@ -4,7 +4,7 @@ import { useState, useEffect, useContext, useMemo } from 'react'
 import { appContext } from '../context/appContext'
 import * as lists from '../context/lists'
 import { encrypt } from '../functions/hash'
-import { verifyInvoice, deleteUser, createStudent, changePassword, changeUserType ,openPeriod, closePeriod, updatePeriod, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores, getScoreByStudent,setUpdateScore, getGradeStudentsBySection} from '../client/client'
+import { deleteUser, registerStudents, changePassword, changeUserType ,openPeriod, closePeriod, updatePeriod, createNewModule, getAllModules, getAssignedModules, updateAssignedModules, getPaymentsForInvoice, makePayment, getDolarPrice, updatePhoto,createTeacher, deactivateTeacher, deactivateStudent, getStudentsInSection, getActivePeriods, setLoadScores, getScoreByStudent} from '../client/client'
 import React from 'react'
 import { routerContext } from '../context/routerContext'
 import { getDate, getTime, mergeDate } from '../functions/formatDateTime'
@@ -394,7 +394,7 @@ export const ChangePasswordModal = ({open, onCancel, info}) => {
 		}else{
 			const data = {
 				userId: info.id,
-				newPassword: await encrypt(newPassword)
+				newPassword: newPassword
 			}
 			let res = await changePassword(data)
 			if(res.status == 200){
@@ -676,8 +676,8 @@ export const EditCourse = ({open, onCancel, selectedCourse}) => {
 
 	async function submitModules(){
 		const moduleIds = showList.map(i => i.moduleid)
-		const data = { courseId: selectedCourse, moduleIds }
-		const res = await updateAssignedModules(data)
+		const data = { moduleIds: moduleIds }
+		const res = await updateAssignedModules(selectedCourse, data)
 		if(res.status == 200){
 			messageApi.open({type: 'success', content: 'Módulos actualizados'})
 			// refresh from server to get ids, etc.
@@ -689,10 +689,7 @@ export const EditCourse = ({open, onCancel, selectedCourse}) => {
 	}
 
 	async function getModulesForCourse(){
-		const data = {
-			courseId: selectedCourse
-		}
-		const res = await getAssignedModules(data)
+		const res = await getAssignedModules(selectedCourse)
 		if(res.status == 200){
 			setShowList(res.data)
 		}
@@ -2085,11 +2082,7 @@ export const ModifyGradesModal = ({ open, onCancel, info }) => {
 
     async function searchGrade() {
         setLoading(true)
-        const data = {
-            studentIdentification: studentId,
-            moduleId: moduleSelected
-        }
-        const res = await getScoreByStudent(data)
+        const res = await getScoreByStudent(moduleSelected, studentId)
         if (res.status === 200 && res.data.length > 0) {
             const data = res.data[0]
             setStudent({
