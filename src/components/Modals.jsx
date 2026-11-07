@@ -196,7 +196,7 @@ export const AddNewStudent = ({open, onCancel, updateList}) => {
 				instructionGrade: instructionGrade
 			}
 
-			const res = await createStudent(data)
+			const res = await registerStudents(data)
 			if(res.status == 200){
 				setLoading(false)
 				messageApi.open({

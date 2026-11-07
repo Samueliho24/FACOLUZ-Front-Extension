@@ -83,7 +83,7 @@ const Students = () => {
                     {showList.map((item) => (
                         <List.Item className='listItem' key={item.id}>
                             <div className="info">
-                                <h4>{item.studentsIdentification} - {item.name} {item.lastname}</h4>
+                                <h4>{item.studentIdentification} - {item.name} {item.lastname}</h4>
                             </div>
 
                             <div className="buttons">
