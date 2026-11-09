@@ -57,14 +57,8 @@ const ConsultarRegistros = () => {
 		}
 	}
 
-	const updateList = (newStatus) => {
+	const updateList = () => {
 		getContent()
-
-		// const list = showList
-		// const i = showList.findIndex((i) => i.id == selectedItem.id)
-		// console.log({Position: i, item: list[i], id: selectedItem.id})
-		// list[i].status = newStatus
-		// setShowList(list)
 	}
 
     return(
@@ -142,7 +136,7 @@ const ConsultarRegistros = () => {
 				Invoice={selectedItem}
 				open={makePaymentModal}
 				onCancel={() => setMakePaymentModal(false)}
-				updateList={(e) => updateList(e)}
+				updateList={() => updateList()}
 			/>
 
 			<CancelInvoice 

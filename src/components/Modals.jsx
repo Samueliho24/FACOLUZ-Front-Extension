@@ -1381,7 +1381,7 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 
 		const data = {
 			InvoiceId: Invoice.id,
-			paidAmount: Number(paidAmount).toFixed(2),
+			paidAmount: Number(paidAmount),
 			receivedPaymentMethod: paymentMethod,
 			reference: reference !== "" ? reference : null,
 			returnedAmount: changeAmount == "" ? null : Number(changeAmount).toFixed(2),
@@ -1404,20 +1404,28 @@ export const MakePayment = ({open, onCancel, Invoice, updateList}) => {
 			}else if(res.status === 200){
 				updateList('Pagado')
 			}
-			onCancel()
+			closeAction()
 		}else{
 			messageApi.open({
 				type: 'error',
 				content: 'ha ocurrido un error al registar el pago'
 			})
-			onCancel()
+			closeAction()
 		}
+	}
+
+	const closeAction = () => {
+		setPaymenAmount(0)
+		setChangeAmount(0)
+		setReference("")
+		setReturnReference('')
+		onCancel()
 	}
 
 	return (
 		<Modal
 			open={open}
-			onCancel={() => onCancel()}
+			onCancel={() => closeAction()}
 			destroyOnHidden
 			title="Realizar pago"
 			onOk={() => submit()}
