@@ -8,7 +8,7 @@ import { InfoCircleOutlined, DiffOutlined, StopOutlined } from '@ant-design/icon
 import { getTime, getDate } from '../functions/formatDates'
 import { appContext } from '../context/appContext'
 import Pagination from "../components/Pagination"
-import { InfoForInvoice, MakePayment, CancelInvoice, NewInvoiceModal as NewInvoice } from '../components/Modals'
+import { InfoForInvoice, MakePayment, CancelInvoice, NewInvoiceModal as NewInvoice, AddNewStudent } from '../components/Modals'
 import FacoNumber from '../components/FacoNumber'
 
 const ConsultarRegistros = () => {

@@ -109,14 +109,14 @@ export const GenerateReportModal = ({open, onCancel}) => {
 	)
 }
 
-export const AddNewStudent = ({open, onCancel, updateList}) => {
+export const AddNewStudent = ({open, onCancel, updateList, defaultIdentification}) => {
 
 	//Control de la UI
 	const {messageApi} = useContext(appContext)
 	const [loading, setLoading] = useState(false)
 
 	//Control de los campos
-	const [idNumber, setIdNumber] = useState('')
+	const [idNumber, setIdNumber] = useState(defaultIdentification ?? "")
 	const [name, setName] = useState('')
 	const [lastname, setLastname] = useState('')
 	const [birthDate, setBirthDate] = useState("")
@@ -2600,6 +2600,7 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 	const [chargedAmount, setChargedAmount] = useState(0)
 	const [chargedDolar, setChargedDolar] = useState(0)
 	const [comment, setComment] = useState("")
+	const [newStudentModal, setNewStudentModal] = useState(false)
 	
 	useEffect(() => {
 		calculateTotal();
@@ -2613,7 +2614,6 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 			})
 		}else{
 			let billable = prices.find(x => x.name === selectedBillable)
-			console.log(billable)
 			const data = {
 				studentIdentification: studentIdentification,
 				billableid: billable.id,
@@ -2632,6 +2632,12 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 				resetForm()
 				updateList()
 				onCancel()
+			}else if(res.status == 404){
+				messageApi.open({
+					type: 'error',
+					content: res.response.data
+				})
+				setNewStudentModal(true)
 			}else{
 				messageApi.open({
 					type: 'error',
@@ -2659,11 +2665,6 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 		}
 		setChargedAmount(bsPrice.toFixed(2))
 	}
-
-	// useEffect(() => {
-	// 	const res = (Number(chargedAmount) / dolarPrice).toFixed(2)
-	// 	setChargedDolar(res)
-	// }, [chargedAmount])
 
 	return(
 		<Modal 
@@ -2721,6 +2722,12 @@ export const NewInvoiceModal = ({open, onCancel, updateList}) => {
 						onChange={e => setComment(e.target.value)}/>
 				</div>
 			</div>	
+			<AddNewStudent 
+				open={newStudentModal}
+				onCancel={() => setNewStudentModal(false)}
+				updateList={() => {return}}
+				defaultIdentification={studentIdentification}
+			/>
 		</Modal>
 	)
 }
