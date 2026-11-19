@@ -91,7 +91,7 @@ export async function openPeriod(data){
 
 //Obtener lista de periodos
 export async function getPeriods(){
-	return await http.get(`periods`, token, null)
+	return await http.get(`period`, token, null)
 }
 
 //Obtener periodo actual
@@ -332,12 +332,13 @@ export async function createStudentCohort(data) {
 }
 
 export async function getSectionByModule(moduleId, sectionCode, periodId) {
-    const params = new URLSearchParams();
-	console.log(moduleId, sectionCode, periodId)
-    if (sectionCode) params.append('sectionCode', sectionCode);
-    if (periodId) params.append('periodId', periodId);
-	const queryString = params.toString();
-    return await http.get(`api/getSectionByModule/${moduleId}${queryString ? `?${queryString}` : ''}`, token, null);
+    // const params = new URLSearchParams();
+	// console.log(moduleId, sectionCode, periodId)
+    // if (sectionCode) params.append('sectionCode', sectionCode);
+    // if (periodId) params.append('periodId', periodId);
+	// const queryString = params.toString();
+    // return await http.get(`api/getSectionByModule/${moduleId}${queryString ? `?${queryString}` : ''}`, token, null);
+	return await http.get(`module/${moduleId}/sections`, token, null)
 }
 
 export async function getEnrollmentCountBySection(sectionId) {

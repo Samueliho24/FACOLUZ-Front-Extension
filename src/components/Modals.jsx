@@ -1599,7 +1599,7 @@ export const EditPeriodModal = ({open, onCancel, period, refreshPeriods}) => {
             <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
                 <p><strong>Periodo:</strong> {period.period}</p>
                 <p><strong>Año:</strong> {period.year}</p>
-                <p><strong>Fecha de inicio:</strong> {getDate(period.startDate)}</p>
+                <p><strong>Fecha de inicio:</strong> {getDate(Date.UTC(period.startDate))}</p>
                 <div>
                     <strong>Fecha de inicio:</strong>
                     <DatePicker
@@ -1791,7 +1791,7 @@ export const StudentListOfSectionModal = ({open, onCancel, sectionId}) => {
             title='Estudiantes inscritos en la sección'
             open={open}
             closable={false}
-            destroyOnClose
+            destroyOnHidden
             footer={[
 				<Button onClick={() => downloadPDF(listData)} variant='solid' color='primary' disabled={loading}>Generar lista</Button>,
                 <Button onClick={onCancel} variant='text' color='primary' disabled={loading}>Cerrar</Button>,
