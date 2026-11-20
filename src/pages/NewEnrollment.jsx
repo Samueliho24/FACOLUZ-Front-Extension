@@ -538,10 +538,10 @@ const Enrollments = () => {
                                             <span>
                                                 <strong>Inscritos:</strong> {enrollmentCount}
                                             </span>
-                                            {sectionList.find(s => s.id === selectedSection)?.quota && (
-                                                <span style={{ color: enrollmentCount >= sectionList.find(s => s.id === selectedSection).quota ? '#ff4d4f' : '#52c41a' }}>
-                                                    <strong>Cupo:</strong> {sectionList.find(s => s.id === selectedSection).quota} 
-                                                    {' '}(Disponible: {Math.max(0, sectionList.find(s => s.id === selectedSection).quota - enrollmentCount)})
+                                            {sectionList.find(s => s.sectionId === selectedSection)?.quota && (
+                                                <span style={{ color: enrollmentCount >= sectionList.find(s => s.sectionId === selectedSection).quota ? '#ff4d4f' : '#52c41a' }}>
+                                                    <strong>Cupo:</strong> {sectionList.find(s => s.sectionId === selectedSection).quota} 
+                                                    {' '}(Disponible: {Math.max(0, sectionList.find(s => s.sectionId === selectedSection).quota - enrollmentCount)})
                                                 </span>
                                             )}
                                         </div>

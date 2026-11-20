@@ -49,11 +49,11 @@ const SectionEnrollment = () => {
                             return (
                                 <List.Item className='listItem' key={item.id}>
                                     <div className="info">
-                                        <h3>Periodo {month}-{item.year} - Seccion {item.code} - 0/{item.quota}</h3>
+                                        <h3>Periodo {month}-{item.year} - Seccion {item.code} - {item.count}/{item.quota}</h3>
                                     </div>
                                     <div className="buttons">
                                         <Tooltip title='Ver alumnos'>
-                                            <Button variant='solid' color='primary' size='large' onClick={() => handlerStudentsList(item.id)} >Alumnos</Button>
+                                            <Button variant='solid' color='primary' size='large' onClick={() => handlerStudentsList(item.sectionId)} >Alumnos</Button>
                                         </Tooltip>
                                     </div>
                                 </List.Item>

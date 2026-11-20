@@ -1780,7 +1780,7 @@ export const StudentListOfSectionModal = ({open, onCancel, sectionId}) => {
 
     const listData = students.map(student => ({
         title: `${student.name} ${student.lastname}`,
-        description: `Cedula: ${student.studentsIdentification}`,
+        description: `Cedula: ${student.studentIdentification}`,
 		date: `${getDate(student.dateEnrollment)}`,
 		status: `${student.status}`,
         key: student.id
@@ -1989,7 +1989,7 @@ export const LoadGradesModal = ({ open, onCancel }) => {
 
     const listData = students.map(student => ({
         title: `${student.name} ${student.lastname}`,
-        description: `Cédula: ${student.studentsIdentification}`,
+        description: `Cédula: ${student.studentIdentification}`,
         date: `${getDate(student.dateEnrollment)}`,
         status: `${student.status}`,
         key: `${student.id}`,

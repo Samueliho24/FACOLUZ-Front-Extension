@@ -302,7 +302,7 @@ export async function getDocument(docId){
 
 // Subir notas al sistema
 export async function setLoadScores(data) {
-	return await http.post('', token, data)
+	return await http.post('score/', token, data)
 }
 
 // Obtener notas de un estudiante para una materia determinada
