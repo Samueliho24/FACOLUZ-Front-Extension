@@ -21,7 +21,6 @@ const Periodos = () => {
     // Función para refrescar la lista de periodos
     const refreshPeriods = async () => {
         const res = await getPeriods()
-        console.log(res)
         if(res.status == 200){
             setShowList(res.data)
         }
