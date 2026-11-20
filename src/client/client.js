@@ -114,6 +114,11 @@ export async function getActivePeriods(){
 	return await http.get('period/active', token, null)
 }
 
+//Obtener calificaciones para una seccion de un periodo determinado
+export async function getSectionScores(periodId, sectionCode){
+	return await http.get(`period/${periodId}/section/${sectionCode}/scores`, token, null);
+}
+
 // Crear seccion nueva
 export async function openSection(data){
 	return await http.post('section/open', token, data)
@@ -322,13 +327,12 @@ export async function getApprovedModulesByStudent(studentId, courseId) {
 
 // Obtener historial de inscripciones para un estudiante
 export async function getEnrollmentHistory(studentId) {
-	console.log(studentId)
     return await http.get(`student/${studentId}/history`, token, null);
 }
 
 
 export async function createStudentCohort(data) {
-    return await http.post('api/createCohort', token, data);
+    return await http.post('student/cohort', token, data);
 }
 
 export async function getSectionByModule(moduleId, sectionCode, periodId) {
@@ -342,9 +346,8 @@ export async function getSectionByModule(moduleId, sectionCode, periodId) {
 }
 
 export async function getEnrollmentCountBySection(sectionId) {
-    return await http.get(`api/getEnrollmentCount/${sectionId}`, token, null);
+    return await http.get(`section/${sectionId}/count`, token, null);
 }
-
 
 // Pendientes
 

@@ -88,7 +88,7 @@ const Enrollments = () => {
                     id: lastData.studentId,
                     name: lastData.name,
                     lastname: lastData.lastname,
-                    studentsIdentification: lastData.studentsIdentification,
+                    studentIdentification: lastData.studentIdentification,
                     email: lastData.email,
                     phone: lastData.phone,
                     photo: lastData.photo,
@@ -127,8 +127,7 @@ const Enrollments = () => {
                     setModuleList(modulesRes.data);
                     determineDefaultModule(modulesRes.data, lastData, approvedRes.data || []);
                 }
-
-            } else {
+            } else{
                 // ESTUDIANTE NUEVO (sin inscripciones previas)
                 const res2 = await filterStudents(searchValue);
                 if (res2.status === 200) {
@@ -159,20 +158,20 @@ const Enrollments = () => {
         const sortedModules = [...modules].sort((a, b) => a.order - b.order);
         if (lastData.gradeStatus === 'Reprobado') {
             // REPITIENTE: por defecto el módulo reprobado
-            const failedModule = sortedModules.find(m => m.id === lastData.moduleId);
+            const failedModule = sortedModules.find(m => m.moduleid === lastData.moduleId);
             if (failedModule) {
                 setSelectedModule(lastData.moduleId);
                 loadSections(lastData.moduleId, lastData.sectionCode, lastData.periodId);
             }
         } else {
             // REGULAR: siguiente módulo en la secuencia
-            const currentModuleIndex = sortedModules.findIndex(m => m.id === lastData.moduleId);
+            const currentModuleIndex = sortedModules.findIndex(m => m.moduleid === lastData.moduleId);
             const nextModule = sortedModules[currentModuleIndex + 1];
             
             if (nextModule) {
-                setSelectedModule(nextModule.id);
+                setSelectedModule(nextModule.moduleid);
                 // Para regulares, auto-seleccionar sección con mismo código en periodo actual
-                loadSections(nextModule.id, lastData.sectionCode, lastData.periodId);
+                loadSections(nextModule.moduleid, lastData.sectionCode, lastData.periodId);
             } else {
                 // Último módulo completado
                 messageApi.info('El estudiante ha completado todos los módulos del curso');
@@ -270,9 +269,7 @@ const Enrollments = () => {
         setSelectedSection(sectionId);
         let count = await loadEnrollmentCount(sectionId);
         validateEnrollment(selectedModule, sectionId);
-        console.log(sectionList.find(s => s.id === sectionId).quota)
-        console.log(enrollmentCount)
-        if(sectionList.find(s => s.id === sectionId).quota <= count){
+        if(sectionList.find(s => s.sectionId === sectionId).quota <= count){
             setCanEnroll(false)
         }else{
             setCanEnroll(true)
@@ -299,6 +296,7 @@ const Enrollments = () => {
 
     const Enrollment = async () => {
         if (!student || !selectedModule || !selectedSection) return;
+        setLoading(true)
 
         let cohortId = cohort?.id;
         let enrollmentType = 'Regular';
@@ -308,6 +306,7 @@ const Enrollments = () => {
         if (studentType === 'new') {
             if (!selectedPeriod) {
                 messageApi.error('Debe seleccionar un periodo');
+                setLoading(false)
                 return;
             }
             // Obtener courseId del módulo seleccionado
@@ -316,19 +315,22 @@ const Enrollments = () => {
             
             if (!courseId) {
                 messageApi.error('No se pudo determinar el curso del módulo');
+                setLoading(false)
                 return;
             }
 
-            const sectionData = sectionList.find(s => s.id === selectedSection);
-            const cohortRes = await createStudentCohort({
+            const sectionData = sectionList.find(s => s.sectionId === selectedSection);
+            const cohortData = {
                 studentId: student.id,
                 periodId: selectedPeriod,
                 sectionCode: sectionData?.code,
                 courseId: courseId
-            });
+            }
+            const cohortRes = await createStudentCohort(cohortData);
 
             if (cohortRes.status !== 200) {
                 messageApi.error('Error al crear la cohorte del estudiante');
+                setLoading(false)
                 return;
             }
             cohortId = cohortRes.data.cohortId;
@@ -348,9 +350,7 @@ const Enrollments = () => {
             parentEnrollmentId
         };
 
-        setLoading(true);
         const res = await registerEnrollment(data);
-        setLoading(false);
 
         if (res.status === 200) {
             messageApi.success("Inscripción realizada con éxito");
@@ -358,6 +358,7 @@ const Enrollments = () => {
         } else {
             messageApi.error("Error al inscribir");
         }
+        setLoading(false);
     };
 
     // ============================================
@@ -448,7 +449,7 @@ const Enrollments = () => {
                             <Row gutter={[24, 0]}>
                                 <Col span={8}><Field label="Nombre" value={student.name} /></Col>
                                 <Col span={8}><Field label="Apellido" value={student.lastname} /></Col>
-                                <Col span={8}><Field label="Cédula" value={student.studentsIdentification} /></Col>
+                                <Col span={8}><Field label="Cédula" value={student.studentIdentification} /></Col>
                                 <Col span={8}><Field label="Email" value={student.email} /></Col>
                                 <Col span={8}><Field label="Teléfono" value={`0${String(student.phone).slice(0,3)}-${String(student.phone).slice(3,10)}`}/></Col>
                                 <Col span={8}><Field label="Estado" value={student.status} /></Col>
@@ -514,9 +515,10 @@ const Enrollments = () => {
                                     <Select
                                         placeholder="Seleccione una Sección"
                                         value={selectedSection || undefined}
+                                        // onChange={(e) => console.log(e)}
                                         onChange={handleSectionChange}
                                         options={sectionList.map(s => ({
-                                            value: s.id,
+                                            value: s.sectionId,
                                             label: `Sección ${s.code}`
                                         }))}
                                         style={{ width: '100%' }}

@@ -1,4 +1,4 @@
-import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod, cancelInvoice, issueInvoice, createUser, getUserById } from '../client/client'
+import { openSection, closeSection, getDocument, uploadStudentDocument, getStudentDocuments, getSectionByPeriod, cancelInvoice, issueInvoice, createUser, getUserById, getSectionScores } from '../client/client'
 import { Modal, Button, Input, InputNumber, Select, Form, Space, message, List, DatePicker, Tooltip, Divider, Descriptions, Table, Spin, Empty } from 'antd'
 import { useState, useEffect, useContext, useMemo } from 'react'
 import { appContext } from '../context/appContext'
@@ -2319,7 +2319,7 @@ export const ViewGradesSectionModal = ({ open, onCancel, period }) => {
 
     const fetchGrades = async (sectionCode) => {
         setLoading(true);
-        const res = await getGradeStudentsBySection(period.id, sectionCode);
+        const res = await getSectionScores(period.id, sectionCode);
         console.log(res);
         if (res.status === 200) {
             setRawData(res.data);
